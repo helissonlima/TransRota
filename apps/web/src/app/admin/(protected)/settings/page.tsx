@@ -1,0 +1,117 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import { Settings, CreditCard, Check } from 'lucide-react';
+import adminApi from '@/lib/admin-api';
+import { cn } from '@/lib/cn';
+
+interface Plan {
+  id: string;
+  name: string;
+  type: string;
+  maxVehicles: number;
+  maxDrivers: number;
+  maxUsers: number;
+  maxBranches: number;
+  storageGb: number;
+  priceMonthly: number;
+  isActive: boolean;
+}
+
+export default function AdminSettingsPage() {
+  const { data: plans = [], isLoading } = useQuery<Plan[]>({
+    queryKey: ['admin', 'plans'],
+    queryFn: async () => {
+      const { data } = await adminApi.get('/admin/plans');
+      return data;
+    },
+  });
+
+  const planColor: Record<string, string> = {
+    STARTER: 'border-blue-500/30 bg-blue-500/5',
+    PROFESSIONAL: 'border-purple-500/30 bg-purple-500/5',
+    ENTERPRISE: 'border-amber-500/30 bg-amber-500/5',
+  };
+  const planBadge: Record<string, string> = {
+    STARTER: 'text-blue-400',
+    PROFESSIONAL: 'text-purple-400',
+    ENTERPRISE: 'text-amber-400',
+  };
+
+  return (
+    <div className="p-6 space-y-8">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center justify-center">
+          <Settings className="w-5 h-5 text-[#64748b]" />
+        </div>
+        <div>
+          <h1 className="text-white text-2xl font-bold">Configurações</h1>
+          <p className="text-[#64748b] text-sm mt-0.5">Planos e configurações globais do SaaS</p>
+        </div>
+      </div>
+
+      {/* Plans section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <CreditCard className="w-4 h-4 text-[#64748b]" />
+          <h2 className="text-white font-semibold">Planos Disponíveis</h2>
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className={cn(
+                  'border rounded-xl p-5 space-y-4',
+                  planColor[plan.type] ?? 'border-[#1e2d4a] bg-[#0b1120]',
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <span className={cn('text-sm font-bold', planBadge[plan.type] ?? 'text-white')}>
+                    {plan.name}
+                  </span>
+                  <span className={cn('text-xs px-2 py-0.5 rounded-full border', plan.isActive ? 'text-emerald-400 border-emerald-500/30' : 'text-[#64748b] border-[#1e2d4a]')}>
+                    {plan.isActive ? 'Ativo' : 'Inativo'}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-white text-2xl font-bold">
+                    R$ {Number(plan.priceMonthly).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                  <span className="text-[#64748b] text-xs ml-1">/mês</span>
+                </div>
+
+                <ul className="space-y-1.5 text-[#94a3b8] text-sm">
+                  {[
+                    `${plan.maxVehicles} veículos`,
+                    `${plan.maxDrivers} motoristas`,
+                    `${plan.maxUsers} usuários`,
+                    `${plan.maxBranches} filiais`,
+                    `${plan.storageGb} GB armazenamento`,
+                  ].map((item) => (
+                    <li key={item} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Info box */}
+      <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 text-sm text-[#64748b]">
+        <p className="text-white font-medium mb-1">Configurações avançadas</p>
+        <p>SMTP, integrações e parâmetros globais serão disponibilizados em breve.</p>
+      </div>
+    </div>
+  );
+}

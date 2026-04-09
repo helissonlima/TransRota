@@ -1,0 +1,122 @@
+// Schema MASTER — banco público, dados globais do SaaS
+// Nenhum dado de negócio do tenant deve ficar aqui
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../generated/master"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_MASTER_URL")
+  schemas  = ["public"]
+}
+
+// ─── Planos de Assinatura ────────────────────────────────────────────────────
+
+model Plan {
+  id              String    @id @default(uuid())
+  name            String
+  type            PlanType
+  maxVehicles     Int
+  maxDrivers      Int
+  maxUsers        Int
+  maxBranches     Int
+  storageGb       Int
+  priceMonthly    Decimal   @db.Decimal(10, 2)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  companies       Company[]
+
+  @@schema("public")
+}
+
+enum PlanType {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+
+  @@schema("public")
+}
+
+// ─── Empresas (Tenants) ──────────────────────────────────────────────────────
+
+model Company {
+  id              String         @id @default(uuid())
+  name            String
+  cnpj            String         @unique
+  email           String
+  phone           String?
+  schemaName      String         @unique // ex: tenant_abc123
+  planId          String
+  plan            Plan           @relation(fields: [planId], references: [id])
+  isActive        Boolean        @default(true)
+  trialEndsAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  subscriptions   Subscription[]
+  auditLogs       MasterAuditLog[]
+
+  @@schema("public")
+}
+
+// ─── Assinaturas ────────────────────────────────────────────────────────────
+
+model Subscription {
+  id          String             @id @default(uuid())
+  companyId   String
+  company     Company            @relation(fields: [companyId], references: [id])
+  planId      String
+  status      SubscriptionStatus
+  startsAt    DateTime
+  endsAt      DateTime?
+  cancelledAt DateTime?
+  createdAt   DateTime           @default(now())
+
+  @@schema("public")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+
+  @@schema("public")
+}
+
+// ─── Super Admins (acesso global ao painel SaaS) ─────────────────────────────
+
+model SuperAdmin {
+  id               String    @id @default(uuid())
+  name             String
+  email            String    @unique
+  passwordHash     String
+  isActive         Boolean   @default(true)
+  refreshTokenHash String?
+  lastLoginAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@schema("public")
+}
+
+// ─── Auditoria Master ────────────────────────────────────────────────────────
+
+model MasterAuditLog {
+  id         String   @id @default(uuid())
+  companyId  String?
+  company    Company? @relation(fields: [companyId], references: [id])
+  action     String
+  entityType String
+  entityId   String?
+  userId     String?
+  userEmail  String?
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@schema("public")
+}

@@ -1,0 +1,6 @@
+{
+  "name": "saas-frota",
+  "description": "Arquitetura completa de SaaS para gest\u00e3o de frota e rotas",
+  "version": "1.0.0",
+  "entry": "skill.md"
+}
