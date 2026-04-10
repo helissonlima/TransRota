@@ -23,6 +23,9 @@ import {
   Truck,
   User,
   Eye,
+  Fuel,
+  MapPin,
+  Shield,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
@@ -37,6 +40,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/cn';
 
 type ChecklistType = 'PRE_TRIP' | 'POST_TRIP' | 'MAINTENANCE' | 'PERIODIC';
+type ResolutionStatus = 'PENDING' | 'RESOLVED' | 'APPROVED';
 
 interface ChecklistItem {
   id?: string;
@@ -60,10 +64,29 @@ interface ChecklistExecution {
   createdAt: string;
   hasIssues: boolean;
   completedAt?: string;
+  resolutionStatus?: ResolutionStatus;
+  inspectorId?: string;
+  inspectorName?: string;
+  fuelLevel?: string;
+  externalDamage?: string;
+  internalDamage?: string;
+  unitLocation?: string;
   vehicle: { plate: string; brand: string };
   driver: { name: string };
   checklist: { name: string; type: ChecklistType };
   _count?: { issues: number };
+}
+
+interface Vehicle {
+  id: string;
+  plate: string;
+  brand: string;
+  model: string;
+}
+
+interface Driver {
+  id: string;
+  name: string;
 }
 
 const TYPE_CONFIG: Record<ChecklistType, {
@@ -103,6 +126,17 @@ const TYPE_CONFIG: Record<ChecklistType, {
   },
 };
 
+const RESOLUTION_CONFIG: Record<ResolutionStatus, {
+  label: string;
+  variant: 'orange' | 'info' | 'success';
+}> = {
+  PENDING: { label: 'Pendente', variant: 'orange' },
+  RESOLVED: { label: 'Resolvido', variant: 'info' },
+  APPROVED: { label: 'Aprovado', variant: 'success' },
+};
+
+const FUEL_LEVELS = ['1/4', '2/4', '3/4', 'CHEIO'];
+
 const checklistSchema = z.object({
   name: z.string().min(3, 'Nome obrigatório'),
   type: z.enum(['PRE_TRIP', 'POST_TRIP', 'MAINTENANCE', 'PERIODIC']),
@@ -115,91 +149,18 @@ const checklistSchema = z.object({
   ).min(1, 'Adicione ao menos 1 item'),
 });
 
+const executeSchema = z.object({
+  vehicleId: z.string().min(1, 'Veículo obrigatório'),
+  driverId: z.string().min(1, 'Motorista obrigatório'),
+  inspectorId: z.string().optional(),
+  fuelLevel: z.string().optional(),
+  externalDamage: z.string().optional(),
+  internalDamage: z.string().optional(),
+  unitLocation: z.string().optional(),
+});
+
 type ChecklistFormData = z.infer<typeof checklistSchema>;
-
-const MOCK_EXECUTIONS: ChecklistExecution[] = [
-  {
-    id: '1',
-    createdAt: new Date().toISOString(),
-    hasIssues: false,
-    completedAt: new Date().toISOString(),
-    vehicle: { plate: 'ABC-1234', brand: 'Mercedes-Benz' },
-    driver: { name: 'Carlos Silva' },
-    checklist: { name: 'Inspeção Pré-Viagem', type: 'PRE_TRIP' },
-    _count: { issues: 0 },
-  },
-  {
-    id: '2',
-    createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-    hasIssues: true,
-    completedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    vehicle: { plate: 'DEF-5678', brand: 'Volvo' },
-    driver: { name: 'Ana Souza' },
-    checklist: { name: 'Inspeção Pré-Viagem', type: 'PRE_TRIP' },
-    _count: { issues: 2 },
-  },
-  {
-    id: '3',
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    hasIssues: false,
-    completedAt: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
-    vehicle: { plate: 'GHI-9012', brand: 'Scania' },
-    driver: { name: 'Paulo Martins' },
-    checklist: { name: 'Revisão Pós-Viagem', type: 'POST_TRIP' },
-    _count: { issues: 0 },
-  },
-  {
-    id: '4',
-    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    hasIssues: true,
-    completedAt: undefined,
-    vehicle: { plate: 'JKL-3456', brand: 'Ford' },
-    driver: { name: 'Maria Lima' },
-    checklist: { name: 'Manutenção Preventiva', type: 'MAINTENANCE' },
-    _count: { issues: 5 },
-  },
-];
-
-const MOCK_TEMPLATES: ChecklistTemplate[] = [
-  {
-    id: '1', name: 'Inspeção Pré-Viagem', type: 'PRE_TRIP',
-    description: 'Verificações obrigatórias antes de iniciar qualquer viagem',
-    items: [
-      { description: 'Verificar nível do óleo', required: true },
-      { description: 'Verificar nível do combustível', required: true },
-      { description: 'Verificar pneus (calibragem e estado)', required: true },
-      { description: 'Testar luzes e faróis', required: true },
-      { description: 'Verificar freios', required: true },
-    ],
-    _count: { executions: 142 },
-    isActive: true,
-  },
-  {
-    id: '2', name: 'Revisão Pós-Viagem', type: 'POST_TRIP',
-    description: 'Inspeção ao finalizar a rota',
-    items: [
-      { description: 'Verificar estado geral do veículo', required: true },
-      { description: 'Registrar km percorrido', required: true },
-      { description: 'Relatar eventuais danos', required: false },
-    ],
-    _count: { executions: 98 },
-    isActive: true,
-  },
-  {
-    id: '3', name: 'Manutenção Preventiva', type: 'MAINTENANCE',
-    description: 'Checklist para manutenção periódica',
-    items: [
-      { description: 'Troca de óleo e filtro', required: true },
-      { description: 'Verificar correia dentada', required: true },
-      { description: 'Checar sistema de arrefecimento', required: true },
-      { description: 'Inspecionar embreagem', required: true },
-      { description: 'Verificar bateria', required: false },
-      { description: 'Checar filtro de ar', required: true },
-    ],
-    _count: { executions: 34 },
-    isActive: true,
-  },
-];
+type ExecuteFormData = z.infer<typeof executeSchema>;
 
 export default function ChecklistsPage() {
   const qc = useQueryClient();
@@ -207,21 +168,33 @@ export default function ChecklistsPage() {
   const [typeFilter, setTypeFilter] = useState<ChecklistType | ''>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ChecklistTemplate | null>(null);
+  const [executeModalOpen, setExecuteModalOpen] = useState(false);
+  const [executingTemplate, setExecutingTemplate] = useState<ChecklistTemplate | null>(null);
 
-  const { data: templates = MOCK_TEMPLATES, isLoading: loadingTemplates } = useQuery<ChecklistTemplate[]>({
+  const { data: templates = [], isLoading: loadingTemplates } = useQuery<ChecklistTemplate[]>({
     queryKey: ['checklists', typeFilter],
     queryFn: () =>
-      api.get('/checklists', { params: { type: typeFilter || undefined } })
-        .then((r) => r.data)
-        .catch(() => MOCK_TEMPLATES),
+      api.get('/checklists', { params: { type: typeFilter || undefined } }).then((r) => r.data),
   });
 
-  const { data: executions = MOCK_EXECUTIONS, isLoading: loadingExecutions } = useQuery<ChecklistExecution[]>({
+  const { data: executions = [], isLoading: loadingExecutions } = useQuery<ChecklistExecution[]>({
     queryKey: ['checklist-executions'],
     queryFn: () =>
-      api.get('/checklists/executions', { params: { limit: 20 } })
-        .then((r) => r.data)
-        .catch(() => MOCK_EXECUTIONS),
+      api.get('/checklists/executions', { params: { limit: 20 } }).then((r) => r.data),
+  });
+
+  const { data: vehicles = [] } = useQuery<Vehicle[]>({
+    queryKey: ['vehicles-select'],
+    queryFn: () =>
+      api.get('/vehicles', { params: { status: 'ACTIVE', limit: 200 } }).then((r) => r.data?.vehicles ?? r.data),
+    enabled: executeModalOpen,
+  });
+
+  const { data: drivers = [] } = useQuery<Driver[]>({
+    queryKey: ['drivers-select'],
+    queryFn: () =>
+      api.get('/drivers', { params: { status: 'ACTIVE', limit: 200 } }).then((r) => r.data?.drivers ?? r.data),
+    enabled: executeModalOpen,
   });
 
   const createMutation = useMutation({
@@ -235,12 +208,35 @@ export default function ChecklistsPage() {
     onError: () => toast.error('Erro ao criar checklist.'),
   });
 
-  const { register, handleSubmit, reset, control, watch, formState: { errors } } = useForm<ChecklistFormData>({
+  const executeMutation = useMutation({
+    mutationFn: (data: ExecuteFormData) =>
+      api.post(`/checklists/${executingTemplate!.id}/execute`, data),
+    onSuccess: () => {
+      toast.success('Execução iniciada com sucesso!');
+      qc.invalidateQueries({ queryKey: ['checklist-executions'] });
+      setExecuteModalOpen(false);
+      resetExecute();
+      setExecutingTemplate(null);
+    },
+    onError: () => toast.error('Erro ao iniciar execução.'),
+  });
+
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<ChecklistFormData>({
     resolver: zodResolver(checklistSchema),
     defaultValues: {
       type: 'PRE_TRIP',
       items: [{ description: '', required: true }],
     },
+  });
+
+  const {
+    register: registerExecute,
+    handleSubmit: handleSubmitExecute,
+    reset: resetExecute,
+    formState: { errors: executeErrors },
+  } = useForm<ExecuteFormData>({
+    resolver: zodResolver(executeSchema),
+    defaultValues: { fuelLevel: '' },
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
@@ -250,6 +246,12 @@ export default function ChecklistsPage() {
       t.name.toLowerCase().includes(search.toLowerCase()) &&
       (typeFilter === '' || t.type === typeFilter),
   );
+
+  function openExecuteModal(template: ChecklistTemplate) {
+    setExecutingTemplate(template);
+    setSelectedTemplate(null);
+    setExecuteModalOpen(true);
+  }
 
   const executionColumns: Column<ChecklistExecution>[] = [
     {
@@ -299,13 +301,25 @@ export default function ChecklistsPage() {
       ),
     },
     {
+      key: 'fuelLevel',
+      header: 'Combustível',
+      cell: (row) => (
+        <span className="text-sm text-brand-text-secondary">
+          {row.fuelLevel || '—'}
+        </span>
+      ),
+    },
+    {
       key: 'hasIssues',
       header: 'Status',
       cell: (row) => {
+        // Use resolutionStatus if available
+        if (row.resolutionStatus) {
+          const config = RESOLUTION_CONFIG[row.resolutionStatus];
+          return <Badge variant={config.variant} dot>{config.label}</Badge>;
+        }
         if (!row.completedAt) {
-          return (
-            <Badge variant="warning" dot>Em Andamento</Badge>
-          );
+          return <Badge variant="warning" dot>Em Andamento</Badge>;
         }
         if (row.hasIssues) {
           return (
@@ -610,7 +624,10 @@ export default function ChecklistsPage() {
           footer={
             <>
               <Button variant="secondary" onClick={() => setSelectedTemplate(null)}>Fechar</Button>
-              <Button leftIcon={<ClipboardCheck className="w-4 h-4" />}>
+              <Button
+                leftIcon={<ClipboardCheck className="w-4 h-4" />}
+                onClick={() => openExecuteModal(selectedTemplate)}
+              >
                 Iniciar Execução
               </Button>
             </>
@@ -648,6 +665,118 @@ export default function ChecklistsPage() {
               </div>
             </div>
           </div>
+        </Modal>
+      )}
+
+      {/* Execute Checklist Modal */}
+      {executingTemplate && (
+        <Modal
+          open={executeModalOpen}
+          onClose={() => { setExecuteModalOpen(false); resetExecute(); setExecutingTemplate(null); }}
+          title={`Executar: ${executingTemplate.name}`}
+          description="Preencha os dados da inspeção antes de iniciar."
+          size="lg"
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => { setExecuteModalOpen(false); resetExecute(); setExecutingTemplate(null); }}>Cancelar</Button>
+              <Button
+                loading={executeMutation.isPending}
+                leftIcon={<ClipboardCheck className="w-4 h-4" />}
+                onClick={handleSubmitExecute(
+                  (d) => executeMutation.mutate(d),
+                  () => toast.error('Preencha todos os campos obrigatórios'),
+                )}
+              >
+                Iniciar Execução
+              </Button>
+            </>
+          }
+        >
+          <form className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Veículo *</label>
+                <select {...registerExecute('vehicleId')} className={cn('input-base', executeErrors.vehicleId && 'border-danger-400')}>
+                  <option value="">Selecione o veículo</option>
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>
+                  ))}
+                </select>
+                {executeErrors.vehicleId && <p className="text-danger-500 text-xs mt-1">{executeErrors.vehicleId.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Motorista *</label>
+                <select {...registerExecute('driverId')} className={cn('input-base', executeErrors.driverId && 'border-danger-400')}>
+                  <option value="">Selecione o motorista</option>
+                  {drivers.map((d) => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+                {executeErrors.driverId && <p className="text-danger-500 text-xs mt-1">{executeErrors.driverId.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                  <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Inspetor</span>
+                </label>
+                <input
+                  {...registerExecute('inspectorId')}
+                  placeholder="Nome ou ID do inspetor"
+                  className="input-base"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                  <span className="flex items-center gap-1.5"><Fuel className="w-3.5 h-3.5" /> Nível de Combustível</span>
+                </label>
+                <select {...registerExecute('fuelLevel')} className="input-base">
+                  <option value="">Selecione</option>
+                  {FUEL_LEVELS.map((level) => (
+                    <option key={level} value={level}>{level}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                  <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Localização da Unidade</span>
+                </label>
+                <input
+                  {...registerExecute('unitLocation')}
+                  placeholder="Ex: Pátio Norte, Filial SP..."
+                  className="input-base"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                  <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-warning-500" /> Avaria Externa</span>
+                </label>
+                <textarea
+                  {...registerExecute('externalDamage')}
+                  placeholder="Descreva avarias externas (se houver)..."
+                  rows={3}
+                  className="input-base resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                  <span className="flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5 text-warning-500" /> Avaria Interna</span>
+                </label>
+                <textarea
+                  {...registerExecute('internalDamage')}
+                  placeholder="Descreva avarias internas (se houver)..."
+                  rows={3}
+                  className="input-base resize-none"
+                />
+              </div>
+            </div>
+          </form>
         </Modal>
       )}
     </div>

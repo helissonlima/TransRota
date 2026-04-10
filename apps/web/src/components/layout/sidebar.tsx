@@ -15,6 +15,10 @@ import {
   LayoutDashboard,
   ChevronLeft,
   ChevronRight,
+  Route,
+  CalendarDays,
+  Receipt,
+  Cpu,
 } from 'lucide-react';
 import { logout } from '@/lib/auth';
 import { cn } from '@/lib/cn';
@@ -32,6 +36,10 @@ const navItems: NavItem[] = [
   { label: 'Motoristas', href: '/drivers', icon: Users },
   { label: 'Rotas', href: '/routes', icon: MapPin },
   { label: 'Checklists', href: '/checklists', icon: ClipboardList },
+  { label: 'KM Diário', href: '/daily-km', icon: Route },
+  { label: 'Agendamento', href: '/bookings', icon: CalendarDays },
+  { label: 'Financeiro', href: '/fiscal', icon: Receipt },
+  { label: 'Equipamentos', href: '/equipment', icon: Cpu },
   { label: 'Relatórios', href: '/reports', icon: BarChart2 },
   { label: 'Configurações', href: '/settings', icon: Settings },
 ];

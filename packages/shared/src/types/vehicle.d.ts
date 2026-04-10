@@ -18,6 +18,34 @@ export declare enum FuelType {
     ELECTRIC = "ELECTRIC",
     FLEX = "FLEX"
 }
+export declare enum OilChangeStatus {
+    UP_TO_DATE = "UP_TO_DATE",
+    DUE_SOON = "DUE_SOON",
+    OVERDUE = "OVERDUE"
+}
+export declare enum DailyKmStatus {
+    OK = "OK",
+    NOK = "NOK"
+}
+export declare enum BookingStatus {
+    PENDING = "PENDING",
+    CONFIRMED = "CONFIRMED",
+    CANCELLED = "CANCELLED",
+    COMPLETED = "COMPLETED"
+}
+export declare enum TaxType {
+    IPVA = "IPVA",
+    LICENSING = "LICENSING",
+    INSURANCE = "INSURANCE",
+    FINE = "FINE",
+    OTHER = "OTHER"
+}
+export declare enum PaymentStatus {
+    PENDING = "PENDING",
+    PAID = "PAID",
+    OVERDUE = "OVERDUE",
+    EXEMPT = "EXEMPT"
+}
 export interface Vehicle {
     id: string;
     plate: string;

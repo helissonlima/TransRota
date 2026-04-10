@@ -21,6 +21,39 @@ export enum FuelType {
   FLEX = 'FLEX',
 }
 
+export enum OilChangeStatus {
+  UP_TO_DATE = 'UP_TO_DATE',
+  DUE_SOON = 'DUE_SOON',
+  OVERDUE = 'OVERDUE',
+}
+
+export enum DailyKmStatus {
+  OK = 'OK',
+  NOK = 'NOK',
+}
+
+export enum BookingStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+}
+
+export enum TaxType {
+  IPVA = 'IPVA',
+  LICENSING = 'LICENSING',
+  INSURANCE = 'INSURANCE',
+  FINE = 'FINE',
+  OTHER = 'OTHER',
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  OVERDUE = 'OVERDUE',
+  EXEMPT = 'EXEMPT',
+}
+
 export interface Vehicle {
   id: string;
   plate: string;

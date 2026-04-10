@@ -12,6 +12,10 @@ import { ChecklistModule } from './checklist/checklist.module';
 import { ReportsModule } from './reports/reports.module';
 import { TenantMiddleware } from './tenant/tenant.middleware';
 import { MasterPrismaModule } from './core/prisma/master-prisma.module';
+import { DailyKmModule } from './daily-km/daily-km.module';
+import { BookingsModule } from './bookings/bookings.module';
+import { TaxesModule } from './taxes/taxes.module';
+import { EquipmentModule } from './equipment/equipment.module';
 
 @Module({
   imports: [
@@ -27,6 +31,10 @@ import { MasterPrismaModule } from './core/prisma/master-prisma.module';
     RoutesModule,
     ChecklistModule,
     ReportsModule,
+    DailyKmModule,
+    BookingsModule,
+    TaxesModule,
+    EquipmentModule,
   ],
 })
 export class AppModule {

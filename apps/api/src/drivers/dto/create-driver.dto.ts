@@ -42,4 +42,61 @@ export class CreateDriverDto {
   @IsOptional()
   @IsUUID()
   branchId?: string;
+
+  // --- New optional fields ---
+
+  @ApiProperty({ required: false, example: '1990-05-20' })
+  @IsOptional()
+  @IsDateString()
+  birthDate?: string;
+
+  @ApiProperty({ required: false, example: '12.345.678-9' })
+  @IsOptional()
+  @IsString()
+  rg?: string;
+
+  @ApiProperty({ required: false, example: 'SSP' })
+  @IsOptional()
+  @IsString()
+  rgIssuingOrg?: string;
+
+  @ApiProperty({ required: false, example: 'SP' })
+  @IsOptional()
+  @IsString()
+  rgIssuingState?: string;
+
+  @ApiProperty({ required: false, example: 'Brasileira' })
+  @IsOptional()
+  @IsString()
+  nationality?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  filiation?: string;
+
+  @ApiProperty({ required: false, example: '2005-01-10' })
+  @IsOptional()
+  @IsDateString()
+  licenseFirstDate?: string;
+
+  @ApiProperty({ required: false, example: '2022-01-10' })
+  @IsOptional()
+  @IsDateString()
+  licenseIssueDate?: string;
+
+  @ApiProperty({ required: false, example: 'DETRAN' })
+  @IsOptional()
+  @IsString()
+  licenseIssuingOrg?: string;
+
+  @ApiProperty({ required: false, example: 'SP' })
+  @IsOptional()
+  @IsString()
+  licenseIssuingState?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  licenseRegistrationNumber?: string;
 }

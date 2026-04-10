@@ -12,10 +12,11 @@ export class CreateMaintenanceDto {
   @IsNotEmpty()
   description: string;
 
-  @ApiProperty({ example: 450.00 })
+  @ApiProperty({ example: 450.00, required: false })
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  cost: number;
+  cost?: number;
 
   @ApiProperty({ example: 47500 })
   @IsNumber()
@@ -45,4 +46,28 @@ export class CreateMaintenanceDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  // --- New optional fields ---
+
+  @ApiProperty({ required: false, example: 200.00, description: 'Custo das peças' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  partsCost?: number;
+
+  @ApiProperty({ required: false, example: 150.00, description: 'Custo de mão de obra' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  laborCost?: number;
+
+  @ApiProperty({ required: false, example: 'NF-001234' })
+  @IsOptional()
+  @IsString()
+  invoiceNumber?: string;
+
+  @ApiProperty({ required: false, example: 'Oficina Central Ltda' })
+  @IsOptional()
+  @IsString()
+  workshopName?: string;
 }

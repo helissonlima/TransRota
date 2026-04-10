@@ -53,6 +53,14 @@ export class ChecklistService {
         driverId: dto.driverId,
         routeId: dto.routeId,
         hasIssues,
+        ...(dto.inspectorId ? { inspectorId: dto.inspectorId } : {}),
+        ...(dto.fuelLevel !== undefined ? { fuelLevel: dto.fuelLevel } : {}),
+        ...(dto.externalDamage ? { externalDamage: dto.externalDamage } : {}),
+        ...(dto.internalDamage ? { internalDamage: dto.internalDamage } : {}),
+        ...(dto.unitLocation ? { unitLocation: dto.unitLocation } : {}),
+        ...(dto.attachments ? { attachments: dto.attachments } : {}),
+        ...(dto.resolutionStatus ? { resolutionStatus: dto.resolutionStatus as any } : {}),
+        ...(dto.resolvedById ? { resolvedById: dto.resolvedById } : {}),
         responses: {
           create: dto.responses.map((r) => ({
             itemId: r.itemId,
@@ -63,7 +71,7 @@ export class ChecklistService {
         },
       },
       include: { responses: true },
-    });
+    } as any);
 
     // Se houver itens NOK obrigatórios, coloca veículo em manutenção
     if (hasIssues) {

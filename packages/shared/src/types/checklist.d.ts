@@ -8,6 +8,11 @@ export declare enum ChecklistItemStatus {
     NOK = "NOK",
     NA = "NA"
 }
+export declare enum InspectionStatus {
+    PENDING = "PENDING",
+    RESOLVED = "RESOLVED",
+    APPROVED = "APPROVED"
+}
 export interface Checklist {
     id: string;
     name: string;

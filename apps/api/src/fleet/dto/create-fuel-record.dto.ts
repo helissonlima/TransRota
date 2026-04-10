@@ -43,4 +43,9 @@ export class CreateFuelRecordDto {
   @ApiProperty()
   @IsDateString()
   performedAt: string;
+
+  @ApiProperty({ required: false, example: 'NF-005678' })
+  @IsOptional()
+  @IsString()
+  invoiceNumber?: string;
 }
