@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Building2, Activity, Circle, Search, ToggleLeft, ToggleRight, ChevronRight } from 'lucide-react';
+import { Building2, Activity, Circle, Search, ToggleLeft, ToggleRight, ChevronRight, Plus, X, Eye, EyeOff } from 'lucide-react';
 import adminApi from '@/lib/admin-api';
 import { cn } from '@/lib/cn';
 
@@ -23,6 +23,16 @@ export default function AdminCompaniesPage() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [search, setSearch] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [form, setForm] = useState({
+    name: '', cnpj: '', email: '', phone: '',
+    adminName: '', adminEmail: '', adminPassword: '',
+  });
+
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const { data: companies = [], isLoading } = useQuery<Company[]>({
     queryKey: ['admin', 'companies'],
@@ -35,6 +45,25 @@ export default function AdminCompaniesPage() {
   const toggle = useMutation({
     mutationFn: (id: string) => adminApi.patch(`/admin/companies/${id}/toggle`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'companies'] }),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: () => {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+      return import('axios').then(({ default: axios }) =>
+        axios.post(`${baseUrl}/companies`, form)
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'companies'] });
+      setModalOpen(false);
+      setForm({ name: '', cnpj: '', email: '', phone: '', adminName: '', adminEmail: '', adminPassword: '' });
+      setFormError('');
+    },
+    onError: (e: any) => {
+      const msg = e?.response?.data?.message;
+      setFormError(Array.isArray(msg) ? msg.join(', ') : (msg ?? 'Erro ao criar empresa'));
+    },
   });
 
   const filtered = companies.filter(
@@ -57,7 +86,115 @@ export default function AdminCompaniesPage() {
           <h1 className="text-white text-2xl font-bold">Empresas</h1>
           <p className="text-[#64748b] text-sm mt-0.5">{companies.length} empresa{companies.length !== 1 ? 's' : ''} cadastrada{companies.length !== 1 ? 's' : ''}</p>
         </div>
+        <button
+          onClick={() => { setModalOpen(true); setFormError(''); }}
+          className="flex items-center gap-2 bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Nova Empresa
+        </button>
       </div>
+
+      {/* Modal Nova Empresa */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#0d1b36] border border-[#1e2d4a] rounded-2xl w-full max-w-lg mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e2d4a] sticky top-0 bg-[#0d1b36] z-10">
+              <h2 className="text-white font-bold text-lg">Nova Empresa</h2>
+              <button onClick={() => setModalOpen(false)} className="text-[#64748b] hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {formError && (
+                <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
+                  {formError}
+                </div>
+              )}
+
+              <p className="text-[#64748b] text-xs font-semibold uppercase tracking-wider">Dados da Empresa</p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-[#94a3b8] text-xs font-semibold mb-1.5">Razão Social *</label>
+                  <input value={form.name} onChange={set('name')} placeholder="Transportadora Exemplo Ltda"
+                    className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] outline-none focus:border-primary-500 transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-[#94a3b8] text-xs font-semibold mb-1.5">CNPJ *</label>
+                  <input value={form.cnpj} onChange={set('cnpj')} placeholder="00.000.000/0001-00"
+                    className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] font-mono outline-none focus:border-primary-500 transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-[#94a3b8] text-xs font-semibold mb-1.5">Telefone</label>
+                  <input value={form.phone} onChange={set('phone')} placeholder="(11) 99999-9999"
+                    className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] outline-none focus:border-primary-500 transition-colors" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-[#94a3b8] text-xs font-semibold mb-1.5">E-mail da Empresa *</label>
+                  <input type="email" value={form.email} onChange={set('email')} placeholder="contato@empresa.com"
+                    className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] outline-none focus:border-primary-500 transition-colors" />
+                </div>
+              </div>
+
+              <div className="border-t border-[#1e2d4a] pt-5">
+                <p className="text-[#64748b] text-xs font-semibold uppercase tracking-wider mb-4">Usuário Administrador</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label className="block text-[#94a3b8] text-xs font-semibold mb-1.5">Nome do Admin *</label>
+                    <input value={form.adminName} onChange={set('adminName')} placeholder="Nome completo"
+                      className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] outline-none focus:border-primary-500 transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-[#94a3b8] text-xs font-semibold mb-1.5">E-mail do Admin *</label>
+                    <input type="email" value={form.adminEmail} onChange={set('adminEmail')} placeholder="admin@empresa.com"
+                      className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#475569] outline-none focus:border-primary-500 transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-[#94a3b8] text-xs font-semibold mb-1.5">Senha do Admin *</label>
+                    <div className="relative">
+                      <input
+                        type={showPass ? 'text' : 'password'}
+                        value={form.adminPassword}
+                        onChange={set('adminPassword')}
+                        placeholder="Mínimo 8 caracteres"
+                        className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 pr-10 text-sm text-white placeholder-[#475569] outline-none focus:border-primary-500 transition-colors"
+                      />
+                      <button type="button" onClick={() => setShowPass((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-white transition-colors">
+                        {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#1e2d4a] sticky bottom-0 bg-[#0d1b36]">
+              <button onClick={() => setModalOpen(false)} className="text-[#94a3b8] hover:text-white text-sm px-4 py-2 rounded-lg transition-colors">
+                Cancelar
+              </button>
+              <button
+                onClick={() => createMutation.mutate()}
+                disabled={
+                  createMutation.isPending ||
+                  !form.name || !form.cnpj || !form.email ||
+                  !form.adminName || !form.adminEmail || form.adminPassword.length < 8
+                }
+                className="flex items-center gap-2 bg-primary-600 hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              >
+                {createMutation.isPending ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Plus className="w-4 h-4" />
+                )}
+                Criar Empresa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Search */}
       <div className="relative">

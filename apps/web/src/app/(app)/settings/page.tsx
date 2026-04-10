@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -94,21 +94,23 @@ function CopyField({ label, value, mono = false }: { label: string; value: strin
   );
 }
 
-function PasswordInput({ label, error, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
-  const [show, setShow] = useState(false);
-  return (
-    <div>
-      <label className="block text-sm font-medium text-brand-text-primary mb-1.5">{label}</label>
-      <div className="relative">
-        <input {...props} type={show ? 'text' : 'password'} className={cn('input-base pr-10', error && 'border-danger-400 focus:border-danger-500')} />
-        <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-secondary hover:text-brand-text-primary transition-colors">
-          {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-        </button>
+const PasswordInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }>(
+  function PasswordInput({ label, error, ...props }, ref) {
+    const [show, setShow] = useState(false);
+    return (
+      <div>
+        <label className="block text-sm font-medium text-brand-text-primary mb-1.5">{label}</label>
+        <div className="relative">
+          <input ref={ref} {...props} type={show ? 'text' : 'password'} className={cn('input-base pr-10', error && 'border-danger-400 focus:border-danger-500')} />
+          <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-secondary hover:text-brand-text-primary transition-colors">
+            {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
+        {error && <p className="text-danger-500 text-xs mt-1">{error}</p>}
       </div>
-      {error && <p className="text-danger-500 text-xs mt-1">{error}</p>}
-    </div>
-  );
-}
+    );
+  }
+);
 
 export default function SettingsPage() {
   const qc = useQueryClient();

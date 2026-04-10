@@ -36,6 +36,7 @@ export class AppModule {
       .apply(TenantMiddleware)
       .exclude(
         { path: 'companies', method: RequestMethod.POST },
+        { path: 'companies', method: RequestMethod.GET },
         { path: 'health', method: RequestMethod.GET },
         { path: 'admin/auth/login', method: RequestMethod.POST },
       )

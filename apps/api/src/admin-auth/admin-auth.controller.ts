@@ -70,6 +70,13 @@ export class AdminUsersController {
   list() {
     return this.adminAuthService.listAdmins();
   }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Criar novo super admin' })
+  create(@Body() dto: { name: string; email: string; password: string }) {
+    return this.adminAuthService.createAdmin(dto);
+  }
 }
 
 @ApiTags('Admin Plans')

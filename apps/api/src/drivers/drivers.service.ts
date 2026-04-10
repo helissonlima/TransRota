@@ -12,13 +12,32 @@ export class DriversService {
     });
     if (existing) throw new ConflictException('CPF ou CNH já cadastrado');
 
-    return prisma.driver.create({ data: dto });
+    const { branchId, ...rest } = dto;
+
+    // Se branchId não foi fornecido, usa a primeira branch disponível do tenant
+    let resolvedBranchId = branchId;
+    if (!resolvedBranchId) {
+      const defaultBranch = await (prisma as any).branch.findFirst();
+      if (!defaultBranch) throw new ConflictException('Nenhuma filial cadastrada para este tenant');
+      resolvedBranchId = defaultBranch.id;
+    }
+
+    return prisma.driver.create({
+      data: {
+        ...rest,
+        licenseExpiry: new Date(rest.licenseExpiry),
+        branchId: resolvedBranchId,
+      } as any,
+    });
   }
 
   async findAll(prisma: TenantPrismaService, branchId?: string) {
     return prisma.driver.findMany({
       where: { isActive: true, ...(branchId ? { branchId } : {}) },
-      include: { branch: { select: { name: true } } },
+      include: {
+        branch: { select: { name: true } },
+        _count: { select: { routes: true } },
+      },
       orderBy: { name: 'asc' },
     });
   }

@@ -38,7 +38,7 @@ interface Driver {
   licenseCategory: string;
   licenseExpiry: string;
   status: string;
-  branch: { id: string; name: string };
+  branch?: { id: string; name: string };
   _count: { routes: number };
 }
 
@@ -61,6 +61,27 @@ function maskCPF(cpf: string): string {
   const digits = cpf.replace(/\D/g, '');
   if (digits.length !== 11) return cpf;
   return `${digits.slice(0, 3)}.***.***-${digits.slice(9)}`;
+}
+
+// Máscaras de entrada (para os campos do formulário)
+function applyMaskCPF(value: string): string {
+  const d = value.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
+  if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+}
+
+function applyMaskPhone(value: string): string {
+  const d = value.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 2) return d.length === 0 ? '' : `(${d}`;
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+function applyMaskCNH(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 11);
 }
 
 function ExpiryCountdown({ expiryDate }: { expiryDate: string }) {
@@ -94,12 +115,11 @@ function ExpiryCountdown({ expiryDate }: { expiryDate: string }) {
 
 const driverSchema = z.object({
   name: z.string().min(3, 'Nome obrigatório'),
-  cpf: z.string().min(11, 'CPF inválido').max(14),
-  phone: z.string().min(10, 'Telefone inválido'),
-  licenseNumber: z.string().min(9, 'CNH inválida'),
+  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido — preencha 11 dígitos'),
+  phone: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Telefone inválido — preencha DDD + número'),
+  licenseNumber: z.string().regex(/^\d{11}$/, 'CNH deve ter exatamente 11 dígitos'),
   licenseCategory: z.string().min(1, 'Categoria obrigatória'),
   licenseExpiry: z.string().min(1, 'Validade obrigatória'),
-  branchId: z.string().uuid('Filial obrigatória'),
 });
 
 type DriverFormData = z.infer<typeof driverSchema>;
@@ -117,11 +137,6 @@ export default function DriversPage() {
       api.get('/drivers', { params: { status: statusFilter || undefined } }).then((r) => r.data),
   });
 
-  const { data: branches = [] } = useQuery<Array<{ id: string; name: string }>>({
-    queryKey: ['branches'],
-    queryFn: () => api.get('/branches').then((r) => r.data),
-  });
-
   const createMutation = useMutation({
     mutationFn: (data: DriverFormData) => api.post('/drivers', data),
     onSuccess: () => {
@@ -133,9 +148,12 @@ export default function DriversPage() {
     onError: () => toast.error('Erro ao cadastrar motorista.'),
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<DriverFormData>({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<DriverFormData>({
     resolver: zodResolver(driverSchema),
   });
+  const cpfValue = watch('cpf') ?? '';
+  const phoneValue = watch('phone') ?? '';
+  const cnhValue = watch('licenseNumber') ?? '';
 
   const filtered = drivers.filter(
     (d) =>
@@ -330,10 +348,12 @@ export default function DriversPage() {
                         <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                         <span>{driver.phone}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-brand-text-secondary">
-                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span>{driver.branch.name}</span>
-                      </div>
+                      {driver.branch?.name && (
+                        <div className="flex items-center gap-2 text-xs text-brand-text-secondary">
+                          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>{driver.branch.name}</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 text-xs text-brand-text-secondary">
                         <Route className="w-3.5 h-3.5 flex-shrink-0" />
                         <span>{driver._count.routes} rotas realizadas</span>
@@ -388,18 +408,42 @@ export default function DriversPage() {
 
           <div>
             <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">CPF *</label>
-            <input {...register('cpf')} placeholder="000.000.000-00" className={cn('input-base font-mono', errors.cpf && 'border-danger-400')} />
+            <input
+              {...register('cpf')}
+              value={cpfValue}
+              onChange={(e) => setValue('cpf', applyMaskCPF(e.target.value), { shouldValidate: true })}
+              placeholder="000.000.000-00"
+              maxLength={14}
+              className={cn('input-base font-mono', errors.cpf && 'border-danger-400')}
+            />
             {errors.cpf && <p className="text-danger-500 text-xs mt-1">{errors.cpf.message}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Telefone *</label>
-            <input {...register('phone')} placeholder="(11) 99999-9999" className={cn('input-base', errors.phone && 'border-danger-400')} />
+            <input
+              {...register('phone')}
+              value={phoneValue}
+              onChange={(e) => setValue('phone', applyMaskPhone(e.target.value), { shouldValidate: true })}
+              placeholder="(11) 99999-9999"
+              maxLength={15}
+              className={cn('input-base', errors.phone && 'border-danger-400')}
+            />
+            {errors.phone && <p className="text-danger-500 text-xs mt-1">{errors.phone.message}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Número da CNH *</label>
-            <input {...register('licenseNumber')} placeholder="00000000000" className={cn('input-base font-mono', errors.licenseNumber && 'border-danger-400')} />
+            <input
+              {...register('licenseNumber')}
+              value={cnhValue}
+              onChange={(e) => setValue('licenseNumber', applyMaskCNH(e.target.value), { shouldValidate: true })}
+              placeholder="00000000000"
+              maxLength={11}
+              inputMode="numeric"
+              className={cn('input-base font-mono', errors.licenseNumber && 'border-danger-400')}
+            />
+            {errors.licenseNumber && <p className="text-danger-500 text-xs mt-1">{errors.licenseNumber.message}</p>}
           </div>
 
           <div>
@@ -417,16 +461,7 @@ export default function DriversPage() {
             <input {...register('licenseExpiry')} type="date" className={cn('input-base', errors.licenseExpiry && 'border-danger-400')} />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Filial *</label>
-            <select {...register('branchId')} className={cn('input-base', errors.branchId && 'border-danger-400')}>
-              <option value="">Selecionar filial...</option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-            {errors.branchId && <p className="text-danger-500 text-xs mt-1">{errors.branchId.message}</p>}
-          </div>
+
         </form>
       </Modal>
 
@@ -457,7 +492,6 @@ export default function DriversPage() {
                 { label: 'CNH', value: selected.licenseNumber, mono: true },
                 { label: 'Categoria', value: selected.licenseCategory },
                 { label: 'Validade CNH', value: format(parseISO(selected.licenseExpiry), 'dd/MM/yyyy') },
-                { label: 'Filial', value: selected.branch.name },
                 { label: 'Total de Rotas', value: selected._count.routes },
               ].map((item) => (
                 <div key={item.label} className="bg-slate-50 rounded-xl p-3">

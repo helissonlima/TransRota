@@ -49,7 +49,8 @@ export class CreateVehicleDto {
   @IsOptional()
   nextMaintenanceDate?: Date;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsUUID()
-  branchId: string;
+  branchId?: string;
 }

@@ -9,7 +9,24 @@ export class VehiclesService {
     const existing = await prisma.vehicle.findUnique({ where: { plate: dto.plate } });
     if (existing) throw new ConflictException('Placa já cadastrada');
 
-    return prisma.vehicle.create({ data: dto });
+    const { branchId, nextMaintenanceKm, nextMaintenanceDate, ...rest } = dto;
+
+    // Se branchId não foi fornecido, usa a primeira branch disponível do tenant
+    let resolvedBranchId = branchId;
+    if (!resolvedBranchId) {
+      const defaultBranch = await (prisma as any).branch.findFirst();
+      if (!defaultBranch) throw new ConflictException('Nenhuma filial cadastrada para este tenant');
+      resolvedBranchId = defaultBranch.id;
+    }
+
+    return prisma.vehicle.create({
+      data: {
+        ...rest,
+        branchId: resolvedBranchId,
+        ...(nextMaintenanceKm !== undefined ? { nextMaintenanceKm } : {}),
+        ...(nextMaintenanceDate ? { nextMaintenanceDate } : {}),
+      } as any,
+    });
   }
 
   async findAll(

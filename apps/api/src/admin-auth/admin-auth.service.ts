@@ -84,6 +84,16 @@ export class AdminAuthService {
     await prisma.user.update({ where: { id: userId }, data: { isActive: false } });
   }
 
+  async createAdmin(dto: { name: string; email: string; password: string }) {
+    const existing = await this.masterPrisma.superAdmin.findUnique({ where: { email: dto.email } });
+    if (existing) throw new ConflictException('E-mail já cadastrado');
+    const passwordHash = await bcrypt.hash(dto.password, 12);
+    return this.masterPrisma.superAdmin.create({
+      data: { name: dto.name, email: dto.email, passwordHash },
+      select: { id: true, name: true, email: true, isActive: true, createdAt: true },
+    });
+  }
+
   async login(email: string, password: string) {
     const admin = await this.masterPrisma.superAdmin.findUnique({ where: { email } });
     if (!admin || !admin.isActive) {

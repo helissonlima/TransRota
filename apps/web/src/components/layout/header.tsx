@@ -59,8 +59,10 @@ export function Header({ title, breadcrumbs, actions, notificationCount }: Heade
   const userRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const userName =
-    typeof window !== 'undefined' ? localStorage.getItem('userName') ?? 'Usuário' : 'Usuário';
+  const [userName, setUserName] = useState('Usuário');
+  useEffect(() => {
+    setUserName(localStorage.getItem('userName') ?? 'Usuário');
+  }, []);
   const initials = userName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
   const unreadCount = notificationCount ?? MOCK_NOTIFICATIONS.length;
 
@@ -156,9 +158,7 @@ export function Header({ title, breadcrumbs, actions, notificationCount }: Heade
                 className="h-9 px-3 flex items-center gap-2 text-sm text-brand-text-secondary hover:text-brand-text-primary bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
               >
                 <Search className="w-4 h-4" />
-                <span className="hidden md:flex items-center gap-1 text-xs">
-                  <kbd className="px-1 py-0.5 bg-white rounded border border-slate-200 text-2xs font-mono">⌘K</kbd>
-                </span>
+                <span className="hidden md:inline text-xs">Buscar</span>
               </button>
             )}
           </AnimatePresence>

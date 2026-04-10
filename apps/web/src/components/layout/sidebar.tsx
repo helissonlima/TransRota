@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -48,8 +48,10 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
   const collapsed = externalCollapsed ?? internalCollapsed;
   const toggle = onToggle ?? (() => setInternalCollapsed((c) => !c));
 
-  const userName =
-    typeof window !== 'undefined' ? localStorage.getItem('userName') ?? 'Usuário' : 'Usuário';
+  const [userName, setUserName] = useState('Usuário');
+  useEffect(() => {
+    setUserName(localStorage.getItem('userName') ?? 'Usuário');
+  }, []);
   const initials = userName
     .split(' ')
     .map((n) => n[0])

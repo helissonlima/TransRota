@@ -38,7 +38,7 @@ interface Vehicle {
   currentKm: number;
   nextMaintenanceKm?: number;
   nextMaintenanceDate?: string;
-  branch: { name: string };
+  branch?: { name: string };
   _count: { routes: number };
 }
 
@@ -58,8 +58,77 @@ const FUEL_LABELS: Record<string, { label: string; color: string }> = {
   GNV: { label: 'GNV', color: 'text-purple-500' },
 };
 
+const TYPE_LABELS: Record<string, string> = {
+  TRUCK: 'Caminhão',
+  VAN: 'Van / Furgão',
+  CAR: 'Carro / Passeio',
+  MOTORCYCLE: 'Moto',
+  BUS: 'Ônibus',
+  TRAILER: 'Carreta / Reboque',
+};
+
+const VEHICLE_CATALOG: Record<string, Record<string, string[]>> = {
+  TRUCK: {
+    'Mercedes-Benz': ['Accelo 815', 'Accelo 1016', 'Accelo 1316', 'Atego 1719', 'Atego 2430', 'Actros 2551', 'Actros 2651'],
+    'Volvo': ['FH 460', 'FH 500', 'FM 370', 'FM 460', 'FMX 420', 'FMX 500'],
+    'Scania': ['P320', 'P360', 'G410', 'G450', 'R450', 'R500', 'S500'],
+    'Iveco': ['Tector 170E22', 'Tector 240E28', 'Stralis 440', 'Stralis 480'],
+    'Ford': ['Cargo 1119', 'Cargo 1419', 'Cargo 2842', 'F-MAX 1942'],
+    'Volkswagen': ['Delivery 9.170', 'Delivery 11.180', 'Constellation 24.280', 'Meteor 29.530'],
+    'DAF': ['LF 210', 'CF 340', 'CF 450', 'XF 480'],
+    'MAN': ['TGL 10.180', 'TGM 18.250', 'TGS 24.280', 'TGX 28.480'],
+  },
+  VAN: {
+    'Mercedes-Benz': ['Sprinter 311 CDI', 'Sprinter 311 Furgão', 'Sprinter 415 CDI', 'Sprinter 515 CDI'],
+    'Volkswagen': ['Transporter T6', 'Crafter 2.0 TDI Furgão', 'Crafter 2.0 TDI Minibus'],
+    'Ford': ['Transit 2.0 Furgão', 'Transit Custom', 'Transit Minibus'],
+    'Renault': ['Master 2.3 Furgão', 'Master 2.3 Minibus', 'Trafic 1.6'],
+    'Fiat': ['Ducato 2.3 Furgão', 'Ducato 2.3 Minibus', 'Doblò Cargo 1.8'],
+    'Citroën': ['Jumper Furgão', 'Jumpy Furgão', 'Berlingo 1.6'],
+    'Peugeot': ['Boxer Furgão', 'Expert 1.6', 'Partner 1.6'],
+    'Toyota': ['Hiace Furgão 3.0', 'Hiace Minibus 3.0'],
+  },
+  CAR: {
+    'Volkswagen': ['Gol 1.0', 'Polo 1.0 Turbo', 'Voyage 1.6', 'Virtus 1.0 Turbo', 'T-Cross 1.0 Turbo'],
+    'Chevrolet': ['Onix 1.0 Turbo', 'Onix Plus 1.0 Turbo', 'Cruze Sport6 1.4', 'Tracker 1.0 Turbo', 'S10 2.8 Diesel'],
+    'Fiat': ['Argo 1.0', 'Argo 1.3', 'Cronos 1.3', 'Strada 1.3', 'Toro 2.0 Diesel'],
+    'Toyota': ['Yaris Sedan 1.5', 'Corolla 2.0', 'Corolla Cross 2.0', 'Hilux SRX 2.8', 'SW4 2.8'],
+    'Hyundai': ['HB20 1.0', 'HB20S 1.0', 'Creta 2.0', 'Tucson 1.6 Turbo'],
+    'Ford': ['EcoSport 1.5', 'Territory 1.5 EcoBoost', 'Ranger XLS 2.3'],
+    'Renault': ['Kwid 1.0', 'Sandero 1.6', 'Duster 1.6', 'Captur 1.6'],
+    'Honda': ['City Hatch 1.5', 'Civic 2.0', 'HR-V 1.5 Turbo', 'WR-V 1.5'],
+  },
+  MOTORCYCLE: {
+    'Honda': ['CG 160 Fan', 'CG 160 Titan', 'CG 160 Start', 'Biz 125', 'Pop 110i', 'PCX 150', 'NXR 160 Bros', 'CB 300F Twister', 'XRE 300'],
+    'Yamaha': ['Factor 150', 'YBR 150', 'Fazer 250 FZ25', 'MT-03', 'MT-07', 'NMAX 160', 'X-Max 250', 'Crosser 150'],
+    'Suzuki': ['Yes 125', 'Burgman 125', 'Intruder 125', 'V-Strom 650'],
+    'Kawasaki': ['Ninja 300', 'Ninja 400', 'Z400', 'Versys 650'],
+    'BMW': ['G 310 R', 'G 310 GS', 'F 750 GS', 'R 1250 GS'],
+  },
+  BUS: {
+    'Mercedes-Benz': ['OF 1721', 'OF 1724', 'O-500 RS 1836', 'O-500 R 1836'],
+    'Volkswagen': ['17.260 OD', '22.280 OD', '17.230 OD', 'Bus 8.160 OD'],
+    'Volvo': ['B270F', 'B290F', 'B340R', 'B380R'],
+    'Scania': ['K 310 IB 6x2', 'K 360 IB 6x2', 'K 410 IB 8x2'],
+  },
+  TRAILER: {
+    'Randon': ['SR GX Graneleiro', 'SRBT Baú', 'SRT Tanque', 'SRLTC Carga Seca'],
+    'Guerra': ['Bitrem Graneleiro 9 eixos', 'Tritrem Graneleiro', 'Semirreboque Baú'],
+    'Noma': ['Semirreboque Graneleiro', 'Semirreboque Baú', 'Baú Frigorífico'],
+    'Librelato': ['Semirreboque Graneleiro', 'Semirreboque Plataforma'],
+    'Facchini': ['Semirreboque Graneleiro', 'Baú Frigorífico', 'Silo'],
+  },
+};
+
+function applyMaskPlate(value: string): string {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
+}
+
 const vehicleSchema = z.object({
-  plate: z.string().min(7, 'Placa inválida').max(8),
+  plate: z.string().regex(
+    /^[A-Z]{3}[0-9][A-Z][0-9]{2}$|^[A-Z]{3}[0-9]{4}$/,
+    'Placa inválida — Mercosul: ABC1D23 · Antigo: ABC1234',
+  ),
   brand: z.string().min(1, 'Marca obrigatória'),
   model: z.string().min(1, 'Modelo obrigatório'),
   year: z.coerce.number().int().min(1990).max(new Date().getFullYear() + 1),
@@ -67,7 +136,6 @@ const vehicleSchema = z.object({
   fuelType: z.string().min(1, 'Combustível obrigatório'),
   currentKm: z.coerce.number().min(0),
   nextMaintenanceKm: z.coerce.number().optional(),
-  branchId: z.string().uuid('Filial obrigatória'),
 });
 
 type VehicleFormData = z.infer<typeof vehicleSchema>;
@@ -157,7 +225,9 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
       {/* Footer */}
       <div className="px-5 py-3 bg-slate-50/80 rounded-b-2xl border-t border-brand-border/50 flex items-center justify-between">
         <div className="text-xs text-brand-text-secondary">
-          <span className="font-medium text-brand-text-primary">{vehicle.branch.name}</span>
+          {vehicle.branch?.name && (
+            <span className="font-medium text-brand-text-primary">{vehicle.branch.name}</span>
+          )}
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button size="xs" variant="ghost" leftIcon={<Eye className="w-3 h-3" />}>
@@ -188,11 +258,6 @@ export default function FleetPage() {
       api.get('/vehicles', { params: { status: statusFilter || undefined } }).then((r) => r.data),
   });
 
-  const { data: branches = [] } = useQuery<Array<{ id: string; name: string }>>({
-    queryKey: ['branches'],
-    queryFn: () => api.get('/branches').then((r) => r.data),
-  });
-
   const createMutation = useMutation({
     mutationFn: (data: VehicleFormData) => api.post('/vehicles', data),
     onSuccess: () => {
@@ -208,8 +273,18 @@ export default function FleetPage() {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<VehicleFormData>({ resolver: zodResolver(vehicleSchema) });
+
+  const plateValue    = watch('plate')  ?? '';
+  const typeValue     = watch('type')   ?? '';
+  const brandValue    = watch('brand')  ?? '';
+  const brandsForType  = typeValue ? Object.keys(VEHICLE_CATALOG[typeValue] ?? {}) : [];
+  const modelsForBrand = typeValue && brandValue
+    ? (VEHICLE_CATALOG[typeValue]?.[brandValue] ?? [])
+    : [];
 
   const filtered = vehicles.filter(
     (v) =>
@@ -389,32 +464,76 @@ export default function FleetPage() {
           {/* Plate */}
           <div className="col-span-2 sm:col-span-1">
             <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Placa *</label>
-            <input {...register('plate')} placeholder="ABC-1234" className={cn('input-base font-plate uppercase', errors.plate && 'border-danger-400')} />
-            {errors.plate && <p className="text-danger-500 text-xs mt-1">{errors.plate.message}</p>}
+            <input
+              {...register('plate')}
+              value={plateValue}
+              onChange={(e) => setValue('plate', applyMaskPlate(e.target.value), { shouldValidate: true })}
+              placeholder="ABC1D23"
+              maxLength={7}
+              className={cn('input-base font-plate uppercase tracking-widest', errors.plate && 'border-danger-400')}
+            />
+            {errors.plate
+              ? <p className="text-danger-500 text-xs mt-1">{errors.plate.message}</p>
+              : <p className="text-xs text-brand-text-secondary mt-1">Mercosul: ABC1D23 · Antigo: ABC1234</p>}
           </div>
 
           {/* Type */}
           <div className="col-span-2 sm:col-span-1">
             <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Tipo *</label>
-            <select {...register('type')} className={cn('input-base', errors.type && 'border-danger-400')}>
+            <select
+              {...register('type')}
+              value={typeValue}
+              onChange={(e) => {
+                setValue('type', e.target.value, { shouldValidate: true });
+                setValue('brand', '', { shouldValidate: false });
+                setValue('model', '', { shouldValidate: false });
+              }}
+              className={cn('input-base', errors.type && 'border-danger-400')}
+            >
               <option value="">Selecionar...</option>
-              {['TRUCK', 'VAN', 'CAR', 'MOTORCYCLE', 'BUS', 'TRAILER'].map((t) => (
-                <option key={t} value={t}>{t}</option>
+              {Object.entries(TYPE_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
               ))}
             </select>
+            {errors.type && <p className="text-danger-500 text-xs mt-1">{errors.type.message}</p>}
           </div>
 
           {/* Brand */}
           <div>
             <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Marca *</label>
-            <input {...register('brand')} placeholder="Ex: Mercedes-Benz" className={cn('input-base', errors.brand && 'border-danger-400')} />
+            <select
+              {...register('brand')}
+              value={brandValue}
+              onChange={(e) => {
+                setValue('brand', e.target.value, { shouldValidate: true });
+                setValue('model', '', { shouldValidate: false });
+              }}
+              disabled={!typeValue}
+              className={cn('input-base', errors.brand && 'border-danger-400', !typeValue && 'opacity-50 cursor-not-allowed')}
+            >
+              <option value="">{typeValue ? 'Selecionar marca...' : 'Selecione o tipo primeiro'}</option>
+              {brandsForType.map((b) => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
             {errors.brand && <p className="text-danger-500 text-xs mt-1">{errors.brand.message}</p>}
           </div>
 
           {/* Model */}
           <div>
             <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Modelo *</label>
-            <input {...register('model')} placeholder="Ex: Accelo 1016" className={cn('input-base', errors.model && 'border-danger-400')} />
+            <select
+              {...register('model')}
+              value={watch('model') ?? ''}
+              onChange={(e) => setValue('model', e.target.value, { shouldValidate: true })}
+              disabled={!brandValue}
+              className={cn('input-base', errors.model && 'border-danger-400', !brandValue && 'opacity-50 cursor-not-allowed')}
+            >
+              <option value="">{brandValue ? 'Selecionar modelo...' : 'Selecione a marca primeiro'}</option>
+              {modelsForBrand.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
             {errors.model && <p className="text-danger-500 text-xs mt-1">{errors.model.message}</p>}
           </div>
 
@@ -448,17 +567,7 @@ export default function FleetPage() {
             <input {...register('nextMaintenanceKm')} type="number" placeholder="Opcional" className="input-base" />
           </div>
 
-          {/* Branch */}
-          <div className="col-span-2">
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Filial *</label>
-            <select {...register('branchId')} className={cn('input-base', errors.branchId && 'border-danger-400')}>
-              <option value="">Selecionar filial...</option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-            {errors.branchId && <p className="text-danger-500 text-xs mt-1">{errors.branchId.message}</p>}
-          </div>
+
         </form>
       </Modal>
 
@@ -481,7 +590,6 @@ export default function FleetPage() {
               {[
                 { label: 'Placa', value: selectedVehicle.plate, mono: true },
                 { label: 'Ano', value: selectedVehicle.year },
-                { label: 'Filial', value: selectedVehicle.branch.name },
                 { label: 'Status', value: <VehicleStatusBadge status={selectedVehicle.status} /> },
                 { label: 'KM Atual', value: `${selectedVehicle.currentKm.toLocaleString('pt-BR')} km` },
                 { label: 'Total de Rotas', value: selectedVehicle._count.routes },

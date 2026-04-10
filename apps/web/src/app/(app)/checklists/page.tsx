@@ -219,7 +219,7 @@ export default function ChecklistsPage() {
   const { data: executions = MOCK_EXECUTIONS, isLoading: loadingExecutions } = useQuery<ChecklistExecution[]>({
     queryKey: ['checklist-executions'],
     queryFn: () =>
-      api.get('/checklist-executions', { params: { limit: 20 } })
+      api.get('/checklists/executions', { params: { limit: 20 } })
         .then((r) => r.data)
         .catch(() => MOCK_EXECUTIONS),
   });
@@ -498,7 +498,10 @@ export default function ChecklistsPage() {
         footer={
           <>
             <Button variant="secondary" onClick={() => { setModalOpen(false); reset(); }}>Cancelar</Button>
-            <Button loading={createMutation.isPending} onClick={handleSubmit((d) => createMutation.mutate(d))}>
+            <Button loading={createMutation.isPending} onClick={handleSubmit(
+              (d) => createMutation.mutate(d),
+              () => toast.error('Preencha todos os campos obrigatórios'),
+            )}>
               Criar Checklist
             </Button>
           </>
@@ -560,7 +563,7 @@ export default function ChecklistsPage() {
                     <input
                       {...register(`items.${index}.description`)}
                       placeholder={`Item ${index + 1}...`}
-                      className="flex-1 text-sm bg-transparent outline-none text-brand-text-primary placeholder:text-brand-text-secondary/50 min-w-0"
+                      className={cn('flex-1 text-sm bg-transparent outline-none text-brand-text-primary placeholder:text-brand-text-secondary/50 min-w-0', errors.items?.[index]?.description && 'text-danger-600')}
                     />
                     <label className="flex items-center gap-1.5 text-xs text-brand-text-secondary flex-shrink-0 cursor-pointer">
                       <input

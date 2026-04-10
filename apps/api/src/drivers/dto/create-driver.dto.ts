@@ -1,5 +1,5 @@
 import {
-  IsDateString, IsEnum, IsNotEmpty, IsString, IsUUID, Matches,
+  IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, Matches, Length,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { LicenseCategory, DriverStatus } from '@transrota/shared';
@@ -17,12 +17,13 @@ export class CreateDriverDto {
 
   @ApiProperty({ example: '(11) 99999-9999' })
   @IsString()
-  @IsNotEmpty()
+  @Matches(/^\(\d{2}\) \d{4,5}-\d{4}$/, { message: 'Telefone inválido' })
   phone: string;
 
   @ApiProperty({ example: '12345678901' })
   @IsString()
-  @IsNotEmpty()
+  @Length(11, 11, { message: 'CNH deve ter exatamente 11 dígitos' })
+  @Matches(/^\d{11}$/, { message: 'CNH deve conter apenas dígitos' })
   licenseNumber: string;
 
   @ApiProperty({ enum: LicenseCategory })
@@ -37,7 +38,8 @@ export class CreateDriverDto {
   @IsEnum(DriverStatus)
   status: DriverStatus = DriverStatus.ACTIVE;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsUUID()
-  branchId: string;
+  branchId?: string;
 }

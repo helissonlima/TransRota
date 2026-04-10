@@ -1,9 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Settings, CreditCard, Check } from 'lucide-react';
+import { Settings, CreditCard, Check, List, Hash, Save } from 'lucide-react';
 import adminApi from '@/lib/admin-api';
 import { cn } from '@/lib/cn';
+
+export const LOGIN_DISPLAY_KEY = 'tr_admin_login_display'; // 'list' | 'uuid'
 
 interface Plan {
   id: string;
@@ -19,6 +22,20 @@ interface Plan {
 }
 
 export default function AdminSettingsPage() {
+  const [loginDisplay, setLoginDisplay] = useState<'list' | 'uuid'>('list');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(LOGIN_DISPLAY_KEY);
+    if (stored === 'uuid' || stored === 'list') setLoginDisplay(stored);
+  }, []);
+
+  const saveLoginDisplay = (value: 'list' | 'uuid') => {
+    setLoginDisplay(value);
+    localStorage.setItem(LOGIN_DISPLAY_KEY, value);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
   const { data: plans = [], isLoading } = useQuery<Plan[]>({
     queryKey: ['admin', 'plans'],
     queryFn: async () => {
@@ -47,6 +64,57 @@ export default function AdminSettingsPage() {
         <div>
           <h1 className="text-white text-2xl font-bold">Configurações</h1>
           <p className="text-[#64748b] text-sm mt-0.5">Planos e configurações globais do SaaS</p>
+        </div>
+      </div>
+
+      {/* Login display config */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <Settings className="w-4 h-4 text-[#64748b]" />
+          <h2 className="text-white font-semibold">Tela de Login</h2>
+        </div>
+        <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-4">
+          <p className="text-[#94a3b8] text-sm">Como a empresa deve ser identificada na tela de login:</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => saveLoginDisplay('list')}
+              className={cn(
+                'flex items-center gap-3 p-4 rounded-xl border text-left transition-all',
+                loginDisplay === 'list'
+                  ? 'border-primary-500 bg-primary-500/10 text-white'
+                  : 'border-[#1e2d4a] text-[#64748b] hover:border-[#2e3d5a] hover:text-white',
+              )}
+            >
+              <List className="w-5 h-5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-sm">Lista de empresas</p>
+                <p className="text-xs mt-0.5 opacity-70">Exibe dropdown com nomes para seleção</p>
+              </div>
+              {loginDisplay === 'list' && <Check className="w-4 h-4 text-primary-400 ml-auto flex-shrink-0" />}
+            </button>
+
+            <button
+              onClick={() => saveLoginDisplay('uuid')}
+              className={cn(
+                'flex items-center gap-3 p-4 rounded-xl border text-left transition-all',
+                loginDisplay === 'uuid'
+                  ? 'border-primary-500 bg-primary-500/10 text-white'
+                  : 'border-[#1e2d4a] text-[#64748b] hover:border-[#2e3d5a] hover:text-white',
+              )}
+            >
+              <Hash className="w-5 h-5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-sm">Digitar UUID</p>
+                <p className="text-xs mt-0.5 opacity-70">Usuário informa o ID da empresa manualmente</p>
+              </div>
+              {loginDisplay === 'uuid' && <Check className="w-4 h-4 text-primary-400 ml-auto flex-shrink-0" />}
+            </button>
+          </div>
+          {saved && (
+            <p className="text-emerald-400 text-xs flex items-center gap-1.5">
+              <Save className="w-3.5 h-3.5" /> Configuração salva
+            </p>
+          )}
         </div>
       </div>
 

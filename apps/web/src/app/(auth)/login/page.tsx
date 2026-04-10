@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import {
   Truck,
   Eye,
@@ -15,9 +16,12 @@ import {
   Shield,
   Zap,
   BarChart2,
+  Building2,
 } from 'lucide-react';
 import { login } from '@/lib/auth';
 import { cn } from '@/lib/cn';
+
+interface Company { id: string; name: string; }
 
 const loginSchema = z.object({
   tenantId: z.string().uuid('ID da empresa inválido (formato UUID)'),
@@ -53,6 +57,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companiesLoading, setCompaniesLoading] = useState(true);
+  const [loginDisplay, setLoginDisplay] = useState<'list' | 'uuid'>('list');
 
   const {
     register,
@@ -62,6 +69,25 @@ export default function LoginPage() {
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   });
+
+  useEffect(() => {
+    const stored = localStorage.getItem('tr_admin_login_display');
+    if (stored === 'uuid') {
+      setLoginDisplay('uuid');
+      setCompaniesLoading(false);
+      return;
+    }
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? '/api/v1';
+    axios.get<Company[]>(`${apiUrl}/companies`)
+      .then((r) => {
+        setCompanies(r.data);
+        if (r.data.length === 1) {
+          setValue('tenantId', r.data[0].id);
+        }
+      })
+      .catch(() => {/* silencia — usuário preencherá manualmente */})
+      .finally(() => setCompaniesLoading(false));
+  }, [setValue]);
 
   useEffect(() => {
     try {
@@ -243,32 +269,103 @@ export default function LoginPage() {
             onSubmit={handleSubmit(onSubmit)}
             className="mt-8 space-y-5"
           >
-            {/* Tenant ID */}
+            {/* Empresa */}
             <motion.div variants={itemVariants}>
               <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
-                ID da Empresa
+                Empresa
               </label>
-              <input
-                {...register('tenantId')}
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                className={cn(
-                  'input-base font-mono text-sm',
-                  errors.tenantId && 'border-danger-400 focus:!ring-danger-200 focus:!border-danger-400',
-                )}
-                autoComplete="organization"
-              />
-              <AnimatePresence>
-                {errors.tenantId && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    className="text-danger-500 text-xs mt-1.5 flex items-center gap-1"
+
+              {loginDisplay === 'uuid' ? (
+                /* Modo UUID — digitação manual */
+                <>
+                  <input
+                    {...register('tenantId')}
+                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                    className={cn(
+                      'input-base font-mono text-sm',
+                      errors.tenantId && 'border-danger-400 focus:!ring-danger-200 focus:!border-danger-400',
+                    )}
+                    autoComplete="organization"
+                  />
+                  <AnimatePresence>
+                    {errors.tenantId && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="text-danger-500 text-xs mt-1.5 flex items-center gap-1"
+                      >
+                        {errors.tenantId.message}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </>
+              ) : companiesLoading ? (
+                <div className="input-base flex items-center gap-2 text-brand-text-secondary animate-pulse">
+                  <span className="w-4 h-4 rounded-full bg-brand-border inline-block" />
+                  Carregando empresas…
+                </div>
+              ) : companies.length === 1 ? (
+                <>
+                  <input type="hidden" {...register('tenantId')} />
+                  <div className="input-base flex items-center gap-2 bg-slate-50 text-brand-text-primary cursor-default select-none">
+                    <Building2 className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                    {companies[0].name}
+                  </div>
+                </>
+              ) : companies.length > 1 ? (
+                <>
+                  <select
+                    {...register('tenantId')}
+                    className={cn(
+                      'input-base',
+                      errors.tenantId && 'border-danger-400 focus:!ring-danger-200 focus:!border-danger-400',
+                    )}
                   >
-                    {errors.tenantId.message}
-                  </motion.p>
-                )}
-              </AnimatePresence>
+                    <option value="">Selecione a empresa…</option>
+                    {companies.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                  <AnimatePresence>
+                    {errors.tenantId && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="text-danger-500 text-xs mt-1.5 flex items-center gap-1"
+                      >
+                        {errors.tenantId.message}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </>
+              ) : (
+                /* fallback manual — API indisponível */
+                <>
+                  <input
+                    {...register('tenantId')}
+                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                    className={cn(
+                      'input-base font-mono text-sm',
+                      errors.tenantId && 'border-danger-400 focus:!ring-danger-200 focus:!border-danger-400',
+                    )}
+                    autoComplete="organization"
+                  />
+                  <AnimatePresence>
+                    {errors.tenantId && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="text-danger-500 text-xs mt-1.5 flex items-center gap-1"
+                      >
+                        {errors.tenantId.message}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </>
+              )}
             </motion.div>
 
             {/* Email */}
@@ -361,7 +458,7 @@ export default function LoginPage() {
                 className="text-sm text-brand-text-secondary cursor-pointer select-none"
                 onClick={() => setRememberMe((v) => !v)}
               >
-                Lembrar ID da empresa e e-mail
+                Lembrar meu e-mail
               </span>
             </motion.div>
 

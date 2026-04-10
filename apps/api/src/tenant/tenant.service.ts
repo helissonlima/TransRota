@@ -50,12 +50,22 @@ export class TenantService {
     const tenantPrisma = await this.tenantPrismaFactory.getClient(schemaName);
     const passwordHash = await bcrypt.hash(dto.adminPassword, 12);
 
+    // Cria a branch (filial) padrão da empresa
+    const defaultBranch = await (tenantPrisma as any).branch.create({
+      data: {
+        name: dto.name,
+        city: 'Não informado',
+        state: 'XX',
+      },
+    });
+
     await tenantPrisma.user.create({
       data: {
         name: dto.adminName,
         email: dto.adminEmail,
         passwordHash,
         role: 'ADMIN',
+        branchId: defaultBranch.id,
       },
     });
 
