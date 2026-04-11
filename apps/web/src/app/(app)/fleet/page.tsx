@@ -7,17 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Plus,
-  Search,
-  Truck,
-  AlertTriangle,
-  Fuel,
-  Wrench,
-  Eye,
-  ChevronRight,
-  X,
+  Plus, Search, Truck, AlertTriangle, Fuel, Wrench, Eye,
+  ChevronRight, X, Droplets, ChevronDown, ChevronUp,
+  FileText, Settings2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { format, parseISO, differenceInDays } from 'date-fns';
 import api from '@/lib/api';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
@@ -26,21 +21,58 @@ import { Modal } from '@/components/ui/modal';
 import { Skeleton, SkeletonCard } from '@/components/ui/skeleton';
 import { cn } from '@/lib/cn';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 interface Vehicle {
   id: string;
   plate: string;
   model: string;
   brand: string;
   year: number;
+  manufacturingYear?: number;
   type: string;
   fuelType?: string;
   status: 'ACTIVE' | 'MAINTENANCE' | 'INACTIVE';
   currentKm: number;
   nextMaintenanceKm?: number;
   nextMaintenanceDate?: string;
+  tag?: number;
+  renavam?: string;
+  crvNumber?: string;
+  chassisNumber?: string;
+  securityCode?: string;
+  engineCode?: string;
+  documentExpiry?: string;
+  responsiblePerson?: string;
+  tankCapacity?: number;
+  horsepower?: string;
+  grossWeight?: string;
+  axles?: string;
+  cmt?: string;
+  seats?: string;
+  category?: string;
+  oilChangeIntervalKm?: number;
   branch?: { name: string };
-  _count: { routes: number };
+  _count: { routes: number; maintenanceRecords: number };
 }
+
+interface OilChangeRecord {
+  id: string;
+  vehicleId: string;
+  changeDate?: string;
+  changeKm?: number;
+  currentKm?: number;
+  nextChangeKm?: number;
+  status: 'UP_TO_DATE' | 'DUE_SOON' | 'OVERDUE';
+  kmDriven?: number;
+  oilType?: string;
+  responsibleName?: string;
+  notes?: string;
+  createdAt: string;
+  vehicle?: { plate: string; brand: string; model: string };
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const FILTER_TABS = [
   { key: '', label: 'Todos' },
@@ -49,96 +81,161 @@ const FILTER_TABS = [
   { key: 'INACTIVE', label: 'Inativos' },
 ] as const;
 
+const SECTION_TABS = [
+  { key: 'vehicles', label: 'Frota', icon: Truck },
+  { key: 'oil', label: 'Troca de Óleo', icon: Droplets },
+] as const;
+
 const FUEL_LABELS: Record<string, { label: string; color: string }> = {
   GASOLINE: { label: 'Gasolina', color: 'text-orange-500' },
-  DIESEL: { label: 'Diesel', color: 'text-slate-600' },
-  ETHANOL: { label: 'Etanol', color: 'text-green-600' },
-  FLEX: { label: 'Flex', color: 'text-blue-500' },
-  ELECTRIC: { label: 'Elétrico', color: 'text-emerald-500' },
-  GNV: { label: 'GNV', color: 'text-purple-500' },
+  DIESEL:   { label: 'Diesel',   color: 'text-slate-600'  },
+  ETHANOL:  { label: 'Etanol',   color: 'text-green-600'  },
+  FLEX:     { label: 'Flex',     color: 'text-blue-500'   },
+  ELECTRIC: { label: 'Elétrico', color: 'text-emerald-500'},
+  GNV:      { label: 'GNV',      color: 'text-purple-500' },
 };
 
 const TYPE_LABELS: Record<string, string> = {
-  TRUCK: 'Caminhão',
-  VAN: 'Van / Furgão',
-  CAR: 'Carro / Passeio',
+  TRUCK:      'Caminhão',
+  VAN:        'Van / Furgão',
+  CAR:        'Carro / Passeio',
   MOTORCYCLE: 'Moto',
-  BUS: 'Ônibus',
-  TRAILER: 'Carreta / Reboque',
+  UTILITY:    'Utilitário',
 };
 
 const VEHICLE_CATALOG: Record<string, Record<string, string[]>> = {
   TRUCK: {
-    'Mercedes-Benz': ['Accelo 815', 'Accelo 1016', 'Accelo 1316', 'Atego 1719', 'Atego 2430', 'Actros 2551', 'Actros 2651'],
-    'Volvo': ['FH 460', 'FH 500', 'FM 370', 'FM 460', 'FMX 420', 'FMX 500'],
-    'Scania': ['P320', 'P360', 'G410', 'G450', 'R450', 'R500', 'S500'],
-    'Iveco': ['Tector 170E22', 'Tector 240E28', 'Stralis 440', 'Stralis 480'],
-    'Ford': ['Cargo 1119', 'Cargo 1419', 'Cargo 2842', 'F-MAX 1942'],
-    'Volkswagen': ['Delivery 9.170', 'Delivery 11.180', 'Constellation 24.280', 'Meteor 29.530'],
-    'DAF': ['LF 210', 'CF 340', 'CF 450', 'XF 480'],
-    'MAN': ['TGL 10.180', 'TGM 18.250', 'TGS 24.280', 'TGX 28.480'],
+    'Mercedes-Benz': ['Accelo 815','Accelo 1016','Accelo 1316','Atego 1719','Atego 2430','Actros 2551'],
+    'Volvo':  ['FH 460','FH 500','FM 370','FM 460','FMX 420','FMX 500'],
+    'Scania': ['P320','P360','G410','G450','R450','R500','S500'],
+    'Iveco':  ['Tector 170E22','Tector 240E28','Stralis 440','Stralis 480'],
+    'Ford':   ['Cargo 1119','Cargo 1419','Cargo 2842','F-MAX 1942'],
+    'Volkswagen': ['Delivery 9.170','Delivery 11.180','Constellation 24.280','Meteor 29.530'],
   },
   VAN: {
-    'Mercedes-Benz': ['Sprinter 311 CDI', 'Sprinter 311 Furgão', 'Sprinter 415 CDI', 'Sprinter 515 CDI'],
-    'Volkswagen': ['Transporter T6', 'Crafter 2.0 TDI Furgão', 'Crafter 2.0 TDI Minibus'],
-    'Ford': ['Transit 2.0 Furgão', 'Transit Custom', 'Transit Minibus'],
-    'Renault': ['Master 2.3 Furgão', 'Master 2.3 Minibus', 'Trafic 1.6'],
-    'Fiat': ['Ducato 2.3 Furgão', 'Ducato 2.3 Minibus', 'Doblò Cargo 1.8'],
-    'Citroën': ['Jumper Furgão', 'Jumpy Furgão', 'Berlingo 1.6'],
-    'Peugeot': ['Boxer Furgão', 'Expert 1.6', 'Partner 1.6'],
-    'Toyota': ['Hiace Furgão 3.0', 'Hiace Minibus 3.0'],
+    'Mercedes-Benz': ['Sprinter 311 CDI','Sprinter 415 CDI','Sprinter 515 CDI'],
+    'Volkswagen': ['Transporter T6','Crafter 2.0 TDI Furgão'],
+    'Ford':    ['Transit 2.0 Furgão','Transit Custom','Transit Minibus'],
+    'Renault': ['Master 2.3 Furgão','Master 2.3 Minibus'],
+    'Fiat':    ['Ducato 2.3 Furgão','Ducato 2.3 Minibus','Doblò Cargo 1.8'],
   },
   CAR: {
-    'Volkswagen': ['Gol 1.0', 'Polo 1.0 Turbo', 'Voyage 1.6', 'Virtus 1.0 Turbo', 'T-Cross 1.0 Turbo'],
-    'Chevrolet': ['Onix 1.0 Turbo', 'Onix Plus 1.0 Turbo', 'Cruze Sport6 1.4', 'Tracker 1.0 Turbo', 'S10 2.8 Diesel'],
-    'Fiat': ['Argo 1.0', 'Argo 1.3', 'Cronos 1.3', 'Strada 1.3', 'Toro 2.0 Diesel'],
-    'Toyota': ['Yaris Sedan 1.5', 'Corolla 2.0', 'Corolla Cross 2.0', 'Hilux SRX 2.8', 'SW4 2.8'],
-    'Hyundai': ['HB20 1.0', 'HB20S 1.0', 'Creta 2.0', 'Tucson 1.6 Turbo'],
-    'Ford': ['EcoSport 1.5', 'Territory 1.5 EcoBoost', 'Ranger XLS 2.3'],
-    'Renault': ['Kwid 1.0', 'Sandero 1.6', 'Duster 1.6', 'Captur 1.6'],
-    'Honda': ['City Hatch 1.5', 'Civic 2.0', 'HR-V 1.5 Turbo', 'WR-V 1.5'],
+    'Volkswagen': ['Gol 1.0','Polo 1.0 Turbo','Voyage 1.6','Virtus 1.0 Turbo','T-Cross 1.0 Turbo'],
+    'Chevrolet':  ['Onix 1.0 Turbo','Onix Plus 1.0 Turbo','Tracker 1.0 Turbo','S10 2.8 Diesel'],
+    'Fiat':       ['Argo 1.0','Argo 1.3','Cronos 1.3','Strada 1.3','Toro 2.0 Diesel','Mobi Like'],
+    'Toyota':     ['Yaris Sedan 1.5','Corolla 2.0','Corolla Cross 2.0','Hilux SRX 2.8','SW4 2.8'],
+    'Hyundai':    ['HB20 1.0','HB20S 1.0','Creta 2.0','Tucson 1.6 Turbo'],
+    'Ford':       ['EcoSport 1.5','Ranger XLS 2.3'],
+    'Renault':    ['Kwid 1.0','Sandero 1.6','Duster 1.6','Captur 1.6'],
+    'Honda':      ['City Hatch 1.5','Civic 2.0','HR-V 1.5 Turbo'],
   },
   MOTORCYCLE: {
-    'Honda': ['CG 160 Fan', 'CG 160 Titan', 'CG 160 Start', 'Biz 125', 'Pop 110i', 'PCX 150', 'NXR 160 Bros', 'CB 300F Twister', 'XRE 300'],
-    'Yamaha': ['Factor 150', 'YBR 150', 'Fazer 250 FZ25', 'MT-03', 'MT-07', 'NMAX 160', 'X-Max 250', 'Crosser 150'],
-    'Suzuki': ['Yes 125', 'Burgman 125', 'Intruder 125', 'V-Strom 650'],
-    'Kawasaki': ['Ninja 300', 'Ninja 400', 'Z400', 'Versys 650'],
-    'BMW': ['G 310 R', 'G 310 GS', 'F 750 GS', 'R 1250 GS'],
+    'Honda':   ['CG 160 Fan','CG 160 Titan','Biz 125','Pop 110i','PCX 150','NXR 160 Bros','XRE 300'],
+    'Yamaha':  ['Factor 150','YBR 150','Fazer 250 FZ25','MT-03','NMAX 160','Crosser 150'],
+    'Suzuki':  ['Yes 125','Burgman 125','Intruder 125'],
+    'Kawasaki':['Ninja 300','Ninja 400','Z400'],
   },
-  BUS: {
-    'Mercedes-Benz': ['OF 1721', 'OF 1724', 'O-500 RS 1836', 'O-500 R 1836'],
-    'Volkswagen': ['17.260 OD', '22.280 OD', '17.230 OD', 'Bus 8.160 OD'],
-    'Volvo': ['B270F', 'B290F', 'B340R', 'B380R'],
-    'Scania': ['K 310 IB 6x2', 'K 360 IB 6x2', 'K 410 IB 8x2'],
-  },
-  TRAILER: {
-    'Randon': ['SR GX Graneleiro', 'SRBT Baú', 'SRT Tanque', 'SRLTC Carga Seca'],
-    'Guerra': ['Bitrem Graneleiro 9 eixos', 'Tritrem Graneleiro', 'Semirreboque Baú'],
-    'Noma': ['Semirreboque Graneleiro', 'Semirreboque Baú', 'Baú Frigorífico'],
-    'Librelato': ['Semirreboque Graneleiro', 'Semirreboque Plataforma'],
-    'Facchini': ['Semirreboque Graneleiro', 'Baú Frigorífico', 'Silo'],
+  UTILITY: {
+    'Fiat':       ['Fiorino 1.4','Doblò Cargo 1.8'],
+    'Volkswagen': ['Saveiro 1.6','Amarok 2.0 Diesel'],
+    'Ford':       ['Courier 1.6','Ranger XL 2.3'],
+    'Chevrolet':  ['Montana 1.4','S10 LS 2.8'],
+    'Renault':    ['Kangoo Express 1.6'],
   },
 };
 
-function applyMaskPlate(value: string): string {
-  return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
+const OIL_STATUS_CONFIG = {
+  UP_TO_DATE: { label: 'Em Dia',   color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  DUE_SOON:   { label: 'Próximo',  color: 'text-warning-700', bg: 'bg-warning-50',  border: 'border-warning-200' },
+  OVERDUE:    { label: 'Atrasado', color: 'text-danger-700',  bg: 'bg-danger-50',   border: 'border-danger-200'  },
+} as const;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function applyMaskPlate(v: string) {
+  return v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
 }
 
+// ─── Schemas ──────────────────────────────────────────────────────────────────
+
 const vehicleSchema = z.object({
-  plate: z.string().regex(
-    /^[A-Z]{3}[0-9][A-Z][0-9]{2}$|^[A-Z]{3}[0-9]{4}$/,
-    'Placa inválida — Mercosul: ABC1D23 · Antigo: ABC1234',
-  ),
-  brand: z.string().min(1, 'Marca obrigatória'),
-  model: z.string().min(1, 'Modelo obrigatório'),
-  year: z.coerce.number().int().min(1990).max(new Date().getFullYear() + 1),
-  type: z.string().min(1, 'Tipo obrigatório'),
-  fuelType: z.string().min(1, 'Combustível obrigatório'),
-  currentKm: z.coerce.number().min(0),
-  nextMaintenanceKm: z.coerce.number().optional(),
+  plate:              z.string().regex(/^[A-Z]{3}[0-9][A-Z][0-9]{2}$|^[A-Z]{3}[0-9]{4}$/, 'Placa inválida — Mercosul: ABC1D23 · Antigo: ABC1234'),
+  brand:              z.string().min(1, 'Marca obrigatória'),
+  model:              z.string().min(1, 'Modelo obrigatório'),
+  year:               z.coerce.number().int().min(1990).max(new Date().getFullYear() + 1),
+  type:               z.string().min(1, 'Tipo obrigatório'),
+  fuelType:           z.string().min(1, 'Combustível obrigatório'),
+  currentKm:          z.coerce.number().min(0),
+  manufacturingYear:  z.coerce.number().optional(),
+  nextMaintenanceKm:  z.coerce.number().optional(),
+  oilChangeIntervalKm:z.coerce.number().optional(),
+  tankCapacity:       z.coerce.number().optional(),
+  responsiblePerson:  z.string().optional(),
+  tag:                z.coerce.number().optional(),
+  renavam:            z.string().optional(),
+  crvNumber:          z.string().optional(),
+  chassisNumber:      z.string().optional(),
+  securityCode:       z.string().optional(),
+  engineCode:         z.string().optional(),
+  documentExpiry:     z.string().optional(),
+  category:           z.string().optional(),
+  horsepower:         z.string().optional(),
+  grossWeight:        z.string().optional(),
+  axles:              z.string().optional(),
+  cmt:                z.string().optional(),
+  seats:              z.string().optional(),
 });
 
-type VehicleFormData = z.infer<typeof vehicleSchema>;
+const oilChangeSchema = z.object({
+  vehicleId:       z.string().min(1, 'Selecione o veículo'),
+  changeDate:      z.string().optional(),
+  changeKm:        z.coerce.number().optional(),
+  nextChangeKm:    z.coerce.number().optional(),
+  oilType:         z.string().optional(),
+  responsibleName: z.string().optional(),
+  notes:           z.string().optional(),
+});
+
+type VehicleFormData   = z.infer<typeof vehicleSchema>;
+type OilChangeFormData = z.infer<typeof oilChangeSchema>;
+
+// ─── FormSection (accordion) ──────────────────────────────────────────────────
+
+function FormSection({ title, icon: Icon, children, defaultOpen = true }: {
+  title: string; icon: React.ElementType; children: React.ReactNode; defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border border-brand-border rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors"
+      >
+        <span className="flex items-center gap-2 text-sm font-semibold text-brand-text-primary">
+          <Icon className="w-4 h-4 text-primary-600" />
+          {title}
+        </span>
+        {open ? <ChevronUp className="w-4 h-4 text-brand-text-secondary" /> : <ChevronDown className="w-4 h-4 text-brand-text-secondary" />}
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 grid grid-cols-2 gap-4">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── VehicleCard ──────────────────────────────────────────────────────────────
 
 function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => void }) {
   const maintenanceSoon =
@@ -150,7 +247,10 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
       ? Math.min((vehicle.currentKm / vehicle.nextMaintenanceKm) * 100, 100)
       : null;
 
-  const fuelInfo = FUEL_LABELS[vehicle.fuelType ?? ''];
+  const fuelInfo     = FUEL_LABELS[vehicle.fuelType ?? ''];
+  const docExpiryDays = vehicle.documentExpiry
+    ? differenceInDays(parseISO(vehicle.documentExpiry), new Date())
+    : null;
 
   return (
     <motion.div
@@ -159,7 +259,6 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
       className="bg-white rounded-2xl border border-brand-border shadow-card hover:shadow-card-hover transition-shadow cursor-pointer group"
       onClick={onClick}
     >
-      {/* Card header */}
       <div className="p-5 pb-4">
         <div className="flex items-start justify-between mb-3">
           <div>
@@ -167,8 +266,13 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
               <span className="font-plate text-xl font-black text-brand-text-primary tracking-wider">
                 {vehicle.plate}
               </span>
+              {vehicle.tag !== undefined && (
+                <span className="text-xs font-bold text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded-md">
+                  #{vehicle.tag}
+                </span>
+              )}
               {maintenanceSoon && (
-                <span className="flex-shrink-0 w-2 h-2 bg-accent-500 rounded-full animate-pulse-orange" title="Manutenção próxima" />
+                <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse" title="Manutenção próxima" />
               )}
             </div>
             <p className="text-sm text-brand-text-secondary">
@@ -178,22 +282,24 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
           <VehicleStatusBadge status={vehicle.status} />
         </div>
 
-        {/* Stats row */}
-        <div className="flex items-center gap-4 text-xs text-brand-text-secondary mt-3">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-4 text-xs text-brand-text-secondary mt-3 flex-wrap">
+          <span className="flex items-center gap-1">
             <Truck className="w-3.5 h-3.5" />
-            <span className="capitalize">{vehicle.type?.toLowerCase() ?? 'Veículo'}</span>
-          </div>
+            {TYPE_LABELS[vehicle.type] ?? vehicle.type}
+          </span>
           {fuelInfo && (
-            <div className={cn('flex items-center gap-1', fuelInfo.color)}>
-              <Fuel className="w-3.5 h-3.5" />
-              <span>{fuelInfo.label}</span>
-            </div>
+            <span className={cn('flex items-center gap-1', fuelInfo.color)}>
+              <Fuel className="w-3.5 h-3.5" />{fuelInfo.label}
+            </span>
+          )}
+          {vehicle.tankCapacity && (
+            <span className="flex items-center gap-1 text-slate-400">
+              <Droplets className="w-3.5 h-3.5" />{vehicle.tankCapacity}L
+            </span>
           )}
         </div>
       </div>
 
-      {/* KM progress */}
       <div className="px-5 pb-4">
         <div className="flex items-center justify-between text-xs mb-1.5">
           <span className="text-brand-text-secondary">KM Atual</span>
@@ -203,41 +309,38 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
         </div>
         {kmProgress !== null && (
           <>
-            <div className="progress-bar">
+            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className={cn(
-                  'progress-fill',
-                  kmProgress > 90 ? 'progress-fill-danger' :
-                  kmProgress > 70 ? 'progress-fill-warning' :
-                  'progress-fill',
+                className={cn('h-full rounded-full transition-all',
+                  kmProgress > 90 ? 'bg-danger-500' : kmProgress > 70 ? 'bg-warning-500' : 'bg-primary-500',
                 )}
                 style={{ width: `${kmProgress}%` }}
               />
             </div>
-            <div className="flex justify-between text-2xs text-brand-text-secondary mt-1">
+            <div className="flex justify-between text-[10px] text-brand-text-secondary mt-1">
               <span>Próx. revisão: {vehicle.nextMaintenanceKm?.toLocaleString('pt-BR')} km</span>
-              <span className={cn(kmProgress > 80 ? 'text-danger-500 font-semibold' : '')}>{Math.round(kmProgress)}%</span>
+              <span className={cn(kmProgress > 80 && 'text-danger-500 font-semibold')}>{Math.round(kmProgress)}%</span>
             </div>
           </>
         )}
+
+        {docExpiryDays !== null && docExpiryDays <= 30 && (
+          <div className={cn(
+            'mt-2 flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg',
+            docExpiryDays < 0 ? 'bg-danger-50 text-danger-700' : 'bg-warning-50 text-warning-700',
+          )}>
+            <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+            {docExpiryDays < 0
+              ? `CRLV vencido há ${Math.abs(docExpiryDays)} dias`
+              : `CRLV vence em ${docExpiryDays} dias`}
+          </div>
+        )}
       </div>
 
-      {/* Footer */}
       <div className="px-5 py-3 bg-slate-50/80 rounded-b-2xl border-t border-brand-border/50 flex items-center justify-between">
-        <div className="text-xs text-brand-text-secondary">
-          {vehicle.branch?.name && (
-            <span className="font-medium text-brand-text-primary">{vehicle.branch.name}</span>
-          )}
-        </div>
+        <span className="text-xs font-medium text-brand-text-primary">{vehicle.branch?.name}</span>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button size="xs" variant="ghost" leftIcon={<Eye className="w-3 h-3" />}>
-            Detalhes
-          </Button>
-          {vehicle.status === 'ACTIVE' && (
-            <Button size="xs" variant="ghost" leftIcon={<Wrench className="w-3 h-3" />}>
-              Manutenção
-            </Button>
-          )}
+          <Button size="xs" variant="ghost" leftIcon={<Eye className="w-3 h-3" />}>Detalhes</Button>
         </div>
         <ChevronRight className="w-4 h-4 text-brand-text-secondary group-hover:text-primary-600 transition-colors" />
       </div>
@@ -245,60 +348,168 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
   );
 }
 
+// ─── OilChangeCard ────────────────────────────────────────────────────────────
+
+function OilChangeCard({ record, onRegister }: { record: OilChangeRecord; onRegister: () => void }) {
+  const cfg = OIL_STATUS_CONFIG[record.status];
+  return (
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      className={cn(
+        'bg-white rounded-2xl border shadow-card hover:shadow-card-hover transition-shadow',
+        record.status === 'OVERDUE' ? 'border-danger-200' :
+        record.status === 'DUE_SOON' ? 'border-warning-200' : 'border-brand-border',
+      )}
+    >
+      <div className="p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <p className="font-plate text-lg font-black text-brand-text-primary tracking-wider">
+              {record.vehicle?.plate ?? '—'}
+            </p>
+            <p className="text-xs text-brand-text-secondary mt-0.5">
+              {record.vehicle?.brand} {record.vehicle?.model}
+            </p>
+          </div>
+          <span className={cn('text-xs font-semibold px-2.5 py-1 rounded-lg border', cfg.color, cfg.bg, cfg.border)}>
+            {cfg.label}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-xs mt-3">
+          {[
+            { label: 'Última troca',    value: record.changeDate ? format(parseISO(record.changeDate), 'dd/MM/yyyy') : '—' },
+            { label: 'KM da troca',     value: record.changeKm ? `${record.changeKm.toLocaleString('pt-BR')} km` : '—' },
+            { label: 'Próxima troca',   value: record.nextChangeKm ? `${record.nextChangeKm.toLocaleString('pt-BR')} km` : '—', danger: record.status === 'OVERDUE' },
+            { label: 'KM percorrido',   value: record.kmDriven ? `${record.kmDriven.toLocaleString('pt-BR')} km` : '—' },
+          ].map((item) => (
+            <div key={item.label} className="bg-slate-50 rounded-lg p-2.5">
+              <div className="text-brand-text-secondary mb-0.5">{item.label}</div>
+              <div className={cn('font-semibold', item.danger ? 'text-danger-600' : 'text-brand-text-primary')}>
+                {item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {record.oilType && (
+          <div className="mt-2 flex items-center gap-1.5 text-xs bg-slate-50 rounded-lg px-2.5 py-1.5">
+            <Droplets className="w-3 h-3 text-primary-500" />
+            <span className="text-brand-text-secondary">Óleo:</span>
+            <span className="font-semibold text-brand-text-primary">{record.oilType}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="px-5 py-3 bg-slate-50/80 rounded-b-2xl border-t border-brand-border/50">
+        <Button size="sm" variant="secondary" className="w-full" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={onRegister}>
+          Registrar Nova Troca
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function FleetPage() {
   const qc = useQueryClient();
-  const [search, setSearch] = useState('');
+  const [section, setSection]           = useState<'vehicles' | 'oil'>('vehicles');
+  const [search, setSearch]             = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
+  const [vehicleModal, setVehicleModal] = useState(false);
+  const [oilModal, setOilModal]         = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-  const { data: vehicles = [], isLoading } = useQuery<Vehicle[]>({
+  // ── Queries ──
+  const { data: vehicles = [], isLoading: loadingVehicles } = useQuery<Vehicle[]>({
     queryKey: ['vehicles', statusFilter],
-    queryFn: () =>
-      api.get('/vehicles', { params: { status: statusFilter || undefined } }).then((r) => r.data),
+    queryFn: () => api.get('/vehicles', { params: { status: statusFilter || undefined } }).then(r => r.data),
   });
 
-  const createMutation = useMutation({
-    mutationFn: (data: VehicleFormData) => api.post('/vehicles', data),
+  const { data: oilRecords = [], isLoading: loadingOil } = useQuery<OilChangeRecord[]>({
+    queryKey: ['oil-changes'],
+    enabled: section === 'oil',
+    queryFn: async () => {
+      const allVehicles: Vehicle[] = await api.get('/vehicles').then(r => r.data);
+      const results = await Promise.all(
+        allVehicles.map(v =>
+          api.get(`/vehicles/${v.id}/oil-changes`).then(r =>
+            (r.data as OilChangeRecord[]).map(rec => ({
+              ...rec,
+              vehicle: { plate: v.plate, brand: v.brand, model: v.model },
+            })),
+          ).catch(() => []),
+        ),
+      );
+      return results.flat();
+    },
+  });
+
+  // ── Mutations ──
+  const createVehicle = useMutation({
+    mutationFn: (d: VehicleFormData) => api.post('/vehicles', d),
     onSuccess: () => {
       toast.success('Veículo cadastrado com sucesso!');
       qc.invalidateQueries({ queryKey: ['vehicles'] });
-      setModalOpen(false);
-      reset();
+      setVehicleModal(false);
+      vForm.reset();
     },
-    onError: () => toast.error('Erro ao cadastrar veículo. Tente novamente.'),
+    onError: (e: any) => toast.error(e?.response?.data?.message ?? 'Erro ao cadastrar veículo.'),
   });
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<VehicleFormData>({ resolver: zodResolver(vehicleSchema) });
+  const createOil = useMutation({
+    mutationFn: ({ vehicleId, ...rest }: OilChangeFormData) =>
+      api.post(`/vehicles/${vehicleId}/oil-changes`, rest),
+    onSuccess: () => {
+      toast.success('Troca de óleo registrada!');
+      qc.invalidateQueries({ queryKey: ['oil-changes'] });
+      setOilModal(false);
+      oForm.reset();
+    },
+    onError: () => toast.error('Erro ao registrar troca de óleo.'),
+  });
 
-  const plateValue    = watch('plate')  ?? '';
-  const typeValue     = watch('type')   ?? '';
-  const brandValue    = watch('brand')  ?? '';
-  const brandsForType  = typeValue ? Object.keys(VEHICLE_CATALOG[typeValue] ?? {}) : [];
-  const modelsForBrand = typeValue && brandValue
-    ? (VEHICLE_CATALOG[typeValue]?.[brandValue] ?? [])
-    : [];
+  // ── Forms ──
+  const vForm = useForm<VehicleFormData>({ resolver: zodResolver(vehicleSchema) });
+  const { register: vr, handleSubmit: vhs, reset: vReset, setValue: vSv, watch: vw, formState: { errors: ve } } = vForm;
 
-  const filtered = vehicles.filter(
-    (v) =>
-      v.plate.toLowerCase().includes(search.toLowerCase()) ||
-      v.model.toLowerCase().includes(search.toLowerCase()) ||
-      v.brand.toLowerCase().includes(search.toLowerCase()),
+  const oForm = useForm<OilChangeFormData>({ resolver: zodResolver(oilChangeSchema) });
+  const { register: or, handleSubmit: ohs, reset: oReset, formState: { errors: oe } } = oForm;
+
+  const plateVal  = vw('plate') ?? '';
+  const typeVal   = vw('type')  ?? '';
+  const brandVal  = vw('brand') ?? '';
+  const brands    = typeVal  ? Object.keys(VEHICLE_CATALOG[typeVal]  ?? {}) : [];
+  const models    = typeVal && brandVal ? (VEHICLE_CATALOG[typeVal]?.[brandVal] ?? []) : [];
+
+  const filtered = vehicles.filter(v =>
+    [v.plate, v.model, v.brand, String(v.tag ?? '')].some(s =>
+      s.toLowerCase().includes(search.toLowerCase()),
+    ),
   );
 
   const counts = {
-    all: vehicles.length,
-    ACTIVE: vehicles.filter((v) => v.status === 'ACTIVE').length,
-    MAINTENANCE: vehicles.filter((v) => v.status === 'MAINTENANCE').length,
-    INACTIVE: vehicles.filter((v) => v.status === 'INACTIVE').length,
+    '':           vehicles.length,
+    ACTIVE:       vehicles.filter(v => v.status === 'ACTIVE').length,
+    MAINTENANCE:  vehicles.filter(v => v.status === 'MAINTENANCE').length,
+    INACTIVE:     vehicles.filter(v => v.status === 'INACTIVE').length,
   };
+
+  const overdueOil = oilRecords.filter(r => r.status === 'OVERDUE').length;
+
+  // ── Field helper ──
+  function Field({ label, required, children, span2 }: { label: string; required?: boolean; children: React.ReactNode; span2?: boolean }) {
+    return (
+      <div className={span2 ? 'col-span-2' : ''}>
+        <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+          {label}{required && ' *'}
+        </label>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -308,292 +519,404 @@ export default function FleetPage() {
         actions={
           <Button
             leftIcon={<Plus className="w-4 h-4" />}
-            onClick={() => setModalOpen(true)}
+            onClick={() => section === 'vehicles' ? setVehicleModal(true) : setOilModal(true)}
           >
-            Novo Veículo
+            {section === 'vehicles' ? 'Novo Veículo' : 'Registrar Troca'}
           </Button>
         }
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
-        {/* Toolbar */}
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Filter tabs */}
-          <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5">
-            {FILTER_TABS.map((tab) => (
+
+        {/* ── Section tabs ── */}
+        <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5 w-fit">
+          {SECTION_TABS.map(tab => {
+            const Icon = tab.icon;
+            const active = section === tab.key;
+            return (
               <button
                 key={tab.key}
-                onClick={() => setStatusFilter(tab.key)}
+                onClick={() => setSection(tab.key as typeof section)}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5',
-                  statusFilter === tab.key
-                    ? 'bg-primary-600 text-white shadow-sm'
-                    : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
+                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                  active ? 'bg-primary-600 text-white shadow-sm' : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
                 )}
               >
+                <Icon className="w-4 h-4" />
                 {tab.label}
-                <span className={cn(
-                  'text-2xs font-bold px-1.5 py-0.5 rounded-full',
-                  statusFilter === tab.key
-                    ? 'bg-white/20 text-white'
-                    : 'bg-slate-100 text-brand-text-secondary',
-                )}>
-                  {tab.key === '' ? counts.all : counts[tab.key as keyof typeof counts]}
-                </span>
+                {tab.key === 'oil' && overdueOil > 0 && (
+                  <span className="w-5 h-5 bg-danger-500 text-white text-2xs font-bold rounded-full flex items-center justify-center">
+                    {overdueOil}
+                  </span>
+                )}
               </button>
-            ))}
-          </div>
-
-          {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary pointer-events-none" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar placa, marca ou modelo..."
-              className="input-base pl-9"
-            />
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Results count */}
-          {!isLoading && (
-            <span className="text-sm text-brand-text-secondary">
-              <span className="font-semibold text-brand-text-primary">{filtered.length}</span> veículos
-            </span>
-          )}
+            );
+          })}
         </div>
 
-        {/* Maintenance alert */}
-        {!isLoading && filtered.some((v) =>
-          v.nextMaintenanceDate &&
-          new Date(v.nextMaintenanceDate) <= new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) &&
-          v.status === 'ACTIVE',
-        ) && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 p-3.5 bg-warning-50 border border-warning-200 rounded-xl text-sm"
-          >
-            <AlertTriangle className="w-5 h-5 text-warning-500 flex-shrink-0" />
-            <span className="text-warning-700 font-medium">
-              Alguns veículos estão com manutenção próxima do vencimento.
-            </span>
-            <Badge variant="warning" className="ml-auto">Atenção</Badge>
-          </motion.div>
-        )}
+        <AnimatePresence mode="wait">
 
-        {/* Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-24 text-brand-text-secondary"
-          >
-            <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-              <Truck className="w-10 h-10 opacity-30" />
-            </div>
-            <p className="font-semibold">Nenhum veículo encontrado</p>
-            <p className="text-sm mt-1 opacity-70">Tente ajustar os filtros ou cadastre um novo veículo.</p>
-            <Button
-              className="mt-4"
-              size="sm"
-              leftIcon={<Plus className="w-4 h-4" />}
-              onClick={() => setModalOpen(true)}
-            >
-              Cadastrar Veículo
-            </Button>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-            <AnimatePresence>
-              {filtered.map((vehicle, i) => (
-                <motion.div
-                  key={vehicle.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.25, delay: i * 0.03 }}
-                >
-                  <VehicleCard
-                    vehicle={vehicle}
-                    onClick={() => setSelectedVehicle(vehicle)}
-                  />
+          {/* ════ VEHICLES SECTION ════ */}
+          {section === 'vehicles' && (
+            <motion.div key="vehicles" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="space-y-5">
+
+              {/* Toolbar */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5">
+                  {FILTER_TABS.map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setStatusFilter(tab.key)}
+                      className={cn(
+                        'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5',
+                        statusFilter === tab.key ? 'bg-primary-600 text-white shadow-sm' : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
+                      )}
+                    >
+                      {tab.label}
+                      <span className={cn('text-2xs font-bold px-1.5 py-0.5 rounded-full',
+                        statusFilter === tab.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-brand-text-secondary',
+                      )}>
+                        {counts[tab.key as keyof typeof counts]}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative flex-1 min-w-[200px] max-w-sm">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary pointer-events-none" />
+                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar placa, TAG, marca ou modelo..." className="input-base pl-9" />
+                  {search && (
+                    <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {!loadingVehicles && (
+                  <span className="text-sm text-brand-text-secondary">
+                    <span className="font-semibold text-brand-text-primary">{filtered.length}</span> veículos
+                  </span>
+                )}
+              </div>
+
+              {/* Maintenance alert */}
+              {!loadingVehicles && filtered.some(v =>
+                v.nextMaintenanceDate &&
+                new Date(v.nextMaintenanceDate) <= new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) &&
+                v.status === 'ACTIVE',
+              ) && (
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 p-3.5 bg-warning-50 border border-warning-200 rounded-xl text-sm">
+                  <AlertTriangle className="w-5 h-5 text-warning-500 flex-shrink-0" />
+                  <span className="text-warning-700 font-medium">Alguns veículos estão com manutenção próxima do vencimento.</span>
+                  <Badge variant="warning" className="ml-auto">Atenção</Badge>
                 </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
+              )}
+
+              {/* Grid */}
+              {loadingVehicles ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                  {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+                </div>
+              ) : filtered.length === 0 ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-24 text-brand-text-secondary">
+                  <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                    <Truck className="w-10 h-10 opacity-30" />
+                  </div>
+                  <p className="font-semibold">Nenhum veículo encontrado</p>
+                  <p className="text-sm mt-1 opacity-70">Tente ajustar os filtros ou cadastre um novo veículo.</p>
+                  <Button className="mt-4" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setVehicleModal(true)}>
+                    Cadastrar Veículo
+                  </Button>
+                </motion.div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                  <AnimatePresence>
+                    {filtered.map((v, i) => (
+                      <motion.div key={v.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.25, delay: i * 0.03 }}>
+                        <VehicleCard vehicle={v} onClick={() => setSelectedVehicle(v)} />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* ════ OIL SECTION ════ */}
+          {section === 'oil' && (
+            <motion.div key="oil" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="space-y-5">
+              {overdueOil > 0 && (
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 p-3.5 bg-danger-50 border border-danger-200 rounded-xl text-sm">
+                  <Droplets className="w-5 h-5 text-danger-500 flex-shrink-0 animate-pulse" />
+                  <span className="text-danger-700 font-medium">{overdueOil} veículo(s) com troca de óleo em atraso.</span>
+                  <Badge variant="danger" className="ml-auto">{overdueOil} Atrasado(s)</Badge>
+                </motion.div>
+              )}
+
+              {loadingOil ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                  {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+                </div>
+              ) : oilRecords.length === 0 ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-24 text-brand-text-secondary">
+                  <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                    <Droplets className="w-10 h-10 opacity-30" />
+                  </div>
+                  <p className="font-semibold">Nenhum registro de troca de óleo</p>
+                  <p className="text-sm mt-1 opacity-70">Registre a primeira troca de óleo de um veículo.</p>
+                  <Button className="mt-4" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setOilModal(true)}>
+                    Registrar Troca de Óleo
+                  </Button>
+                </motion.div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                  <AnimatePresence>
+                    {oilRecords.map((rec, i) => (
+                      <motion.div key={rec.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.25, delay: i * 0.03 }}>
+                        <OilChangeCard
+                          record={rec}
+                          onRegister={() => {
+                            oForm.setValue('vehicleId', rec.vehicleId);
+                            setOilModal(true);
+                          }}
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Create Vehicle Modal */}
+      {/* ════ VEHICLE MODAL ════ */}
       <Modal
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); reset(); }}
+        open={vehicleModal}
+        onClose={() => { setVehicleModal(false); vReset(); }}
         title="Novo Veículo"
-        description="Preencha os dados do veículo para cadastrá-lo na frota."
-        size="lg"
+        description="Cadastre o veículo na frota. Campos com * são obrigatórios."
+        size="xl"
         footer={
           <>
-            <Button variant="secondary" onClick={() => { setModalOpen(false); reset(); }}>
-              Cancelar
-            </Button>
-            <Button
-              loading={createMutation.isPending}
-              onClick={handleSubmit((d) => createMutation.mutate(d))}
-            >
+            <Button variant="secondary" onClick={() => { setVehicleModal(false); vReset(); }}>Cancelar</Button>
+            <Button loading={createVehicle.isPending} onClick={vhs(d => createVehicle.mutate(d))}>
               Cadastrar Veículo
             </Button>
           </>
         }
       >
-        <form className="grid grid-cols-2 gap-4">
-          {/* Plate */}
-          <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Placa *</label>
-            <input
-              {...register('plate')}
-              value={plateValue}
-              onChange={(e) => setValue('plate', applyMaskPlate(e.target.value), { shouldValidate: true })}
-              placeholder="ABC1D23"
-              maxLength={7}
-              className={cn('input-base font-plate uppercase tracking-widest', errors.plate && 'border-danger-400')}
-            />
-            {errors.plate
-              ? <p className="text-danger-500 text-xs mt-1">{errors.plate.message}</p>
-              : <p className="text-xs text-brand-text-secondary mt-1">Mercosul: ABC1D23 · Antigo: ABC1234</p>}
-          </div>
+        <form className="space-y-3 max-h-[62vh] overflow-y-auto pr-1 scrollbar-thin">
 
-          {/* Type */}
-          <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Tipo *</label>
-            <select
-              {...register('type')}
-              value={typeValue}
-              onChange={(e) => {
-                setValue('type', e.target.value, { shouldValidate: true });
-                setValue('brand', '', { shouldValidate: false });
-                setValue('model', '', { shouldValidate: false });
-              }}
-              className={cn('input-base', errors.type && 'border-danger-400')}
-            >
-              <option value="">Selecionar...</option>
-              {Object.entries(TYPE_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
-              ))}
-            </select>
-            {errors.type && <p className="text-danger-500 text-xs mt-1">{errors.type.message}</p>}
-          </div>
+          {/* ── Identificação ── */}
+          <FormSection title="Identificação Básica" icon={Truck} defaultOpen>
+            <Field label="Placa" required>
+              <input
+                {...vr('plate')} value={plateVal}
+                onChange={e => vSv('plate', applyMaskPlate(e.target.value), { shouldValidate: true })}
+                placeholder="ABC1D23" maxLength={7}
+                className={cn('input-base font-plate uppercase tracking-widest', ve.plate && 'border-danger-400')}
+              />
+              {ve.plate ? <p className="text-danger-500 text-xs mt-1">{ve.plate.message}</p>
+                : <p className="text-xs text-brand-text-secondary mt-1">Mercosul: ABC1D23 · Antigo: ABC1234</p>}
+            </Field>
 
-          {/* Brand */}
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Marca *</label>
-            <select
-              {...register('brand')}
-              value={brandValue}
-              onChange={(e) => {
-                setValue('brand', e.target.value, { shouldValidate: true });
-                setValue('model', '', { shouldValidate: false });
-              }}
-              disabled={!typeValue}
-              className={cn('input-base', errors.brand && 'border-danger-400', !typeValue && 'opacity-50 cursor-not-allowed')}
-            >
-              <option value="">{typeValue ? 'Selecionar marca...' : 'Selecione o tipo primeiro'}</option>
-              {brandsForType.map((b) => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
-            {errors.brand && <p className="text-danger-500 text-xs mt-1">{errors.brand.message}</p>}
-          </div>
+            <Field label="TAG">
+              <input {...vr('tag')} type="number" placeholder="Ex: 10" className="input-base" />
+            </Field>
 
-          {/* Model */}
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Modelo *</label>
-            <select
-              {...register('model')}
-              value={watch('model') ?? ''}
-              onChange={(e) => setValue('model', e.target.value, { shouldValidate: true })}
-              disabled={!brandValue}
-              className={cn('input-base', errors.model && 'border-danger-400', !brandValue && 'opacity-50 cursor-not-allowed')}
-            >
-              <option value="">{brandValue ? 'Selecionar modelo...' : 'Selecione a marca primeiro'}</option>
-              {modelsForBrand.map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
-            {errors.model && <p className="text-danger-500 text-xs mt-1">{errors.model.message}</p>}
-          </div>
+            <Field label="Tipo" required>
+              <select
+                {...vr('type')} value={typeVal}
+                onChange={e => { vSv('type', e.target.value, { shouldValidate: true }); vSv('brand', ''); vSv('model', ''); }}
+                className={cn('input-base', ve.type && 'border-danger-400')}
+              >
+                <option value="">Selecionar...</option>
+                {Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              </select>
+            </Field>
 
-          {/* Year */}
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Ano *</label>
-            <input {...register('year')} type="number" placeholder="2024" className={cn('input-base', errors.year && 'border-danger-400')} />
-            {errors.year && <p className="text-danger-500 text-xs mt-1">{errors.year.message}</p>}
-          </div>
+            <Field label="Marca" required>
+              <select
+                {...vr('brand')} value={brandVal}
+                onChange={e => { vSv('brand', e.target.value, { shouldValidate: true }); vSv('model', ''); }}
+                disabled={!typeVal}
+                className={cn('input-base', ve.brand && 'border-danger-400', !typeVal && 'opacity-50 cursor-not-allowed')}
+              >
+                <option value="">{typeVal ? 'Selecionar marca...' : 'Selecione o tipo primeiro'}</option>
+                {brands.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
+            </Field>
 
-          {/* Fuel type */}
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Combustível *</label>
-            <select {...register('fuelType')} className={cn('input-base', errors.fuelType && 'border-danger-400')}>
-              <option value="">Selecionar...</option>
-              {Object.entries(FUEL_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>{v.label}</option>
-              ))}
-            </select>
-          </div>
+            <Field label="Modelo" required>
+              <select
+                {...vr('model')} value={vw('model') ?? ''}
+                onChange={e => vSv('model', e.target.value, { shouldValidate: true })}
+                disabled={!brandVal}
+                className={cn('input-base', ve.model && 'border-danger-400', !brandVal && 'opacity-50 cursor-not-allowed')}
+              >
+                <option value="">{brandVal ? 'Selecionar modelo...' : 'Selecione a marca primeiro'}</option>
+                {models.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </Field>
 
-          {/* Current KM */}
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">KM Atual *</label>
-            <input {...register('currentKm')} type="number" placeholder="0" className={cn('input-base', errors.currentKm && 'border-danger-400')} />
-          </div>
+            <Field label="Ano Modelo" required>
+              <input {...vr('year')} type="number" placeholder={String(new Date().getFullYear())} className={cn('input-base', ve.year && 'border-danger-400')} />
+            </Field>
 
-          {/* Next maintenance KM */}
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">KM Próx. Revisão</label>
-            <input {...register('nextMaintenanceKm')} type="number" placeholder="Opcional" className="input-base" />
-          </div>
+            <Field label="Ano Fabricação">
+              <input {...vr('manufacturingYear')} type="number" placeholder="Ex: 2023" className="input-base" />
+            </Field>
 
+            <Field label="Combustível" required>
+              <select {...vr('fuelType')} className={cn('input-base', ve.fuelType && 'border-danger-400')}>
+                <option value="">Selecionar...</option>
+                {Object.entries(FUEL_LABELS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+              </select>
+            </Field>
 
+            <Field label="KM Atual" required>
+              <input {...vr('currentKm')} type="number" placeholder="0" className={cn('input-base', ve.currentKm && 'border-danger-400')} />
+            </Field>
+
+            <Field label="KM Próx. Revisão">
+              <input {...vr('nextMaintenanceKm')} type="number" placeholder="Opcional" className="input-base" />
+            </Field>
+
+            <Field label="Responsável">
+              <input {...vr('responsiblePerson')} placeholder="Nome do responsável" className="input-base" />
+            </Field>
+
+            <Field label="Categoria">
+              <input {...vr('category')} placeholder="Ex: PARTICULAR, COMERCIAL" className="input-base" />
+            </Field>
+          </FormSection>
+
+          {/* ── Documentação ── */}
+          <FormSection title="Documentação (CRLV / DETRAN)" icon={FileText} defaultOpen={false}>
+            <Field label="RENAVAM">
+              <input {...vr('renavam')} placeholder="Código RENAVAM" className="input-base font-mono" />
+            </Field>
+            <Field label="Nº CRV">
+              <input {...vr('crvNumber')} placeholder="Número do CRV" className="input-base font-mono" />
+            </Field>
+            <Field label="Nº Chassi">
+              <input {...vr('chassisNumber')} placeholder="Número do chassi" className="input-base font-mono" />
+            </Field>
+            <Field label="Cód. Segurança CLA">
+              <input {...vr('securityCode')} placeholder="Código de segurança" className="input-base font-mono" />
+            </Field>
+            <Field label="Vigência do Documento">
+              <input {...vr('documentExpiry')} type="date" className="input-base" />
+            </Field>
+            <Field label="Código do Motor">
+              <input {...vr('engineCode')} placeholder="Código do motor" className="input-base font-mono" />
+            </Field>
+          </FormSection>
+
+          {/* ── Especificações ── */}
+          <FormSection title="Especificações Técnicas" icon={Settings2} defaultOpen={false}>
+            <Field label="Potência / Cilindrada">
+              <input {...vr('horsepower')} placeholder="Ex: 75 CV / 999" className="input-base" />
+            </Field>
+            <Field label="Peso Bruto Total">
+              <input {...vr('grossWeight')} placeholder="Ex: 1.47 t" className="input-base" />
+            </Field>
+            <Field label="Eixos">
+              <input {...vr('axles')} placeholder="Ex: 2 ou 6x2" className="input-base" />
+            </Field>
+            <Field label="CMT">
+              <input {...vr('cmt')} placeholder="Capacidade máx. tração" className="input-base" />
+            </Field>
+            <Field label="Lotação">
+              <input {...vr('seats')} placeholder="Ex: 05P" className="input-base" />
+            </Field>
+            <Field label="Cap. Tanque (L)">
+              <input {...vr('tankCapacity')} type="number" placeholder="Ex: 48" className="input-base" />
+            </Field>
+            <Field label="Intervalo Troca de Óleo (km)">
+              <input {...vr('oilChangeIntervalKm')} type="number" placeholder="Ex: 10000" className="input-base" />
+              <p className="text-xs text-brand-text-secondary mt-1">Padrão: 10.000 km (carros) / 1.000 km (motos)</p>
+            </Field>
+          </FormSection>
         </form>
       </Modal>
 
-      {/* Vehicle detail modal */}
+      {/* ════ OIL CHANGE MODAL ════ */}
+      <Modal
+        open={oilModal}
+        onClose={() => { setOilModal(false); oReset(); }}
+        title="Registrar Troca de Óleo"
+        description="Informe os dados da troca de óleo realizada."
+        size="md"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => { setOilModal(false); oReset(); }}>Cancelar</Button>
+            <Button loading={createOil.isPending} onClick={ohs(d => createOil.mutate(d))}>
+              Registrar
+            </Button>
+          </>
+        }
+      >
+        <form className="grid grid-cols-2 gap-4">
+          <div className="col-span-2">
+            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Veículo *</label>
+            <select {...or('vehicleId')} className={cn('input-base', oe.vehicleId && 'border-danger-400')}>
+              <option value="">Selecionar veículo...</option>
+              {vehicles.map(v => (
+                <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>
+              ))}
+            </select>
+            {oe.vehicleId && <p className="text-danger-500 text-xs mt-1">{oe.vehicleId.message}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Data da Troca</label>
+            <input {...or('changeDate')} type="date" className="input-base" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">KM na Troca</label>
+            <input {...or('changeKm')} type="number" placeholder="Ex: 50000" className="input-base" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Próxima Troca (km)</label>
+            <input {...or('nextChangeKm')} type="number" placeholder="Calculado automaticamente" className="input-base" />
+            <p className="text-xs text-brand-text-secondary mt-1">Deixe em branco para usar o intervalo do veículo</p>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Tipo de Óleo</label>
+            <input {...or('oilType')} placeholder="Ex: 0W20, 5W30" className="input-base" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Responsável</label>
+            <input {...or('responsibleName')} placeholder="Nome do mecânico/oficina" className="input-base" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Observações</label>
+            <input {...or('notes')} placeholder="Opcional" className="input-base" />
+          </div>
+        </form>
+      </Modal>
+
+      {/* ════ VEHICLE DETAIL MODAL ════ */}
       {selectedVehicle && (
         <Modal
           open={!!selectedVehicle}
           onClose={() => setSelectedVehicle(null)}
           title={`${selectedVehicle.brand} ${selectedVehicle.model}`}
-          description={`Placa: ${selectedVehicle.plate}`}
-          size="md"
-          footer={
-            <Button variant="secondary" onClick={() => setSelectedVehicle(null)}>
-              Fechar
-            </Button>
-          }
+          description={`Placa: ${selectedVehicle.plate}${selectedVehicle.tag !== undefined ? ` · TAG #${selectedVehicle.tag}` : ''}`}
+          size="xl"
+          footer={<Button variant="secondary" onClick={() => setSelectedVehicle(null)}>Fechar</Button>}
         >
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
+            <div className="grid grid-cols-3 gap-3">
               {[
-                { label: 'Placa', value: selectedVehicle.plate, mono: true },
-                { label: 'Ano', value: selectedVehicle.year },
-                { label: 'Status', value: <VehicleStatusBadge status={selectedVehicle.status} /> },
-                { label: 'KM Atual', value: `${selectedVehicle.currentKm.toLocaleString('pt-BR')} km` },
-                { label: 'Total de Rotas', value: selectedVehicle._count.routes },
-              ].map((item) => (
+                { label: 'Placa',        value: selectedVehicle.plate,                                               mono: true  },
+                { label: 'Status',       value: <VehicleStatusBadge status={selectedVehicle.status} />                            },
+                { label: 'KM Atual',     value: `${selectedVehicle.currentKm.toLocaleString('pt-BR')} km`                        },
+                { label: 'Tipo',         value: TYPE_LABELS[selectedVehicle.type] ?? selectedVehicle.type                         },
+                { label: 'Combustível',  value: FUEL_LABELS[selectedVehicle.fuelType ?? '']?.label ?? '—'                        },
+                { label: 'Rotas',        value: selectedVehicle._count.routes                                                      },
+              ].map(item => (
                 <div key={item.label} className="bg-slate-50 rounded-xl p-3">
                   <div className="text-xs text-brand-text-secondary mb-1">{item.label}</div>
                   <div className={cn('text-sm font-semibold text-brand-text-primary', item.mono && 'font-plate')}>
@@ -602,6 +925,50 @@ export default function FleetPage() {
                 </div>
               ))}
             </div>
+
+            {/* Specs */}
+            {(selectedVehicle.tankCapacity || selectedVehicle.horsepower || selectedVehicle.seats || selectedVehicle.oilChangeIntervalKm) && (
+              <div>
+                <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">Especificações</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: 'Tanque',        value: selectedVehicle.tankCapacity ? `${selectedVehicle.tankCapacity} L` : null },
+                    { label: 'Potência',      value: selectedVehicle.horsepower },
+                    { label: 'Lotação',       value: selectedVehicle.seats },
+                    { label: 'Peso Bruto',    value: selectedVehicle.grossWeight },
+                    { label: 'Eixos',         value: selectedVehicle.axles },
+                    { label: 'Int. Óleo',     value: selectedVehicle.oilChangeIntervalKm ? `${selectedVehicle.oilChangeIntervalKm.toLocaleString('pt-BR')} km` : null },
+                  ].filter(i => i.value).map(item => (
+                    <div key={item.label} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-xs">
+                      <span className="text-brand-text-secondary">{item.label}</span>
+                      <span className="font-semibold text-brand-text-primary">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Docs */}
+            {(selectedVehicle.renavam || selectedVehicle.chassisNumber || selectedVehicle.crvNumber || selectedVehicle.documentExpiry) && (
+              <div>
+                <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">Documentação</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: 'RENAVAM',      value: selectedVehicle.renavam },
+                    { label: 'Nº CRV',       value: selectedVehicle.crvNumber },
+                    { label: 'Chassi',       value: selectedVehicle.chassisNumber },
+                    { label: 'Categoria',    value: selectedVehicle.category },
+                    { label: 'Vigência Doc.',value: selectedVehicle.documentExpiry ? format(parseISO(selectedVehicle.documentExpiry), 'dd/MM/yyyy') : null },
+                    { label: 'Responsável',  value: selectedVehicle.responsiblePerson },
+                  ].filter(i => i.value).map(item => (
+                    <div key={item.label} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-xs">
+                      <span className="text-brand-text-secondary">{item.label}</span>
+                      <span className="font-semibold font-mono text-brand-text-primary">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </Modal>
       )}

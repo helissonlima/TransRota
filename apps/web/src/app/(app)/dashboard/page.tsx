@@ -12,6 +12,9 @@ import {
   TrendingUp,
   Activity,
   Award,
+  Receipt,
+  Droplets,
+  CalendarDays,
 } from 'lucide-react';
 import {
   LineChart,
@@ -49,6 +52,10 @@ interface DashboardData {
   deliveries: { today: number };
   alerts: { maintenanceDue: number };
 }
+
+interface TaxAlert { id: string; type: string; dueDate: string; value?: number; vehicle: { plate: string; model: string } }
+interface OilAlert { vehicleId: string; status: string; nextChangeKm?: number; currentKm?: number; vehicle?: { plate: string; model: string } }
+interface TodayBooking { id: string; timeSlot: string; status: string; vehicle: { plate: string; model: string }; user: { name: string } }
 
 // Generate mock 7-day line chart data
 function generateWeeklyData() {
@@ -113,6 +120,36 @@ export default function DashboardPage() {
     queryKey: ['dashboard'],
     queryFn: () => api.get('/reports/dashboard').then((r) => r.data),
     refetchInterval: 30_000,
+  });
+
+  const { data: taxAlerts = [] } = useQuery<TaxAlert[]>({
+    queryKey: ['taxes-overdue'],
+    queryFn: () => api.get('/taxes/overdue').then(r => r.data).catch(() => []),
+  });
+
+  const { data: oilAlerts = [] } = useQuery<OilAlert[]>({
+    queryKey: ['oil-overdue'],
+    queryFn: async () => {
+      const vehicles = await api.get('/vehicles').then(r => r.data).catch(() => []);
+      const results = await Promise.all(
+        (vehicles as any[]).map((v: any) =>
+          api.get(`/vehicles/${v.id}/oil-changes`).then((r: any) =>
+            (r.data as any[])
+              .filter((rec: any) => rec.status === 'OVERDUE' || rec.status === 'DUE_SOON')
+              .map((rec: any) => ({ ...rec, vehicle: { plate: v.plate, model: v.model } }))
+          ).catch(() => [])
+        )
+      );
+      return results.flat();
+    },
+  });
+
+  const { data: todayBookings = [] } = useQuery<TodayBooking[]>({
+    queryKey: ['bookings-today'],
+    queryFn: () => {
+      const today = new Date().toISOString().slice(0, 10);
+      return api.get('/bookings', { params: { date: today } }).then(r => r.data).catch(() => []);
+    },
   });
 
   const userName =
@@ -242,6 +279,93 @@ export default function DashboardPage() {
             />
           </motion.div>
         </motion.div>
+
+        {/* ── Secondary Alerts ────────────────────────────────────────────── */}
+        {(taxAlerts.length > 0 || oilAlerts.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 xl:grid-cols-2 gap-4"
+          >
+            {taxAlerts.length > 0 && (
+              <a href="/fiscal" className="block group">
+                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                    <Receipt className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-red-800 text-sm">
+                      {taxAlerts.length} obrigação(ões) fiscal(is) vencida(s) ou próxima(s)
+                    </p>
+                    <p className="text-red-600 text-xs mt-0.5">IPVA, licenciamento ou seguro pendente</p>
+                  </div>
+                  <span className="text-xs font-semibold text-red-700 group-hover:underline">Ver →</span>
+                </div>
+              </a>
+            )}
+            {oilAlerts.length > 0 && (
+              <a href="/fleet" className="block group">
+                <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+                    <Droplets className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-amber-800 text-sm">
+                      {oilAlerts.length} veículo(s) com troca de óleo atrasada ou próxima
+                    </p>
+                    <p className="text-amber-600 text-xs mt-0.5">Verifique o controle de troca de óleo</p>
+                  </div>
+                  <span className="text-xs font-semibold text-amber-700 group-hover:underline">Ver →</span>
+                </div>
+              </a>
+            )}
+          </motion.div>
+        )}
+
+        {/* ── Today Bookings ───────────────────────────────────────────────── */}
+        {todayBookings.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+            className="card"
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-brand-border">
+              <div className="flex items-center gap-2">
+                <CalendarDays className="w-4 h-4 text-primary-600" />
+                <h3 className="font-semibold text-brand-text-primary text-sm">Agendamentos de Hoje</h3>
+              </div>
+              <a href="/bookings" className="text-xs font-semibold text-primary-600 hover:underline">Ver todos →</a>
+            </div>
+            <div className="divide-y divide-brand-border/40">
+              {todayBookings.slice(0, 4).map((b, i) => (
+                <motion.div
+                  key={b.id}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 + i * 0.04 }}
+                  className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50/70 transition-colors"
+                >
+                  <div className={cn('w-2 h-8 rounded-full flex-shrink-0',
+                    b.status === 'CONFIRMED' ? 'bg-emerald-400' :
+                    b.status === 'PENDING'   ? 'bg-warning-400' :
+                    b.status === 'COMPLETED' ? 'bg-blue-400'    : 'bg-slate-300',
+                  )} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-brand-text-primary truncate">
+                      {b.vehicle.plate} — {b.vehicle.model}
+                    </p>
+                    <p className="text-xs text-brand-text-secondary">{b.user.name}</p>
+                  </div>
+                  <span className="text-xs font-semibold text-brand-text-secondary bg-slate-100 px-2 py-1 rounded-lg">
+                    {b.timeSlot}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* ── Charts row ──────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-5">
