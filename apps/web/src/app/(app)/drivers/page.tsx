@@ -238,11 +238,6 @@ export default function DriversPage() {
       <Header
         title="Motoristas"
         breadcrumbs={[{ label: 'Motoristas' }]}
-        actions={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Novo Motorista
-          </Button>
-        }
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">

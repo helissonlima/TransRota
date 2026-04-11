@@ -39,7 +39,7 @@ interface Booking {
   notes?: string;
   status: BookingStatus;
   vehicle: { id: string; plate: string; model: string; brand: string };
-  collaborator: { id: string; name: string };
+  user: { id: string; name: string };
 }
 
 interface Vehicle {
@@ -154,30 +154,31 @@ export default function BookingsPage() {
       <Header
         title="Agendamento de Veículos"
         breadcrumbs={[{ label: 'Agendamento' }]}
-        actions={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Novo Agendamento
-          </Button>
-        }
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
         {/* Filter tabs */}
-        <div className="flex items-center gap-1 bg-white border border-brand-border rounded-xl p-1 w-fit flex-wrap">
-          {FILTER_TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key as BookingStatus | '')}
-              className={cn(
-                'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                filter === tab.key
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-1 bg-white border border-brand-border rounded-xl p-1 w-fit flex-wrap">
+            {FILTER_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key as BookingStatus | '')}
+                className={cn(
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                  filter === tab.key
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
+            Novo Agendamento
+          </Button>
         </div>
 
         {/* Content */}
@@ -254,7 +255,7 @@ export default function BookingsPage() {
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-sm">
                               <User className="w-3.5 h-3.5 text-brand-text-secondary flex-shrink-0" />
-                              <span className="text-brand-text-primary font-medium">{booking.collaborator.name}</span>
+                              <span className="text-brand-text-primary font-medium">{booking.user?.name ?? 'Usuário não identificado'}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
                               <Clock className="w-3.5 h-3.5 text-brand-text-secondary flex-shrink-0" />

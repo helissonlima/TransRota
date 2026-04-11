@@ -153,7 +153,7 @@ export default function ProfilePage() {
               <div>
                 <h3 className="text-lg font-semibold text-brand-text-primary">{userName || '—'}</h3>
                 <p className="text-sm text-brand-text-secondary mb-1.5">{userEmail || '—'}</p>
-                <Badge variant={roleBadge[userRole] ?? 'gray'}>{roleLabel[userRole] ?? userRole || '—'}</Badge>
+                <Badge variant={roleBadge[userRole] ?? 'gray'}>{roleLabel[userRole] ?? userRole ?? '—'}</Badge>
               </div>
             </div>
 
@@ -171,7 +171,7 @@ export default function ProfilePage() {
                   <Shield className="w-3.5 h-3.5 text-brand-text-secondary" />
                   <span className="text-xs text-brand-text-secondary font-medium">Função</span>
                 </div>
-                <p className="text-sm text-brand-text-primary">{roleLabel[userRole] ?? userRole || '—'}</p>
+                <p className="text-sm text-brand-text-primary">{roleLabel[userRole] ?? userRole ?? '—'}</p>
               </div>
 
               <div className="bg-slate-50 border border-brand-border rounded-lg p-3 sm:col-span-2">

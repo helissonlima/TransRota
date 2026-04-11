@@ -516,14 +516,6 @@ export default function FleetPage() {
       <Header
         title="Frota"
         breadcrumbs={[{ label: 'Frota' }]}
-        actions={
-          <Button
-            leftIcon={<Plus className="w-4 h-4" />}
-            onClick={() => section === 'vehicles' ? setVehicleModal(true) : setOilModal(true)}
-          >
-            {section === 'vehicles' ? 'Novo Veículo' : 'Registrar Troca'}
-          </Button>
-        }
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">

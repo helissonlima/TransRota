@@ -341,11 +341,6 @@ export default function ChecklistsPage() {
       <Header
         title="Checklists"
         breadcrumbs={[{ label: 'Checklists' }]}
-        actions={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Novo Checklist
-          </Button>
-        }
       />
 
       <div className="p-6 space-y-6 max-w-[1600px] mx-auto">

@@ -59,10 +59,11 @@ export class DailyKmController {
     @Query('month') month: string,
     @Query('driverId') driverId?: string,
   ) {
+    const now = new Date();
     return this.dailyKmService.getMonthlySummary(
       prisma,
-      parseInt(year, 10),
-      parseInt(month, 10),
+      year ? parseInt(year, 10) : now.getFullYear(),
+      month ? parseInt(month, 10) : now.getMonth() + 1,
       driverId,
     );
   }

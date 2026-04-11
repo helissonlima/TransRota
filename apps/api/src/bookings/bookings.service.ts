@@ -73,6 +73,7 @@ export class BookingsService {
       },
       include: {
         vehicle: { select: { plate: true, model: true, brand: true } },
+        user: { select: { id: true, name: true } },
       },
       orderBy: [{ date: 'asc' }, { timeSlot: 'asc' }],
     });
@@ -83,6 +84,7 @@ export class BookingsService {
       where: { id },
       include: {
         vehicle: { select: { plate: true, model: true, brand: true } },
+        user: { select: { id: true, name: true } },
       },
     });
     if (!booking) throw new NotFoundException('Reserva não encontrada');

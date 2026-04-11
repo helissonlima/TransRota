@@ -8,8 +8,9 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { TenantPrisma } from '../tenant/tenant.decorator';
-import { UserRole } from '@transrota/shared';
+import { TokenPayload, UserRole } from '@transrota/shared';
 import { TenantPrismaService } from '../core/prisma/tenant-prisma.service';
 import { PartialType } from '@nestjs/swagger';
 
@@ -27,9 +28,13 @@ export class BookingsController {
   @ApiOperation({ summary: 'Criar reserva de veículo' })
   create(
     @TenantPrisma() prisma: TenantPrismaService,
+    @CurrentUser() user: TokenPayload,
     @Body() dto: CreateBookingDto,
   ) {
-    return this.bookingsService.create(prisma, dto);
+    return this.bookingsService.create(prisma, {
+      ...dto,
+      userId: dto.userId ?? user.sub,
+    });
   }
 
   @Get()
@@ -75,10 +80,10 @@ export class BookingsController {
   @ApiOperation({ summary: 'Confirmar reserva' })
   confirm(
     @TenantPrisma() prisma: TenantPrismaService,
+    @CurrentUser() user: TokenPayload,
     @Param('id') id: string,
-    @Body('confirmedBy') confirmedBy: string,
   ) {
-    return this.bookingsService.confirm(prisma, id, confirmedBy);
+    return this.bookingsService.confirm(prisma, id, user.sub);
   }
 
   @Patch(':id/cancel')

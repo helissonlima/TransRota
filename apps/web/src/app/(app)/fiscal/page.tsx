@@ -173,11 +173,6 @@ export default function FiscalPage() {
       <Header
         title="Financeiro Fiscal"
         breadcrumbs={[{ label: 'Financeiro Fiscal' }]}
-        actions={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Novo Lançamento
-          </Button>
-        }
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">

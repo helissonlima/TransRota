@@ -26,8 +26,8 @@ interface Breadcrumb {
 interface HeaderProps {
   title: string;
   breadcrumbs?: Breadcrumb[];
-  actions?: React.ReactNode;
   notificationCount?: number;
+  notifications?: Notification[];
 }
 
 interface Notification {
@@ -38,19 +38,13 @@ interface Notification {
   time: string;
 }
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-  { id: '1', type: 'warning', title: 'Manutenção Próxima', description: 'Veículo ABC-1234 com manutenção em 3 dias', time: '2 min' },
-  { id: '2', type: 'info', title: 'Nova Rota Criada', description: 'Rota SP-RJ foi agendada para amanhã', time: '15 min' },
-  { id: '3', type: 'success', title: 'Entrega Concluída', description: 'Rota Zona Sul finalizada com sucesso', time: '1h' },
-];
-
 const notifIcons = {
   success: { icon: CheckCircle2, color: 'text-success-500', bg: 'bg-success-50' },
   warning: { icon: AlertTriangle, color: 'text-warning-500', bg: 'bg-warning-50' },
   info: { icon: Info, color: 'text-primary-500', bg: 'bg-primary-50' },
 };
 
-export function Header({ title, breadcrumbs, actions, notificationCount }: HeaderProps) {
+export function Header({ title, breadcrumbs, notificationCount, notifications = [] }: HeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -64,7 +58,7 @@ export function Header({ title, breadcrumbs, actions, notificationCount }: Heade
     setUserName(localStorage.getItem('userName') ?? 'Usuário');
   }, []);
   const initials = userName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
-  const unreadCount = notificationCount ?? MOCK_NOTIFICATIONS.length;
+  const unreadCount = notificationCount ?? notifications.length;
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -123,9 +117,6 @@ export function Header({ title, breadcrumbs, actions, notificationCount }: Heade
 
       {/* Right: search + notifications + user */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        {/* Custom actions */}
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
-
         {/* Search */}
         <div className="relative">
           <AnimatePresence>
@@ -197,21 +188,27 @@ export function Header({ title, breadcrumbs, actions, notificationCount }: Heade
                   </span>
                 </div>
                 <div className="divide-y divide-brand-border/50">
-                  {MOCK_NOTIFICATIONS.map((n) => {
-                    const { icon: NIcon, color, bg } = notifIcons[n.type];
-                    return (
-                      <div key={n.id} className="flex gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer">
-                        <div className={cn('w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center', bg)}>
-                          <NIcon className={cn('w-4 h-4', color)} />
+                  {notifications.length > 0 ? (
+                    notifications.map((n) => {
+                      const { icon: NIcon, color, bg } = notifIcons[n.type];
+                      return (
+                        <div key={n.id} className="flex gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer">
+                          <div className={cn('w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center', bg)}>
+                            <NIcon className={cn('w-4 h-4', color)} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-brand-text-primary leading-tight">{n.title}</p>
+                            <p className="text-xs text-brand-text-secondary mt-0.5 line-clamp-2">{n.description}</p>
+                          </div>
+                          <span className="text-2xs text-brand-text-secondary flex-shrink-0 mt-1">{n.time}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-brand-text-primary leading-tight">{n.title}</p>
-                          <p className="text-xs text-brand-text-secondary mt-0.5 line-clamp-2">{n.description}</p>
-                        </div>
-                        <span className="text-2xs text-brand-text-secondary flex-shrink-0 mt-1">{n.time}</span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  ) : (
+                    <div className="px-4 py-8 text-center text-sm text-brand-text-secondary">
+                      Sem notificações no momento.
+                    </div>
+                  )}
                 </div>
                 <div className="px-4 py-2 border-t border-brand-border">
                   <button className="w-full text-xs text-primary-600 font-medium hover:text-primary-700 transition-colors py-1">

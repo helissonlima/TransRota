@@ -49,4 +49,20 @@ export function getAdminUser() {
   try { return JSON.parse(localStorage.getItem('adminUser') ?? ''); } catch { return null; }
 }
 
+export async function downloadFullBackup() {
+  const response = await adminApi.get('/admin/ops/backup/full', { responseType: 'blob' });
+  const contentDisposition = response.headers['content-disposition'] as string | undefined;
+  const fileNameMatch = contentDisposition?.match(/filename="?([^";]+)"?/i);
+  const fileName = fileNameMatch?.[1] ?? `transrota-full-backup-${Date.now()}.sql`;
+
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export default adminApi;

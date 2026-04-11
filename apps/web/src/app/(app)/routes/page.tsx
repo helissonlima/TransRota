@@ -207,10 +207,12 @@ function KanbanColumn({
   status,
   routes,
   loading,
+  onSelectRoute,
 }: {
   status: RouteStatus;
   routes: Route[];
   loading: boolean;
+  onSelectRoute: (route: Route) => void;
 }) {
   const config = STATUS_CONFIG[status];
   const Icon = config.icon;
@@ -235,7 +237,6 @@ function KanbanColumn({
             <div key={i} className="bg-white rounded-xl border border-brand-border p-4 space-y-2">
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-2 w-full mt-2" />
             </div>
           ))
         ) : routes.length === 0 ? (
@@ -249,7 +250,7 @@ function KanbanColumn({
               <RouteCard
                 key={route.id}
                 route={route}
-                onClick={() => {}}
+                onClick={() => onSelectRoute(route)}
               />
             ))}
           </AnimatePresence>
@@ -289,7 +290,7 @@ export default function RoutesPage() {
       setModalOpen(false);
       reset();
     },
-    onError: () => toast.error('Erro ao criar rota.'),
+    onError: (error: any) => toast.error(error?.response?.data?.message ?? 'Erro ao criar rota.'),
   });
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<RouteFormData>({
@@ -313,11 +314,6 @@ export default function RoutesPage() {
       <Header
         title="Rotas"
         breadcrumbs={[{ label: 'Rotas' }]}
-        actions={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Nova Rota
-          </Button>
-        }
       />
 
       <div className="flex-1 p-6 flex flex-col gap-5 max-w-[1800px] mx-auto w-full">
@@ -342,6 +338,10 @@ export default function RoutesPage() {
             <span className="font-semibold text-brand-text-primary">{routes.length}</span> rotas total
           </div>
 
+          <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
+            Nova Rota
+          </Button>
+
           {/* Live indicator */}
           <div className="ml-auto flex items-center gap-1.5 text-xs text-brand-text-secondary bg-white border border-brand-border rounded-lg px-2.5 py-1.5">
             <div className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse-soft" />
@@ -357,6 +357,7 @@ export default function RoutesPage() {
               status={status}
               routes={grouped[status]}
               loading={isLoading}
+              onSelectRoute={setSelectedRoute}
             />
           ))}
 

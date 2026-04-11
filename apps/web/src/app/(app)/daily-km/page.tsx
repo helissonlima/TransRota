@@ -97,6 +97,9 @@ export default function DailyKmPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [dateFrom, setDateFrom] = useState(() => format(startOfMonth(new Date()), 'yyyy-MM-dd'));
   const [dateTo, setDateTo] = useState(() => format(endOfMonth(new Date()), 'yyyy-MM-dd'));
+  const summaryDate = parseISO(dateFrom);
+  const summaryYear = String(summaryDate.getFullYear());
+  const summaryMonth = String(summaryDate.getMonth() + 1);
 
   const { data: records = [], isLoading: loadingRecords } = useQuery<DailyKmRecord[]>({
     queryKey: ['daily-km', dateFrom, dateTo],
@@ -105,8 +108,8 @@ export default function DailyKmPage() {
   });
 
   const { data: summary = [], isLoading: loadingSummary } = useQuery<DailyKmSummary[]>({
-    queryKey: ['daily-km-summary'],
-    queryFn: () => api.get('/daily-km/summary').then((r) => r.data),
+    queryKey: ['daily-km-summary', summaryYear, summaryMonth],
+    queryFn: () => api.get('/daily-km/summary', { params: { year: summaryYear, month: summaryMonth } }).then((r) => r.data),
     enabled: activeTab === 'summary',
   });
 
@@ -158,30 +161,31 @@ export default function DailyKmPage() {
       <Header
         title="KM Diário"
         breadcrumbs={[{ label: 'KM Diário' }]}
-        actions={
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Novo Registro
-          </Button>
-        }
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
         {/* Tabs */}
-        <div className="flex items-center gap-1 bg-white border border-brand-border rounded-xl p-1 w-fit">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                activeTab === tab.key
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-1 bg-white border border-brand-border rounded-xl p-1 w-fit">
+            {TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                  activeTab === tab.key
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
+            Novo Registro
+          </Button>
         </div>
 
         <AnimatePresence mode="wait">

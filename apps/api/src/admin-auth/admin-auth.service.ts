@@ -2,8 +2,15 @@ import { Injectable, UnauthorizedException, NotFoundException, ConflictException
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
+import { mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { MasterPrismaService } from '../core/prisma/master-prisma.service';
 import { TenantPrismaFactory } from '../core/prisma/tenant-prisma.factory';
+import { UserRole } from '@transrota/shared';
+
+const execFileAsync = promisify(execFile);
 
 @Injectable()
 export class AdminAuthService {
@@ -105,7 +112,7 @@ export class AdminAuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const payload = { sub: admin.id, email: admin.email, role: 'SUPERADMIN' };
+    const payload = { sub: admin.id, email: admin.email, role: UserRole.SUPER_ADMIN };
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
@@ -122,7 +129,32 @@ export class AdminAuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: admin.id, email: admin.email, name: admin.name, role: 'SUPERADMIN' },
+      user: { id: admin.id, email: admin.email, name: admin.name, role: UserRole.SUPER_ADMIN },
     };
+  }
+
+  async createFullBackup() {
+    const databaseUrl = this.config.get<string>('DATABASE_MASTER_URL');
+    if (!databaseUrl) {
+      throw new NotFoundException('DATABASE_MASTER_URL não configurada');
+    }
+
+    const backupDir = '/tmp/transrota-backups';
+    await mkdir(backupDir, { recursive: true });
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const fileName = `transrota-full-backup-${timestamp}.sql`;
+    const filePath = join(backupDir, fileName);
+
+    await execFileAsync('pg_dump', [
+      '--format=plain',
+      '--no-owner',
+      '--no-privileges',
+      '--file',
+      filePath,
+      databaseUrl,
+    ]);
+
+    return { fileName, filePath };
   }
 }

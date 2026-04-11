@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
@@ -25,7 +25,6 @@ import {
   PolarAngleAxis,
 } from 'recharts';
 import {
-  Download,
   DollarSign,
   Package2,
   Gauge,
@@ -51,46 +50,51 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
   { key: 'drivers', label: 'Motoristas', icon: Users },
 ];
 
-const DELIVERY_STATUS_COLORS: Record<string, string> = {
-  DELIVERED: '#10b981',
-  PARTIAL: '#f59e0b',
-  NOT_DELIVERED: '#ef4444',
-  RETURNED: '#8b5cf6',
+type DeliveriesResponse = {
+  summary: Record<string, number>;
+  total: number;
+  stops: Array<{
+    id: string;
+    status: string;
+    route: {
+      id: string;
+      scheduledDate: string;
+    };
+  }>;
 };
 
-const MOCK_DELIVERY_BY_DAY = [
-  { day: 'Seg', entregas: 42, devoluções: 3 },
-  { day: 'Ter', entregas: 38, devoluções: 5 },
-  { day: 'Qua', entregas: 55, devoluções: 2 },
-  { day: 'Qui', entregas: 47, devoluções: 4 },
-  { day: 'Sex', entregas: 61, devoluções: 6 },
-  { day: 'Sáb', entregas: 30, devoluções: 1 },
-  { day: 'Dom', entregas: 12, devoluções: 0 },
-];
+type FleetResponse = {
+  costs: {
+    maintenance: number;
+    fuel: number;
+    total: number;
+  };
+  fuel: {
+    totalLiters: number;
+    records: number;
+    averagePricePerLiter: number;
+    entries?: Array<{
+      performedAt: string;
+      totalCost: number | string;
+    }>;
+  };
+  maintenance: {
+    total: number;
+    records: Array<{
+      performedAt: string;
+      cost: number | string;
+    }>;
+  };
+};
 
-const MOCK_FLEET_COSTS = [
-  { month: 'Out', combustivel: 8400, manutencao: 3200 },
-  { month: 'Nov', combustivel: 9100, manutencao: 2800 },
-  { month: 'Dez', combustivel: 7600, manutencao: 4100 },
-  { month: 'Jan', combustivel: 8800, manutencao: 3500 },
-  { month: 'Fev', combustivel: 9500, manutencao: 2100 },
-  { month: 'Mar', combustivel: 10200, manutencao: 3900 },
-];
-
-const MOCK_TOP_DRIVERS = [
-  { name: 'Carlos Silva', entregues: 48, parcial: 3, naoEntregue: 1 },
-  { name: 'Ana Souza', entregues: 42, parcial: 5, naoEntregue: 0 },
-  { name: 'Paulo Martins', entregues: 38, parcial: 2, naoEntregue: 3 },
-  { name: 'Maria Lima', entregues: 35, parcial: 4, naoEntregue: 1 },
-  { name: 'Roberto Costa', entregues: 30, parcial: 6, naoEntregue: 4 },
-];
-
-const MOCK_DELIVERY_PIE = [
-  { name: 'Entregue', value: 285, color: '#10b981' },
-  { name: 'Parcial', value: 24, color: '#f59e0b' },
-  { name: 'Não Entregue', value: 18, color: '#ef4444' },
-  { name: 'Devolvido', value: 8, color: '#8b5cf6' },
-];
+type DriverStatsResponse = Array<{
+  driverId: string;
+  name: string;
+  routes: number;
+  delivered: number;
+  notDelivered: number;
+  partial: number;
+}>;
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ color: string; name: string; value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
@@ -116,39 +120,109 @@ export default function ReportsPage() {
   const [to, setTo] = useState(today.toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState<TabKey>('deliveries');
 
-  const { data: deliveries, isLoading: loadingDeliveries } = useQuery({
+  const { data: deliveries, isLoading: loadingDeliveries } = useQuery<DeliveriesResponse>({
     queryKey: ['report-deliveries', from, to],
     queryFn: () => api.get(`/reports/deliveries?from=${from}&to=${to}`).then((r) => r.data),
   });
 
-  const { data: fleet, isLoading: loadingFleet } = useQuery({
+  const { data: fleet, isLoading: loadingFleet } = useQuery<FleetResponse>({
     queryKey: ['report-fleet', from, to],
     queryFn: () => api.get(`/reports/fleet?from=${from}&to=${to}`).then((r) => r.data),
   });
 
-  const { data: driverStats = [], isLoading: loadingDrivers } = useQuery({
+  const { data: driverStats = [], isLoading: loadingDrivers } = useQuery<DriverStatsResponse>({
     queryKey: ['report-drivers', from, to],
     queryFn: () => api.get(`/reports/drivers?from=${from}&to=${to}`).then((r) => r.data),
   });
 
-  const totalDeliveries = MOCK_DELIVERY_PIE.reduce((sum, d) => sum + d.value, 0);
-  const deliveryRate = Math.round((MOCK_DELIVERY_PIE[0].value / totalDeliveries) * 100);
-  const totalFleetCost = MOCK_FLEET_COSTS.reduce((sum, m) => sum + m.combustivel + m.manutencao, 0);
+  const deliveryPieData = useMemo(() => {
+    const summary = deliveries?.summary ?? {};
+    return [
+      { name: 'Entregue', value: summary.DELIVERED ?? 0, color: '#10b981' },
+      { name: 'Parcial', value: summary.PARTIAL_DELIVERY ?? 0, color: '#f59e0b' },
+      { name: 'Não Entregue', value: summary.NOT_DELIVERED ?? 0, color: '#ef4444' },
+    ];
+  }, [deliveries]);
+
+  const deliveryByDay = useMemo(() => {
+    const grouped = new Map<string, { day: string; entregas: number; devolucoes: number }>();
+    for (const stop of deliveries?.stops ?? []) {
+      const date = new Date(stop.route.scheduledDate);
+      const key = date.toISOString().slice(0, 10);
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          day: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          entregas: 0,
+          devolucoes: 0,
+        });
+      }
+      const bucket = grouped.get(key)!;
+      if (stop.status === 'DELIVERED' || stop.status === 'PARTIAL_DELIVERY') bucket.entregas += 1;
+      if (stop.status === 'NOT_DELIVERED') bucket.devolucoes += 1;
+    }
+
+    return Array.from(grouped.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-7)
+      .map(([, value]) => value);
+  }, [deliveries]);
+
+  const fleetCostsSeries = useMemo(() => {
+    const grouped = new Map<string, { month: string; combustivel: number; manutencao: number }>();
+
+    for (const fuel of fleet?.fuel.entries ?? []) {
+      const date = new Date(fuel.performedAt);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          month: date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
+          combustivel: 0,
+          manutencao: 0,
+        });
+      }
+      grouped.get(key)!.combustivel += Number(fuel.totalCost);
+    }
+
+    for (const maintenance of fleet?.maintenance.records ?? []) {
+      const date = new Date(maintenance.performedAt);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          month: date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
+          combustivel: 0,
+          manutencao: 0,
+        });
+      }
+      grouped.get(key)!.manutencao += Number(maintenance.cost);
+    }
+
+    return Array.from(grouped.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-6)
+      .map(([, value]) => value);
+  }, [fleet]);
+
+  const normalizedDrivers = useMemo(
+    () =>
+      driverStats.slice(0, 5).map((driver) => ({
+        name: driver.name,
+        entregues: driver.delivered,
+        parcial: driver.partial,
+        naoEntregue: driver.notDelivered,
+      })),
+    [driverStats],
+  );
+
+  const totalDeliveries = deliveries?.total ?? 0;
+  const deliveredCount = deliveries?.summary?.DELIVERED ?? 0;
+  const deliveryRate = totalDeliveries > 0 ? Math.round((deliveredCount / totalDeliveries) * 100) : 0;
+  const totalFleetCost = fleet?.costs?.total ?? 0;
 
   return (
     <div className="min-h-screen">
       <Header
         title="Relatórios"
         breadcrumbs={[{ label: 'Relatórios' }]}
-        actions={
-          <Button
-            variant="secondary"
-            leftIcon={<Download className="w-4 h-4" />}
-            onClick={() => {}}
-          >
-            Exportar
-          </Button>
-        }
       />
 
       <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
@@ -209,7 +283,7 @@ export default function ReportsPage() {
             iconColor="orange"
             prefix="R$ "
             formatter={(v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            trend={{ value: -4.2, label: 'vs. período anterior' }}
+            subtitle="no período"
           />
           <StatCard
             title="Taxa de Entrega"
@@ -217,7 +291,7 @@ export default function ReportsPage() {
             icon={TrendingUp}
             iconColor="emerald"
             suffix="%"
-            trend={{ value: 2.1 }}
+            subtitle="entregues com sucesso"
           />
           <StatCard
             title="Total de Entregas"
@@ -267,16 +341,19 @@ export default function ReportsPage() {
                   <Badge variant="info">Última semana</Badge>
                 </div>
                 <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={MOCK_DELIVERY_BY_DAY} barGap={4}>
+                  <BarChart data={deliveryByDay} barGap={4}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                     <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 12, paddingTop: 12 }} iconType="circle" iconSize={8} />
                     <Bar dataKey="entregas" name="Entregas" fill="#2563eb" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="devoluções" name="Devoluções" fill="#f97316" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="devolucoes" name="Devoluções" fill="#f97316" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
+                {!loadingDeliveries && deliveryByDay.length === 0 && (
+                  <p className="text-sm text-brand-text-secondary mt-3">Sem dados de entregas no período selecionado.</p>
+                )}
               </div>
 
               {/* Pie chart — delivery status */}
@@ -287,8 +364,8 @@ export default function ReportsPage() {
                 </div>
                 <div className="flex justify-center">
                   <PieChart width={180} height={180}>
-                    <Pie data={MOCK_DELIVERY_PIE} cx={90} cy={90} innerRadius={50} outerRadius={80} dataKey="value" strokeWidth={2} stroke="#fff">
-                      {MOCK_DELIVERY_PIE.map((entry, i) => (
+                    <Pie data={deliveryPieData} cx={90} cy={90} innerRadius={50} outerRadius={80} dataKey="value" strokeWidth={2} stroke="#fff">
+                      {deliveryPieData.map((entry, i) => (
                         <Cell key={i} fill={entry.color} />
                       ))}
                     </Pie>
@@ -296,7 +373,7 @@ export default function ReportsPage() {
                   </PieChart>
                 </div>
                 <div className="mt-4 space-y-2">
-                  {MOCK_DELIVERY_PIE.map((item) => (
+                  {deliveryPieData.map((item) => (
                     <div key={item.name} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: item.color }} />
@@ -305,7 +382,7 @@ export default function ReportsPage() {
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-brand-text-primary">{item.value}</span>
                         <span className="text-brand-text-secondary">
-                          ({Math.round((item.value / totalDeliveries) * 100)}%)
+                          ({totalDeliveries > 0 ? Math.round((item.value / totalDeliveries) * 100) : 0}%)
                         </span>
                       </div>
                     </div>
@@ -327,7 +404,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
                 <ResponsiveContainer width="100%" height={240}>
-                  <AreaChart data={MOCK_FLEET_COSTS}>
+                  <AreaChart data={fleetCostsSeries}>
                     <defs>
                       <linearGradient id="gradFuel" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#2563eb" stopOpacity={0.2} />
@@ -347,6 +424,9 @@ export default function ReportsPage() {
                     <Area type="monotone" dataKey="manutencao" name="Manutenção" stroke="#f97316" strokeWidth={2} fill="url(#gradMaint)" />
                   </AreaChart>
                 </ResponsiveContainer>
+                {!loadingFleet && fleetCostsSeries.length === 0 && (
+                  <p className="text-sm text-brand-text-secondary mt-3">Sem registros de custos no período selecionado.</p>
+                )}
               </div>
 
               {/* Cost breakdown */}
@@ -359,10 +439,10 @@ export default function ReportsPage() {
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { label: 'Total', value: fleet?.costs?.total ?? totalFleetCost, color: 'text-brand-text-primary', bg: 'bg-slate-50' },
-                      { label: 'Combustível', value: fleet?.costs?.fuel ?? 56600, color: 'text-primary-600', bg: 'bg-primary-50' },
-                      { label: 'Manutenção', value: fleet?.costs?.maintenance ?? 19600, color: 'text-accent-600', bg: 'bg-accent-50/50' },
-                      { label: 'Custo/Entrega', value: Math.round((totalFleetCost / totalDeliveries) * 100) / 100, color: 'text-success-600', bg: 'bg-success-50' },
+                      { label: 'Total', value: fleet?.costs?.total ?? 0, color: 'text-brand-text-primary', bg: 'bg-slate-50' },
+                      { label: 'Combustível', value: fleet?.costs?.fuel ?? 0, color: 'text-primary-600', bg: 'bg-primary-50' },
+                      { label: 'Manutenção', value: fleet?.costs?.maintenance ?? 0, color: 'text-accent-600', bg: 'bg-accent-50/50' },
+                      { label: 'Custo/Entrega', value: totalDeliveries > 0 ? Math.round((totalFleetCost / totalDeliveries) * 100) / 100 : 0, color: 'text-success-600', bg: 'bg-success-50' },
                     ].map((item) => (
                       <div key={item.label} className={cn('rounded-xl p-4', item.bg)}>
                         <div className="text-xs text-brand-text-secondary mb-1">{item.label}</div>
@@ -392,7 +472,7 @@ export default function ReportsPage() {
                 </div>
                 <ResponsiveContainer width="100%" height={260}>
                   <BarChart
-                    data={(driverStats as typeof MOCK_TOP_DRIVERS).length > 0 ? (driverStats as typeof MOCK_TOP_DRIVERS).slice(0, 5) : MOCK_TOP_DRIVERS}
+                    data={normalizedDrivers}
                     layout="vertical"
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
@@ -413,9 +493,9 @@ export default function ReportsPage() {
                   <h3 className="font-semibold text-brand-text-primary">Desempenho Detalhado</h3>
                 </div>
                 <div className="divide-y divide-brand-border/50">
-                  {MOCK_TOP_DRIVERS.map((driver, i) => {
+                  {normalizedDrivers.map((driver, i) => {
                     const total = driver.entregues + driver.parcial + driver.naoEntregue;
-                    const rate = Math.round((driver.entregues / total) * 100);
+                    const rate = total > 0 ? Math.round((driver.entregues / total) * 100) : 0;
                     return (
                       <div key={driver.name} className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/70 transition-colors">
                         <span className="text-sm font-bold text-brand-text-secondary w-4">{i + 1}</span>
@@ -437,6 +517,11 @@ export default function ReportsPage() {
                       </div>
                     );
                   })}
+                  {!loadingDrivers && normalizedDrivers.length === 0 && (
+                    <div className="px-5 py-8 text-sm text-brand-text-secondary text-center">
+                      Sem dados de desempenho de motoristas no período selecionado.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

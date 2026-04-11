@@ -1,10 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { TenantPrismaService } from '../core/prisma/tenant-prisma.service';
 import { CreateDailyKmDto } from './dto/create-daily-km.dto';
 import { DailyKmStatus } from '@transrota/shared';
 
 @Injectable()
 export class DailyKmService {
+  private validateKm(dto: Pick<CreateDailyKmDto, 'initialKm' | 'finalKm' | 'personalInitialKm' | 'personalFinalKm'>) {
+    if (dto.finalKm < dto.initialKm) {
+      throw new BadRequestException('KM final deve ser maior ou igual ao KM inicial');
+    }
+
+    if (
+      dto.personalInitialKm !== undefined &&
+      dto.personalFinalKm !== undefined &&
+      dto.personalFinalKm < dto.personalInitialKm
+    ) {
+      throw new BadRequestException('KM pessoal final deve ser maior ou igual ao KM pessoal inicial');
+    }
+  }
+
   private computeKm(dto: CreateDailyKmDto): {
     personalKm: number;
     workKm: number;
@@ -26,6 +40,7 @@ export class DailyKmService {
   }
 
   async create(prisma: TenantPrismaService, dto: CreateDailyKmDto) {
+    this.validateKm(dto);
     const { personalKm, workKm, totalKm } = this.computeKm(dto);
 
     return (prisma as any).dailyKmLog.create({
@@ -104,6 +119,8 @@ export class DailyKmService {
       personalFinalKm: dto.personalFinalKm ?? existing.personalFinalKm,
     } as CreateDailyKmDto;
 
+    this.validateKm(merged);
+
     const { personalKm, workKm, totalKm } = this.computeKm(merged);
 
     return (prisma as any).dailyKmLog.update({
@@ -155,8 +172,8 @@ export class DailyKmService {
     const grouped: Record<
       string,
       {
-        driverId: string;
-        driverName: string;
+        driver: { id: string; name: string };
+        month: string;
         totalKm: number;
         workKm: number;
         personalKm: number;
@@ -168,8 +185,8 @@ export class DailyKmService {
       const key = r.driverId;
       if (!grouped[key]) {
         grouped[key] = {
-          driverId: r.driverId,
-          driverName: r.driver?.name ?? '',
+          driver: { id: r.driverId, name: r.driver?.name ?? '' },
+          month: `${year}-${String(month).padStart(2, '0')}`,
           totalKm: 0,
           workKm: 0,
           personalKm: 0,

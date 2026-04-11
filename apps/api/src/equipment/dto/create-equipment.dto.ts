@@ -1,13 +1,16 @@
 import {
-  IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID,
+  IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateEquipmentDto {
   @ApiProperty({ required: false, example: 'EQ-001' })
   @IsOptional()
-  @IsString()
-  tag?: string;
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  tag?: number;
 
   @ApiProperty({ example: 'Escâner de Código de Barras' })
   @IsString()

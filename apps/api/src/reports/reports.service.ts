@@ -91,6 +91,7 @@ export class ReportsService {
       include: {
         route: {
           select: {
+            id: true,
             name: true,
             scheduledDate: true,
             driver: { select: { name: true } },
@@ -144,6 +145,7 @@ export class ReportsService {
       fuel: {
         totalLiters: fuelLiters,
         records: fuel.length,
+        entries: fuel,
         averagePricePerLiter: fuelCost / fuelLiters || 0,
       },
       maintenance: {

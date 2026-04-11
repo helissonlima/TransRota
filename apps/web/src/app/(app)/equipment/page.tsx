@@ -10,7 +10,6 @@ import {
   Plus,
   Cpu,
   ChevronRight,
-  ArrowLeft,
   Calendar,
   DollarSign,
   Route,
@@ -34,7 +33,7 @@ type EquipmentType = 'DRONE' | 'GERADOR' | 'OUTRO';
 
 interface Equipment {
   id: string;
-  tagNumber: string;
+  tagNumber?: number;
   name: string;
   type: EquipmentType;
   identifier?: string;
@@ -52,8 +51,28 @@ interface EquipmentLog {
   notes?: string;
 }
 
+interface ApiEquipment {
+  id: string;
+  tag?: number;
+  name: string;
+  type: EquipmentType;
+  identifier?: string;
+  isActive: boolean;
+  _count?: { usageLogs: number };
+}
+
+interface ApiEquipmentLog {
+  id: string;
+  date: string;
+  initialKm?: number;
+  finalKm?: number;
+  totalKm?: number;
+  totalCost?: number;
+  notes?: string;
+}
+
 const equipmentSchema = z.object({
-  tagNumber: z.string().min(1, 'Tag obrigatória'),
+  tagNumber: z.coerce.number().min(0, 'Tag obrigatória'),
   name: z.string().min(2, 'Nome obrigatório'),
   type: z.enum(['DRONE', 'GERADOR', 'OUTRO']),
   identifier: z.string().optional(),
@@ -95,37 +114,73 @@ export default function EquipmentPage() {
 
   const { data: equipmentList = [], isLoading } = useQuery<Equipment[]>({
     queryKey: ['equipment'],
-    queryFn: () => api.get('/equipment').then((r) => r.data),
+    queryFn: () =>
+      api.get('/equipment').then((r) =>
+        (r.data as ApiEquipment[]).map((equipment) => ({
+          id: equipment.id,
+          tagNumber: equipment.tag,
+          name: equipment.name,
+          type: equipment.type,
+          identifier: equipment.identifier,
+          isActive: equipment.isActive,
+          _count: equipment._count ? { logs: equipment._count.usageLogs } : undefined,
+        })),
+      ),
   });
 
   const { data: logs = [], isLoading: loadingLogs } = useQuery<EquipmentLog[]>({
     queryKey: ['equipment-logs', selectedEquipment?.id],
     queryFn: () =>
-      api.get(`/equipment/${selectedEquipment!.id}/logs`).then((r) => r.data),
+      api.get(`/equipment/${selectedEquipment!.id}/logs`).then((r) =>
+        (r.data as ApiEquipmentLog[]).map((log) => ({
+          id: log.id,
+          date: log.date,
+          kmOut: log.initialKm,
+          kmReturn: log.finalKm,
+          kmTotal: log.totalKm,
+          cost: log.totalCost,
+          notes: log.notes,
+        })),
+      ),
     enabled: !!selectedEquipment,
   });
 
   const createEquipmentMutation = useMutation({
-    mutationFn: (data: EquipmentFormData) => api.post('/equipment', data),
+    mutationFn: (data: EquipmentFormData) =>
+      api.post('/equipment', {
+        tag: data.tagNumber,
+        name: data.name,
+        type: data.type,
+        identifier: data.identifier,
+        isActive: data.isActive,
+      }),
     onSuccess: () => {
       toast.success('Equipamento criado com sucesso!');
       qc.invalidateQueries({ queryKey: ['equipment'] });
       setEquipmentModalOpen(false);
       resetEquipment();
     },
-    onError: () => toast.error('Erro ao criar equipamento.'),
+    onError: (error: any) => toast.error(error?.response?.data?.message ?? 'Erro ao criar equipamento.'),
   });
 
   const createLogMutation = useMutation({
     mutationFn: (data: LogFormData) =>
-      api.post(`/equipment/${selectedEquipment!.id}/logs`, data),
+      api.post(`/equipment/${selectedEquipment!.id}/logs`, {
+        date: data.date,
+        initialKm: data.kmOut,
+        finalKm: data.kmReturn,
+        totalKm: data.kmOut !== undefined && data.kmReturn !== undefined ? Math.max(0, data.kmReturn - data.kmOut) : undefined,
+        totalCost: data.cost,
+        notes: data.notes,
+      }),
     onSuccess: () => {
       toast.success('Uso registrado com sucesso!');
+      qc.invalidateQueries({ queryKey: ['equipment'] });
       qc.invalidateQueries({ queryKey: ['equipment-logs', selectedEquipment?.id] });
       setLogModalOpen(false);
       resetLog();
     },
-    onError: () => toast.error('Erro ao registrar uso.'),
+    onError: (error: any) => toast.error(error?.response?.data?.message ?? 'Erro ao registrar uso.'),
   });
 
   const {
@@ -165,33 +220,32 @@ export default function EquipmentPage() {
               ]
             : [{ label: 'Equipamentos' }]
         }
-        actions={
-          selectedEquipment ? (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                leftIcon={<Plus className="w-4 h-4" />}
-                onClick={() => setLogModalOpen(true)}
-              >
-                Registrar Uso
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setSelectedEquipment(null)}
-              >
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                Voltar
-              </Button>
-            </div>
-          ) : (
-            <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setEquipmentModalOpen(true)}>
-              Novo Equipamento
-            </Button>
-          )
-        }
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="text-sm text-brand-text-secondary">
+            {selectedEquipment ? 'Gerencie o histórico e os dados do equipamento selecionado.' : `${equipmentList.length} equipamento(s) cadastrado(s)`}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {selectedEquipment ? (
+              <>
+                <Button size="sm" variant="secondary" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setLogModalOpen(true)}>
+                  Registrar Uso
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => setSelectedEquipment(null)}>
+                  Voltar para lista
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setEquipmentModalOpen(true)}>
+                Novo Equipamento
+              </Button>
+            )}
+          </div>
+        </div>
+
         <AnimatePresence mode="wait">
           {!selectedEquipment ? (
             <motion.div
@@ -265,7 +319,7 @@ export default function EquipmentPage() {
                           <div className="space-y-1.5 text-xs text-brand-text-secondary">
                             <div className="flex items-center gap-2">
                               <Tag className="w-3.5 h-3.5 flex-shrink-0" />
-                              <span>Tag: <span className="font-mono font-semibold text-brand-text-primary">{equip.tagNumber}</span></span>
+                              <span>Tag: <span className="font-mono font-semibold text-brand-text-primary">{equip.tagNumber ?? '—'}</span></span>
                             </div>
                             {equip.identifier && (
                               <div className="flex items-center gap-2">
@@ -318,7 +372,7 @@ export default function EquipmentPage() {
                         : <Badge variant="gray" dot>Inativo</Badge>}
                     </div>
                     <div className="flex items-center gap-4 mt-1 text-sm text-brand-text-secondary">
-                      <span>Tag: <span className="font-mono font-semibold">{selectedEquipment.tagNumber}</span></span>
+                      <span>Tag: <span className="font-mono font-semibold">{selectedEquipment.tagNumber ?? '—'}</span></span>
                       {selectedEquipment.identifier && <span>{selectedEquipment.identifier}</span>}
                     </div>
                   </div>
@@ -432,7 +486,7 @@ export default function EquipmentPage() {
               <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Tag *</label>
               <input
                 {...registerEquipment('tagNumber')}
-                placeholder="Ex: EQ-001"
+                placeholder="Ex: 101"
                 className={cn('input-base', equipmentErrors.tagNumber && 'border-danger-400')}
               />
               {equipmentErrors.tagNumber && <p className="text-danger-500 text-xs mt-1">{equipmentErrors.tagNumber.message}</p>}

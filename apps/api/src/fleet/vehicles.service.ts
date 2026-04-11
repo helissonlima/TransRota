@@ -63,7 +63,7 @@ export class VehiclesService {
 
   async update(prisma: TenantPrismaService, id: string, dto: UpdateVehicleDto) {
     await this.findOne(prisma, id);
-    return prisma.vehicle.update({ where: { id }, data: dto });
+    return prisma.vehicle.update({ where: { id }, data: dto as any });
   }
 
   async updateStatus(prisma: TenantPrismaService, id: string, status: string) {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
@@ -29,7 +30,7 @@ import {
   CartesianGrid,
   Legend,
 } from 'recharts';
-import { format, subDays } from 'date-fns';
+import { format, formatDistanceToNow, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import api from '@/lib/api';
 import { Header } from '@/components/layout/header';
@@ -56,20 +57,38 @@ interface DashboardData {
 interface TaxAlert { id: string; type: string; dueDate: string; value?: number; vehicle: { plate: string; model: string } }
 interface OilAlert { vehicleId: string; status: string; nextChangeKm?: number; currentKm?: number; vehicle?: { plate: string; model: string } }
 interface TodayBooking { id: string; timeSlot: string; status: string; vehicle: { plate: string; model: string }; user: { name: string } }
-
-// Generate mock 7-day line chart data
-function generateWeeklyData() {
-  return Array.from({ length: 7 }, (_, i) => {
-    const date = subDays(new Date(), 6 - i);
-    return {
-      date: format(date, 'EEE', { locale: ptBR }),
-      rotas: Math.floor(Math.random() * 25 + 10),
-      entregas: Math.floor(Math.random() * 40 + 20),
-    };
-  });
+interface DeliveryReportStop {
+  id: string;
+  status: string;
+  route: {
+    id: string;
+    scheduledDate: string;
+  };
 }
 
-const weeklyData = generateWeeklyData();
+interface DeliveryReportResponse {
+  total: number;
+  summary: Record<string, number>;
+  stops: DeliveryReportStop[];
+}
+
+interface DriverPerformance {
+  driverId: string;
+  name: string;
+  routes: number;
+  delivered: number;
+  notDelivered: number;
+  partial: number;
+}
+
+interface RecentRoute {
+  id: string;
+  name: string;
+  status: 'COMPLETED' | 'IN_PROGRESS' | 'SCHEDULED' | 'CANCELLED' | 'DRAFT';
+  scheduledDate: string;
+  vehicle: { plate: string; model: string };
+  driver: { name: string };
+}
 
 const DONUT_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'];
 
@@ -82,22 +101,6 @@ const cardVariants = {
   hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 } as const;
-
-const MOCK_ACTIVITY = [
-  { id: '1', route: 'Zona Sul — Entrega', vehicle: 'ABC-1234', driver: 'Carlos Silva', status: 'COMPLETED', time: '14:32' },
-  { id: '2', route: 'Zona Norte — Coleta', vehicle: 'DEF-5678', driver: 'Ana Souza', status: 'IN_PROGRESS', time: '15:10' },
-  { id: '3', route: 'Centro — Distribuição', vehicle: 'GHI-9012', driver: 'Paulo Martins', status: 'SCHEDULED', time: '16:00' },
-  { id: '4', route: 'Zona Oeste — Express', vehicle: 'JKL-3456', driver: 'Maria Lima', status: 'COMPLETED', time: '13:45' },
-  { id: '5', route: 'Zona Leste — Retorno', vehicle: 'MNO-7890', driver: 'Roberto Costa', status: 'CANCELLED', time: '12:00' },
-];
-
-const MOCK_TOP_DRIVERS = [
-  { name: 'Carlos Silva', deliveries: 48, rate: 98 },
-  { name: 'Ana Souza', deliveries: 42, rate: 95 },
-  { name: 'Paulo Martins', deliveries: 38, rate: 92 },
-  { name: 'Maria Lima', deliveries: 35, rate: 96 },
-  { name: 'Roberto Costa', deliveries: 30, rate: 88 },
-];
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ color: string; name: string; value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
@@ -151,6 +154,74 @@ export default function DashboardPage() {
       return api.get('/bookings', { params: { date: today } }).then(r => r.data).catch(() => []);
     },
   });
+
+  const last7DaysRange = useMemo(() => {
+    const to = new Date();
+    const from = subDays(to, 6);
+    return {
+      from: from.toISOString().slice(0, 10),
+      to: to.toISOString().slice(0, 10),
+    };
+  }, []);
+
+  const { data: deliveriesLastWeek } = useQuery<DeliveryReportResponse>({
+    queryKey: ['deliveries-last-week', last7DaysRange.from, last7DaysRange.to],
+    queryFn: () => api.get(`/reports/deliveries?from=${last7DaysRange.from}&to=${last7DaysRange.to}`).then((r) => r.data),
+  });
+
+  const { data: topDrivers = [] } = useQuery<DriverPerformance[]>({
+    queryKey: ['dashboard-top-drivers', last7DaysRange.from, last7DaysRange.to],
+    queryFn: () => api.get(`/reports/drivers?from=${last7DaysRange.from}&to=${last7DaysRange.to}`).then((r) => r.data).catch(() => []),
+  });
+
+  const { data: recentRoutes = [] } = useQuery<RecentRoute[]>({
+    queryKey: ['dashboard-recent-routes'],
+    queryFn: () => api.get('/routes').then((r) => r.data).catch(() => []),
+  });
+
+  const weeklyData = useMemo(() => {
+    const dayBuckets = Array.from({ length: 7 }, (_, i) => {
+      const date = subDays(new Date(), 6 - i);
+      return {
+        key: format(date, 'yyyy-MM-dd'),
+        date: format(date, 'EEE', { locale: ptBR }),
+        rotas: new Set<string>(),
+        entregas: 0,
+      };
+    });
+
+    const dayMap = new Map(dayBuckets.map((d) => [d.key, d]));
+    for (const stop of deliveriesLastWeek?.stops ?? []) {
+      const key = format(new Date(stop.route.scheduledDate), 'yyyy-MM-dd');
+      const bucket = dayMap.get(key);
+      if (!bucket) continue;
+      bucket.rotas.add(stop.route.id);
+      if (stop.status === 'DELIVERED' || stop.status === 'PARTIAL_DELIVERY') {
+        bucket.entregas += 1;
+      }
+    }
+
+    return dayBuckets.map((d) => ({
+      date: d.date,
+      rotas: d.rotas.size,
+      entregas: d.entregas,
+    }));
+  }, [deliveriesLastWeek]);
+
+  const recentActivity = useMemo(() => recentRoutes.slice(0, 5), [recentRoutes]);
+
+  const topDriversData = useMemo(
+    () =>
+      topDrivers.slice(0, 5).map((driver) => {
+        const totalStops = driver.delivered + driver.partial + driver.notDelivered;
+        return {
+          name: driver.name,
+          deliveries: driver.delivered,
+          rate: totalStops > 0 ? Math.round((driver.delivered / totalStops) * 100) : 0,
+        };
+      }),
+    [topDrivers],
+  );
 
   const userName =
     typeof window !== 'undefined' ? localStorage.getItem('userName') ?? 'Usuário' : 'Usuário';
@@ -500,7 +571,7 @@ export default function DashboardPage() {
               <Badge variant="gray">Últimas 5 rotas</Badge>
             </div>
             <div className="divide-y divide-brand-border/40">
-              {MOCK_ACTIVITY.map((item, i) => (
+              {recentActivity.length > 0 ? recentActivity.map((item, i) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, x: -8 }}
@@ -520,17 +591,23 @@ export default function DashboardPage() {
                      <Clock className="w-4 h-4" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-brand-text-primary truncate">{item.route}</p>
+                    <p className="text-sm font-medium text-brand-text-primary truncate">{item.name}</p>
                     <p className="text-xs text-brand-text-secondary">
-                      {item.vehicle} · {item.driver}
+                      {item.vehicle.plate} · {item.driver.name}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <RouteStatusBadge status={item.status} />
-                    <span className="text-xs text-brand-text-secondary">{item.time}</span>
+                    <span className="text-xs text-brand-text-secondary">
+                      {formatDistanceToNow(new Date(item.scheduledDate), { addSuffix: true, locale: ptBR })}
+                    </span>
                   </div>
                 </motion.div>
-              ))}
+              )) : (
+                <div className="px-5 py-8 text-sm text-brand-text-secondary text-center">
+                  Sem atividade recente no período.
+                </div>
+              )}
             </div>
           </motion.div>
 
@@ -549,7 +626,7 @@ export default function DashboardPage() {
               <Badge variant="orange">Este mês</Badge>
             </div>
             <div className="divide-y divide-brand-border/40">
-              {MOCK_TOP_DRIVERS.map((driver, i) => {
+              {topDriversData.length > 0 ? topDriversData.map((driver, i) => {
                 const initials = driver.name.split(' ').map((n) => n[0]).join('').slice(0, 2);
                 const avatarColors = ['bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-orange-500', 'bg-rose-500'];
                 return (
@@ -583,7 +660,11 @@ export default function DashboardPage() {
                     </div>
                   </motion.div>
                 );
-              })}
+              }) : (
+                <div className="px-5 py-8 text-sm text-brand-text-secondary text-center">
+                  Sem dados de desempenho de motoristas para os ultimos 7 dias.
+                </div>
+              )}
             </div>
           </motion.div>
         </div>

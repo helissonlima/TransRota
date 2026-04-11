@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Settings, CreditCard, Check, List, Hash, Save } from 'lucide-react';
-import adminApi from '@/lib/admin-api';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Settings, CreditCard, Check, List, Hash, Save, Database, Download, Loader2 } from 'lucide-react';
+import adminApi, { downloadFullBackup } from '@/lib/admin-api';
 import { cn } from '@/lib/cn';
 
-export const LOGIN_DISPLAY_KEY = 'tr_admin_login_display'; // 'list' | 'uuid'
+const LOGIN_DISPLAY_KEY = 'tr_admin_login_display'; // 'list' | 'uuid'
 
 interface Plan {
   id: string;
@@ -24,6 +24,10 @@ interface Plan {
 export default function AdminSettingsPage() {
   const [loginDisplay, setLoginDisplay] = useState<'list' | 'uuid'>('list');
   const [saved, setSaved] = useState(false);
+
+  const backupMutation = useMutation({
+    mutationFn: async () => downloadFullBackup(),
+  });
 
   useEffect(() => {
     const stored = localStorage.getItem(LOGIN_DISPLAY_KEY);
@@ -173,6 +177,32 @@ export default function AdminSettingsPage() {
             ))}
           </div>
         )}
+      </div>
+
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <Database className="w-4 h-4 text-[#64748b]" />
+          <h2 className="text-white font-semibold">Backup</h2>
+        </div>
+
+        <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5">
+          <p className="text-[#94a3b8] text-sm mb-4">
+            Gere um dump SQL completo do banco master e schemas de tenants.
+          </p>
+
+          <button
+            onClick={() => backupMutation.mutate()}
+            disabled={backupMutation.isPending}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {backupMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {backupMutation.isPending ? 'Gerando backup...' : 'Baixar backup completo'}
+          </button>
+
+          {backupMutation.isError && (
+            <p className="text-red-400 text-xs mt-3">Não foi possível gerar o backup. Tente novamente.</p>
+          )}
+        </div>
       </div>
 
       {/* Info box */}

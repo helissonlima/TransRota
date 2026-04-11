@@ -10,6 +10,7 @@ export class CreateBookingDto {
   vehicleId: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsUUID()
   userId: string;
 

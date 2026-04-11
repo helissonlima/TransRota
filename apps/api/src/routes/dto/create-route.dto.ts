@@ -97,8 +97,9 @@ export class CreateRouteDto {
   driverId: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsUUID()
-  branchId: string;
+  branchId?: string;
 
   @ApiProperty()
   @IsDateString()
@@ -110,8 +111,9 @@ export class CreateRouteDto {
   notes?: string;
 
   @ApiProperty({ type: [RouteStopDto] })
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => RouteStopDto)
-  stops: RouteStopDto[];
+  stops?: RouteStopDto[];
 }

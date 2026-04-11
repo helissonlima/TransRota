@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { TenantPrismaService } from '../core/prisma/tenant-prisma.service';
 import { CreateRouteDto } from './dto/create-route.dto';
@@ -11,39 +12,54 @@ import { AddDeliveryProofDto } from './dto/add-delivery-proof.dto';
 @Injectable()
 export class RoutesService {
   async create(prisma: TenantPrismaService, dto: CreateRouteDto) {
+    let resolvedBranchId: string;
+    if (dto.branchId) {
+      resolvedBranchId = dto.branchId;
+    } else {
+      const defaultBranch = await (prisma as any).branch.findFirst();
+      if (!defaultBranch) throw new ConflictException('Nenhuma filial cadastrada para este tenant');
+      resolvedBranchId = defaultBranch.id;
+    }
+
+    const stops = dto.stops ?? [];
+
     return prisma.route.create({
       data: {
         name: dto.name,
         vehicleId: dto.vehicleId,
         driverId: dto.driverId,
-        branchId: dto.branchId,
+        branchId: resolvedBranchId,
         scheduledDate: new Date(dto.scheduledDate),
         notes: dto.notes,
-        stops: {
-          create: dto.stops.map((stop, index) => ({
-            sequence: stop.sequence ?? index + 1,
-            clientName: stop.clientName,
-            clientDocument: stop.clientDocument,
-            address: stop.address,
-            city: stop.city,
-            state: stop.state,
-            zipCode: stop.zipCode,
-            lat: stop.lat,
-            lng: stop.lng,
-            timeWindowStart: stop.timeWindowStart ? new Date(stop.timeWindowStart) : undefined,
-            timeWindowEnd: stop.timeWindowEnd ? new Date(stop.timeWindowEnd) : undefined,
-            notes: stop.notes,
-            items: {
-              create: stop.items?.map((item) => ({
-                description: item.description,
-                quantity: item.quantity,
-                weight: item.weight,
-                nfeNumber: item.nfeNumber,
-                barcode: item.barcode,
-              })) ?? [],
-            },
-          })),
-        },
+        ...(stops.length > 0
+          ? {
+              stops: {
+                create: stops.map((stop, index) => ({
+                  sequence: stop.sequence ?? index + 1,
+                  clientName: stop.clientName,
+                  clientDocument: stop.clientDocument,
+                  address: stop.address,
+                  city: stop.city,
+                  state: stop.state,
+                  zipCode: stop.zipCode,
+                  lat: stop.lat,
+                  lng: stop.lng,
+                  timeWindowStart: stop.timeWindowStart ? new Date(stop.timeWindowStart) : undefined,
+                  timeWindowEnd: stop.timeWindowEnd ? new Date(stop.timeWindowEnd) : undefined,
+                  notes: stop.notes,
+                  items: {
+                    create: stop.items?.map((item) => ({
+                      description: item.description,
+                      quantity: item.quantity,
+                      weight: item.weight,
+                      nfeNumber: item.nfeNumber,
+                      barcode: item.barcode,
+                    })) ?? [],
+                  },
+                })),
+              },
+            }
+          : {}),
       },
       include: { stops: { include: { items: true }, orderBy: { sequence: 'asc' } } },
     });

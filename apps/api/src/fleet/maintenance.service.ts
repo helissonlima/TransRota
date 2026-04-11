@@ -10,7 +10,7 @@ export class MaintenanceService {
     if (!vehicle) throw new NotFoundException('Veículo não encontrado');
 
     const record = await prisma.maintenanceRecord.create({
-      data: { vehicleId, ...dto },
+      data: { vehicleId, ...dto } as any,
     });
 
     // Atualiza km atual e próxima manutenção no veículo
