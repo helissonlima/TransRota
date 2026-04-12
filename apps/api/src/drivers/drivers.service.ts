@@ -59,11 +59,15 @@ export class DriversService {
     });
   }
 
-  async findAll(prisma: TenantPrismaService, branchId?: string) {
+  async findAll(prisma: TenantPrismaService, branchId?: string, status?: string) {
     return prisma.driver.findMany({
-      where: { isActive: true, ...(branchId ? { branchId } : {}) },
+      where: {
+        isActive: true,
+        ...(branchId ? { branchId } : {}),
+        ...(status ? { status: status as any } : {}),
+      },
       include: {
-        branch: { select: { name: true } },
+        branch: { select: { id: true, name: true } },
         _count: { select: { routes: true } },
       },
       orderBy: { name: 'asc' },

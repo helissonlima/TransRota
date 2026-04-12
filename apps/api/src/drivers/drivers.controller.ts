@@ -30,8 +30,12 @@ export class DriversController {
 
   @Get()
   @ApiOperation({ summary: 'Listar motoristas' })
-  findAll(@TenantPrisma() prisma: TenantPrismaService, @Query('branchId') branchId?: string) {
-    return this.driversService.findAll(prisma, branchId);
+  findAll(
+    @TenantPrisma() prisma: TenantPrismaService,
+    @Query('branchId') branchId?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.driversService.findAll(prisma, branchId, status);
   }
 
   @Get('alerts/licenses')
