@@ -16,6 +16,11 @@ import {
   Receipt,
   Droplets,
   CalendarDays,
+  Fuel,
+  Wrench,
+  Gauge,
+  DollarSign,
+  ClipboardList,
 } from 'lucide-react';
 import {
   LineChart,
@@ -30,7 +35,7 @@ import {
   CartesianGrid,
   Legend,
 } from 'recharts';
-import { format, formatDistanceToNow, subDays } from 'date-fns';
+import { format, formatDistanceToNow, subDays, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import api from '@/lib/api';
 import { Header } from '@/components/layout/header';
@@ -57,6 +62,54 @@ interface DashboardData {
 interface TaxAlert { id: string; type: string; dueDate: string; value?: number; vehicle: { plate: string; model: string } }
 interface OilAlert { vehicleId: string; status: string; nextChangeKm?: number; currentKm?: number; vehicle?: { plate: string; model: string } }
 interface TodayBooking { id: string; timeSlot: string; status: string; vehicle: { plate: string; model: string }; user: { name: string } }
+interface VehicleAlert {
+  id: string;
+  plate: string;
+  model: string;
+  brand: string;
+  currentKm?: number;
+  nextMaintenanceKm?: number;
+  nextMaintenanceDate?: string;
+  status: string;
+}
+interface MaintenanceAlert {
+  id: string;
+  type?: string;
+  description?: string;
+  notes?: string;
+  nextDueKm?: number;
+  nextDueDate?: string;
+  vehicle: { plate: string; model: string; brand: string };
+}
+interface ChecklistExecutionAlert {
+  id: string;
+  resolutionStatus?: 'PENDING' | 'RESOLVED' | 'APPROVED';
+  hasIssues: boolean;
+  externalDamage?: string;
+  internalDamage?: string;
+  vehicle: { plate: string; model?: string };
+  checklist: { name: string; type: string };
+  createdAt?: string;
+}
+interface BookingAlert {
+  id: string;
+  date: string;
+  status: string;
+  vehicleId?: string;
+  vehicle: { plate: string; model: string };
+  user: { name: string };
+}
+
+type AlertPriority = 'CRITICO' | 'ALTO' | 'MEDIO';
+
+interface PrioritizedAlertItem {
+  id: string;
+  priority: AlertPriority;
+  category: 'RESERVA' | 'OLEO' | 'PNEU' | 'AVARIA';
+  title: string;
+  description: string;
+  href: string;
+}
 interface DeliveryReportStop {
   id: string;
   status: string;
@@ -155,6 +208,33 @@ export default function DashboardPage() {
     },
   });
 
+  const { data: futureBookings = [] } = useQuery<BookingAlert[]>({
+    queryKey: ['bookings-future-active'],
+    queryFn: () => {
+      const today = new Date().toISOString().slice(0, 10);
+      return api.get('/bookings', { params: { dateFrom: today } }).then((r) => r.data).catch(() => []);
+    },
+  });
+
+  const { data: vehicleAlerts = [] } = useQuery<VehicleAlert[]>({
+    queryKey: ['vehicle-maintenance-alerts'],
+    queryFn: () => api.get('/vehicles/alerts').then((r) => r.data).catch(() => []),
+  });
+
+  const { data: maintenanceAlerts = [] } = useQuery<MaintenanceAlert[]>({
+    queryKey: ['maintenance-alerts-dashboard'],
+    queryFn: () => {
+      const from = subDays(new Date(), 180).toISOString().slice(0, 10);
+      const to = new Date().toISOString().slice(0, 10);
+      return api.get('/vehicles/maintenance-records', { params: { dateFrom: from, dateTo: to } }).then((r) => r.data).catch(() => []);
+    },
+  });
+
+  const { data: pendingChecklistIssues = [] } = useQuery<ChecklistExecutionAlert[]>({
+    queryKey: ['dashboard-pending-checklist-issues'],
+    queryFn: () => api.get('/checklists/executions', { params: { resolutionStatus: 'PENDING' } }).then((r) => r.data).catch(() => []),
+  });
+
   const last7DaysRange = useMemo(() => {
     const to = new Date();
     const from = subDays(to, 6);
@@ -177,6 +257,29 @@ export default function DashboardPage() {
   const { data: recentRoutes = [] } = useQuery<RecentRoute[]>({
     queryKey: ['dashboard-recent-routes'],
     queryFn: () => api.get('/routes').then((r) => r.data).catch(() => []),
+  });
+
+  const monthRange = useMemo(() => {
+    const now = new Date();
+    return {
+      from: startOfMonth(now).toISOString().slice(0, 10),
+      to: now.toISOString().slice(0, 10),
+    };
+  }, []);
+
+  const { data: monthFuelRecords = [] } = useQuery<Array<{ totalCost: number; liters: number }>>({
+    queryKey: ['dashboard-fuel-month', monthRange.from, monthRange.to],
+    queryFn: () => api.get('/vehicles/fuel-records', { params: { dateFrom: monthRange.from, dateTo: monthRange.to } }).then(r => r.data).catch(() => []),
+  });
+
+  const { data: monthMaintenanceRecords = [] } = useQuery<Array<{ cost?: number }>>({
+    queryKey: ['dashboard-maintenance-month', monthRange.from, monthRange.to],
+    queryFn: () => api.get('/vehicles/maintenance-records', { params: { dateFrom: monthRange.from, dateTo: monthRange.to } }).then(r => r.data).catch(() => []),
+  });
+
+  const { data: monthKmLogs = [] } = useQuery<Array<{ totalKm: number }>>({
+    queryKey: ['dashboard-km-month', monthRange.from, monthRange.to],
+    queryFn: () => api.get('/daily-km', { params: { dateFrom: monthRange.from, dateTo: monthRange.to } }).then(r => r.data).catch(() => []),
   });
 
   const weeklyData = useMemo(() => {
@@ -235,6 +338,107 @@ export default function DashboardPage() {
     { name: 'Agendadas', value: data?.routes.SCHEDULED ?? 0 },
     { name: 'Canceladas', value: data?.routes.CANCELLED ?? 0 },
   ];
+
+  const fleetKpis = useMemo(() => {
+    const fuelCost = monthFuelRecords.reduce((acc, r) => acc + Number(r.totalCost ?? 0), 0);
+    const fuelLiters = monthFuelRecords.reduce((acc, r) => acc + Number(r.liters ?? 0), 0);
+    const maintenanceCost = monthMaintenanceRecords.reduce((acc, r) => acc + Number((r as any).cost ?? 0), 0);
+    const totalKm = monthKmLogs.reduce((acc, r) => acc + Number(r.totalKm ?? 0), 0);
+    return { fuelCost, fuelLiters, maintenanceCost, totalKm, fuelCount: monthFuelRecords.length, maintenanceCount: monthMaintenanceRecords.length };
+  }, [monthFuelRecords, monthMaintenanceRecords, monthKmLogs]);
+
+  const operationalAlerts = useMemo(() => {
+    const reservedActive = futureBookings.filter((b) => b.status === 'PENDING' || b.status === 'CONFIRMED');
+    const reservedVehicles = new Set(reservedActive.map((b) => b.vehicleId ?? b.vehicle.plate));
+
+    const tireKeywords = /pneu|pneus|rod[aao]|alinhamento|balanceamento/i;
+    const tireNearDue = maintenanceAlerts.filter((m) => {
+      const text = `${m.type ?? ''} ${m.description ?? ''} ${m.notes ?? ''}`;
+      if (!tireKeywords.test(text)) return false;
+
+      const dueByDate = m.nextDueDate ? new Date(m.nextDueDate) <= addDays(new Date(), 30) : false;
+      const vehicle = vehicleAlerts.find((v) => v.plate === m.vehicle.plate);
+      const dueByKm = m.nextDueKm !== undefined && vehicle?.currentKm !== undefined
+        ? m.nextDueKm - vehicle.currentKm <= 1000
+        : false;
+      return dueByDate || dueByKm;
+    });
+
+    const oilDueSoon = oilAlerts.filter((o) => o.status === 'OVERDUE' || o.status === 'DUE_SOON');
+
+    const damageKeywords = /el[eé]tric|bateria|freio|motor|suspens[aã]o|avaria|painel|faro|chicote/i;
+    const pendingDamageIssues = pendingChecklistIssues.filter((c) => {
+      const damageText = `${c.externalDamage ?? ''} ${c.internalDamage ?? ''}`.trim();
+      return c.hasIssues && (!!damageText || damageKeywords.test(`${c.checklist?.name ?? ''} ${damageText}`));
+    });
+
+    const priorityWeight: Record<AlertPriority, number> = {
+      CRITICO: 3,
+      ALTO: 2,
+      MEDIO: 1,
+    };
+
+    const prioritizedItems: PrioritizedAlertItem[] = [
+      ...pendingDamageIssues.map((c) => {
+        const text = `${c.externalDamage ?? ''} ${c.internalDamage ?? ''} ${c.checklist?.name ?? ''}`;
+        const criticalDamage = /el[eé]tric|freio|motor|chicote|suspens[aã]o/i.test(text);
+        return {
+          id: `avaria-${c.id}`,
+          priority: criticalDamage ? 'CRITICO' : 'ALTO',
+          category: 'AVARIA' as const,
+          title: `${c.vehicle.plate} — ${c.checklist.name}`,
+          description: c.externalDamage || c.internalDamage || 'Pendência de checklist com problema',
+          href: '/checklists',
+        };
+      }),
+      ...oilDueSoon.map((o) => ({
+        id: `oleo-${o.vehicleId}`,
+        priority: o.status === 'OVERDUE' ? 'CRITICO' : 'ALTO',
+        category: 'OLEO' as const,
+        title: `${o.vehicle?.plate ?? 'Veículo'} — Troca de óleo`,
+        description: o.status === 'OVERDUE' ? 'Troca de óleo atrasada' : 'Troca de óleo próxima do vencimento',
+        href: '/fleet',
+      })),
+      ...tireNearDue.map((m) => ({
+        id: `pneu-${m.id}`,
+        priority: 'MEDIO' as const,
+        category: 'PNEU' as const,
+        title: `${m.vehicle.plate} — Pneus`,
+        description: m.description || m.type || 'Manutenção de pneus próxima',
+        href: '/fleet',
+      })),
+      ...reservedActive.map((b) => ({
+        id: `reserva-${b.id}`,
+        priority: 'MEDIO' as const,
+        category: 'RESERVA' as const,
+        title: `${b.vehicle.plate} — Reserva ativa`,
+        description: `${b.user.name} • ${b.status}`,
+        href: '/bookings',
+      })),
+    ].sort((a, b) => {
+      const byPriority = priorityWeight[b.priority] - priorityWeight[a.priority];
+      if (byPriority !== 0) return byPriority;
+      return a.category.localeCompare(b.category);
+    });
+
+    const criticalCount = prioritizedItems.filter((i) => i.priority === 'CRITICO').length;
+    const highCount = prioritizedItems.filter((i) => i.priority === 'ALTO').length;
+    const mediumCount = prioritizedItems.filter((i) => i.priority === 'MEDIO').length;
+
+    return {
+      reservedCount: reservedVehicles.size,
+      reservedItems: reservedActive.slice(0, 5),
+      oilCount: oilDueSoon.length,
+      tireCount: tireNearDue.length,
+      tireItems: tireNearDue.slice(0, 5),
+      damageCount: pendingDamageIssues.length,
+      damageItems: pendingDamageIssues.slice(0, 5),
+      criticalCount,
+      highCount,
+      mediumCount,
+      prioritizedItems: prioritizedItems.slice(0, 10),
+    };
+  }, [futureBookings, maintenanceAlerts, oilAlerts, pendingChecklistIssues, vehicleAlerts]);
 
   const today = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
@@ -394,6 +598,115 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
+        {/* ── Operational Panorama ─────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          className="card p-5"
+        >
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div>
+              <h3 className="font-semibold text-brand-text-primary">Panorama Operacional</h3>
+              <p className="text-xs text-brand-text-secondary mt-0.5">
+                Alertas de início de turno para evitar falhas na operação
+              </p>
+            </div>
+            <Badge variant={operationalAlerts.criticalCount > 0 ? 'danger' : operationalAlerts.highCount > 0 ? 'warning' : 'success'} dot>
+              {operationalAlerts.prioritizedItems.length} alerta(s)
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap mb-4">
+            <Badge variant={operationalAlerts.criticalCount > 0 ? 'danger' : 'gray'}>
+              Crítico: {operationalAlerts.criticalCount}
+            </Badge>
+            <Badge variant={operationalAlerts.highCount > 0 ? 'warning' : 'gray'}>
+              Alto: {operationalAlerts.highCount}
+            </Badge>
+            <Badge variant={operationalAlerts.mediumCount > 0 ? 'info' : 'gray'}>
+              Médio: {operationalAlerts.mediumCount}
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
+            <a href="/bookings" className="bg-slate-50 border border-brand-border rounded-xl p-3 hover:bg-slate-100 transition-colors">
+              <div className="flex items-center justify-between">
+                <CalendarDays className="w-4 h-4 text-blue-600" />
+                <Badge variant="info">Reserva</Badge>
+              </div>
+              <p className="text-2xl font-bold text-brand-text-primary mt-2">{operationalAlerts.reservedCount}</p>
+              <p className="text-xs text-brand-text-secondary">veículo(s) reservados</p>
+            </a>
+
+            <a href="/fleet" className="bg-slate-50 border border-brand-border rounded-xl p-3 hover:bg-slate-100 transition-colors">
+              <div className="flex items-center justify-between">
+                <Droplets className="w-4 h-4 text-amber-600" />
+                <Badge variant={operationalAlerts.oilCount > 0 ? 'warning' : 'success'}>
+                  Óleo
+                </Badge>
+              </div>
+              <p className="text-2xl font-bold text-brand-text-primary mt-2">{operationalAlerts.oilCount}</p>
+              <p className="text-xs text-brand-text-secondary">troca(s) próxima(s)/atrasada(s)</p>
+            </a>
+
+            <a href="/fleet" className="bg-slate-50 border border-brand-border rounded-xl p-3 hover:bg-slate-100 transition-colors">
+              <div className="flex items-center justify-between">
+                <Wrench className="w-4 h-4 text-orange-600" />
+                <Badge variant={operationalAlerts.tireCount > 0 ? 'warning' : 'success'}>
+                  Pneus
+                </Badge>
+              </div>
+              <p className="text-2xl font-bold text-brand-text-primary mt-2">{operationalAlerts.tireCount}</p>
+              <p className="text-xs text-brand-text-secondary">manutenção(ões) próxima(s)</p>
+            </a>
+
+            <a href="/checklists" className="bg-slate-50 border border-brand-border rounded-xl p-3 hover:bg-slate-100 transition-colors">
+              <div className="flex items-center justify-between">
+                <ClipboardList className="w-4 h-4 text-red-600" />
+                <Badge variant={operationalAlerts.damageCount > 0 ? 'danger' : 'success'}>
+                  Avarias
+                </Badge>
+              </div>
+              <p className="text-2xl font-bold text-brand-text-primary mt-2">{operationalAlerts.damageCount}</p>
+              <p className="text-xs text-brand-text-secondary">pendências de danos/itens críticos</p>
+            </a>
+          </div>
+
+          {operationalAlerts.prioritizedItems.length > 0 ? (
+            <div className="bg-slate-50 border border-brand-border rounded-xl p-3">
+              <div className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-2">
+                Ordem de Prioridade (maior risco primeiro)
+              </div>
+              <div className="space-y-2">
+                {operationalAlerts.prioritizedItems.map((item) => (
+                  <a
+                    key={item.id}
+                    href={item.href}
+                    className="flex items-start justify-between gap-3 bg-white border border-brand-border rounded-lg p-2.5 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <Badge variant={item.priority === 'CRITICO' ? 'danger' : item.priority === 'ALTO' ? 'warning' : 'info'}>
+                          {item.priority}
+                        </Badge>
+                        <Badge variant="gray">{item.category}</Badge>
+                      </div>
+                      <p className="text-sm font-semibold text-brand-text-primary truncate">{item.title}</p>
+                      <p className="text-xs text-brand-text-secondary truncate">{item.description}</p>
+                    </div>
+                    <span className="text-xs font-semibold text-primary-600 flex-shrink-0">Abrir</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-success-50 border border-success-200 rounded-xl p-3 text-success-700 text-sm">
+              Operação em dia: sem pendências críticas de reserva, pneus e avarias para o início do trabalho.
+            </div>
+          )}
+        </motion.div>
+
         {/* ── Today Bookings ───────────────────────────────────────────────── */}
         {todayBookings.length > 0 && (
           <motion.div
@@ -437,6 +750,79 @@ export default function DashboardPage() {
             </div>
           </motion.div>
         )}
+
+        {/* ── Fleet KPIs ──────────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24 }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Gauge className="w-4 h-4 text-brand-text-secondary" />
+            <span className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Frota — Este Mês</span>
+          </div>
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <a href="/reports" className="block group">
+              <div className="card p-4 hover:shadow-card-hover transition-shadow">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Gauge className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span className="text-xs text-brand-text-secondary bg-slate-50 px-2 py-0.5 rounded-lg">{monthKmLogs.length} reg.</span>
+                </div>
+                <p className="text-2xl font-bold text-brand-text-primary tabular-nums">
+                  {fleetKpis.totalKm.toLocaleString('pt-BR')}
+                </p>
+                <p className="text-xs text-brand-text-secondary mt-0.5">KM rodados</p>
+              </div>
+            </a>
+
+            <a href="/reports" className="block group">
+              <div className="card p-4 hover:shadow-card-hover transition-shadow">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
+                    <Fuel className="w-4 h-4 text-orange-600" />
+                  </div>
+                  <span className="text-xs text-brand-text-secondary bg-slate-50 px-2 py-0.5 rounded-lg">{fleetKpis.fuelCount} abast.</span>
+                </div>
+                <p className="text-2xl font-bold text-brand-text-primary tabular-nums">
+                  {fleetKpis.fuelLiters.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} L
+                </p>
+                <p className="text-xs text-brand-text-secondary mt-0.5">Combustível consumido</p>
+              </div>
+            </a>
+
+            <a href="/reports" className="block group">
+              <div className="card p-4 hover:shadow-card-hover transition-shadow">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                    <DollarSign className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <span className="text-xs text-brand-text-secondary bg-slate-50 px-2 py-0.5 rounded-lg">combustível</span>
+                </div>
+                <p className="text-2xl font-bold text-brand-text-primary tabular-nums">
+                  R$ {fleetKpis.fuelCost.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </p>
+                <p className="text-xs text-brand-text-secondary mt-0.5">Gasto em abastecimento</p>
+              </div>
+            </a>
+
+            <a href="/reports" className="block group">
+              <div className="card p-4 hover:shadow-card-hover transition-shadow">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+                    <Wrench className="w-4 h-4 text-red-600" />
+                  </div>
+                  <span className="text-xs text-brand-text-secondary bg-slate-50 px-2 py-0.5 rounded-lg">{fleetKpis.maintenanceCount} serv.</span>
+                </div>
+                <p className="text-2xl font-bold text-brand-text-primary tabular-nums">
+                  R$ {fleetKpis.maintenanceCost.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </p>
+                <p className="text-xs text-brand-text-secondary mt-0.5">Gasto em manutenções</p>
+              </div>
+            </a>
+          </div>
+        </motion.div>
 
         {/* ── Charts row ──────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-5">

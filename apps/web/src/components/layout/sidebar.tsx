@@ -34,20 +34,48 @@ interface NavItem {
   feature?: string; // chave do feature flag (undefined = sempre visível)
 }
 
-const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Frota', href: '/fleet', icon: Truck, feature: 'fleet' },
-  { label: 'Motoristas', href: '/drivers', icon: Users, feature: 'drivers' },
-  { label: 'Rotas', href: '/routes', icon: MapPin, feature: 'routes' },
-  { label: 'Checklists', href: '/checklists', icon: ClipboardList, feature: 'checklists' },
-  { label: 'KM Diário', href: '/daily-km', icon: Route, feature: 'daily_km' },
-  { label: 'Agendamento', href: '/bookings', icon: CalendarDays, feature: 'bookings' },
-  { label: 'Financeiro', href: '/financial', icon: Wallet, feature: 'financial' },
-  { label: 'Fiscal / Taxas', href: '/fiscal', icon: Receipt, feature: 'fiscal' },
-  { label: 'Equipamentos', href: '/equipment', icon: Cpu, feature: 'equipment' },
-  { label: 'Produtos', href: '/products', icon: Package, feature: 'products' },
-  { label: 'Relatórios', href: '/reports', icon: BarChart2, feature: 'reports' },
-  { label: 'Configurações', href: '/settings', icon: Settings },
+const navGroups: { label?: string; items: NavItem[] }[] = [
+  {
+    items: [
+      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: 'Operações',
+    items: [
+      { label: 'Frota', href: '/fleet', icon: Truck, feature: 'fleet' },
+      { label: 'Motoristas', href: '/drivers', icon: Users, feature: 'drivers' },
+      { label: 'Rotas', href: '/routes', icon: MapPin, feature: 'routes' },
+      { label: 'Checklists', href: '/checklists', icon: ClipboardList, feature: 'checklists' },
+      { label: 'KM Diário', href: '/daily-km', icon: Route, feature: 'daily_km' },
+      { label: 'Agendamento', href: '/bookings', icon: CalendarDays, feature: 'bookings' },
+    ],
+  },
+  {
+    label: 'Financeiro',
+    items: [
+      { label: 'Financeiro', href: '/financial', icon: Wallet, feature: 'financial' },
+      { label: 'Fiscal / Taxas', href: '/fiscal', icon: Receipt, feature: 'fiscal' },
+    ],
+  },
+  {
+    label: 'Estoque',
+    items: [
+      { label: 'Produtos', href: '/products', icon: Package, feature: 'products' },
+      { label: 'Equipamentos', href: '/equipment', icon: Cpu, feature: 'equipment' },
+    ],
+  },
+  {
+    label: 'Análise',
+    items: [
+      { label: 'Relatórios', href: '/reports', icon: BarChart2, feature: 'reports' },
+    ],
+  },
+  {
+    items: [
+      { label: 'Configurações', href: '/settings', icon: Settings },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -62,8 +90,6 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
 
   const collapsed = externalCollapsed ?? internalCollapsed;
   const toggle = onToggle ?? (() => setInternalCollapsed((c) => !c));
-
-  const visibleItems = navItems.filter(item => !item.feature || hasFeature(item.feature));
 
   const [userName, setUserName] = useState('Usuário');
   useEffect(() => {
@@ -134,65 +160,84 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-4 space-y-0.5 scrollbar-dark overflow-y-auto">
-        {visibleItems.map((item) => {
-          const Icon = item.icon;
-          const active = pathname === item.href || pathname.startsWith(item.href + '/');
+      <nav className="flex-1 px-2 py-4 scrollbar-dark overflow-y-auto">
+        {navGroups.map((group, groupIdx) => {
+          const visibleGroupItems = group.items.filter(item => !item.feature || hasFeature(item.feature));
+          if (visibleGroupItems.length === 0) return null;
 
           return (
-            <Link key={item.href} href={item.href} className="block">
-              <div
-                className={cn(
-                  'relative flex items-center gap-3 rounded-xl transition-all duration-200',
-                  collapsed ? 'justify-center px-0 py-3' : 'px-3 py-2.5',
-                  active
-                    ? 'bg-primary-600/20 sidebar-glow'
-                    : 'hover:bg-sidebar-hover text-sidebar-text hover:text-white',
-                )}
-                title={collapsed ? item.label : undefined}
-              >
-                {/* Active indicator */}
-                {active && (
-                  <motion.div
-                    className="absolute left-1 top-1.5 bottom-1.5 w-0.5 bg-primary-400 rounded-r-full shadow-glow-sm"
-                    layoutId="sidebar-active"
-                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                  />
-                )}
-
-                <Icon
-                  className={cn(
-                    'w-5 h-5 flex-shrink-0 transition-colors',
-                    active ? 'text-primary-400' : 'text-sidebar-text',
-                    collapsed && 'mx-auto',
-                  )}
-                />
-
-                <AnimatePresence>
-                  {!collapsed && (
-                    <motion.span
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: 'auto' }}
-                      exit={{ opacity: 0, width: 0 }}
-                      transition={{ duration: 0.15 }}
-                      className={cn(
-                        'text-sm font-medium whitespace-nowrap overflow-hidden flex-1',
-                        active ? 'text-white' : 'text-sidebar-text',
-                      )}
-                    >
-                      {item.label}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-
-                {/* Badge */}
-                {!collapsed && item.badge !== undefined && item.badge > 0 && (
-                  <span className="flex-shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-accent-500 text-white text-2xs font-bold flex items-center justify-center">
-                    {item.badge > 99 ? '99+' : item.badge}
+            <div key={groupIdx} className={groupIdx > 0 ? 'mt-3' : ''}>
+              {/* Category label */}
+              {group.label && !collapsed && (
+                <div className="px-3 pb-1.5">
+                  <span className="text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-sidebar-text/50">
+                    {group.label}
                   </span>
-                )}
+                </div>
+              )}
+              <div className="space-y-0.5">
+                {visibleGroupItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = pathname === item.href || pathname.startsWith(item.href + '/');
+
+                  return (
+                    <Link key={item.href} href={item.href} className="block">
+                      <div
+                        className={cn(
+                          'relative flex items-center gap-3 rounded-xl transition-all duration-200',
+                          collapsed ? 'justify-center px-0 py-3' : 'px-3 py-2.5',
+                          active
+                            ? 'bg-primary-600/20 sidebar-glow'
+                            : 'hover:bg-sidebar-hover text-sidebar-text hover:text-white',
+                        )}
+                        title={collapsed ? item.label : undefined}
+                      >
+                        {/* Active indicator */}
+                        {active && (
+                          <motion.div
+                            className="absolute left-1 top-1.5 bottom-1.5 w-0.5 bg-primary-400 rounded-r-full shadow-glow-sm"
+                            layoutId="sidebar-active"
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                          />
+                        )}
+
+                        <Icon
+                          className={cn(
+                            'w-5 h-5 flex-shrink-0 transition-colors',
+                            active ? 'text-primary-400' : 'text-sidebar-text',
+                            collapsed && 'mx-auto',
+                          )}
+                        />
+
+                        <AnimatePresence>
+                          {!collapsed && (
+                            <motion.span
+                              initial={{ opacity: 0, width: 0 }}
+                              animate={{ opacity: 1, width: 'auto' }}
+                              exit={{ opacity: 0, width: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className={cn(
+                                'text-sm font-medium whitespace-nowrap overflow-hidden flex-1',
+                                active ? 'text-white' : 'text-sidebar-text',
+                              )}
+                            >
+                              {item.label}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Badge */}
+                        {!collapsed && item.badge !== undefined && item.badge > 0 && (
+                          <span className="flex-shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-accent-500 text-white text-[0.6rem] font-bold flex items-center justify-center">
+                            {item.badge > 99 ? '99+' : item.badge}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-            </Link>
+            </div>
           );
         })}
       </nav>

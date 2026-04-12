@@ -397,7 +397,7 @@ export default function DriversPage() {
                       selected?.id === driver.id && 'ring-2 ring-primary-200 border-primary-500',
                       warn ? 'border-warning-200' : 'border-brand-border',
                     )}
-                    onClick={() => setSelected(driver)}
+                    onClick={() => { setSelected(driver); setDetailOpen(true); }}
                   >
                     <div className="p-5 pb-3">
                       <div className="flex items-start justify-between gap-2">

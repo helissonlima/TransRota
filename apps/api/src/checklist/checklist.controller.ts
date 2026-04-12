@@ -1,13 +1,15 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ChecklistService } from './checklist.service';
 import { CreateChecklistDto } from './dto/create-checklist.dto';
 import { ExecuteChecklistDto } from './dto/execute-checklist.dto';
+import { ResolveExecutionDto } from './dto/resolve-execution.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { TenantPrisma } from '../tenant/tenant.decorator';
-import { UserRole } from '@transrota/shared';
+import { UserRole, TokenPayload } from '@transrota/shared';
 import { TenantPrismaService } from '../core/prisma/tenant-prisma.service';
 
 @ApiTags('Checklist')
@@ -36,8 +38,21 @@ export class ChecklistController {
     @TenantPrisma() prisma: TenantPrismaService,
     @Query('vehicleId') vehicleId?: string,
     @Query('driverId') driverId?: string,
+    @Query('resolutionStatus') resolutionStatus?: string,
   ) {
-    return this.checklistService.getExecutions(prisma, vehicleId, driverId);
+    return this.checklistService.getExecutions(prisma, vehicleId, driverId, resolutionStatus);
+  }
+
+  @Patch('executions/:id/resolve')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @ApiOperation({ summary: 'Resolver ou aprovar uma execução de checklist' })
+  resolveExecution(
+    @TenantPrisma() prisma: TenantPrismaService,
+    @Param('id') id: string,
+    @Body() dto: ResolveExecutionDto,
+    @CurrentUser() user: TokenPayload,
+  ) {
+    return this.checklistService.resolveExecution(prisma, id, dto.status, user.sub);
   }
 
   @Get(':id')

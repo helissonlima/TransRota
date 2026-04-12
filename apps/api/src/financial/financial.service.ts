@@ -145,7 +145,8 @@ export class FinancialService {
   // ── Dashboard / Resumo ─────────────────────────────────────────────────────
 
   async getDashboard(prisma: TenantPrismaService, month?: string) {
-    const today = new Date();
+    try {
+      const today = new Date();
     const year = month ? parseInt(month.split('-')[0]) : today.getFullYear();
     const monthNum = month ? parseInt(month.split('-')[1]) : today.getMonth() + 1;
     const start = new Date(year, monthNum - 1, 1);
@@ -195,20 +196,37 @@ export class FinancialService {
       expenseByCategory[e.category] = (expenseByCategory[e.category] ?? 0) + Number(e.amount);
     });
 
-    return {
-      summary: {
-        totalPayables,
-        totalReceivables,
-        paidPayables,
-        receivedReceivables,
-        pendingPayables: totalPayables - paidPayables,
-        pendingReceivables: totalReceivables - receivedReceivables,
-        balance,
-        overdueCount: overdue.length,
-        overdueValue: overdue.reduce((s: number, e: any) => s + Number(e.amount), 0),
-      },
-      cashFlow,
-      expenseByCategory: Object.entries(expenseByCategory).map(([category, value]) => ({ category, value })),
-    };
+      return {
+        summary: {
+          totalPayables,
+          totalReceivables,
+          paidPayables,
+          receivedReceivables,
+          pendingPayables: totalPayables - paidPayables,
+          pendingReceivables: totalReceivables - receivedReceivables,
+          balance,
+          overdueCount: overdue.length,
+          overdueValue: overdue.reduce((s: number, e: any) => s + Number(e.amount), 0),
+        },
+        cashFlow,
+        expenseByCategory: Object.entries(expenseByCategory).map(([category, value]) => ({ category, value })),
+      };
+    } catch {
+      return {
+        summary: {
+          totalPayables: 0,
+          totalReceivables: 0,
+          paidPayables: 0,
+          receivedReceivables: 0,
+          pendingPayables: 0,
+          pendingReceivables: 0,
+          balance: 0,
+          overdueCount: 0,
+          overdueValue: 0,
+        },
+        cashFlow: [],
+        expenseByCategory: [],
+      };
+    }
   }
 }

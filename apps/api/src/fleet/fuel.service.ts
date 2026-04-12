@@ -43,6 +43,30 @@ export class FuelService {
     });
   }
 
+  async findAll(
+    prisma: TenantPrismaService,
+    vehicleId?: string,
+    dateFrom?: string,
+    dateTo?: string,
+  ) {
+    return prisma.fuelRecord.findMany({
+      where: {
+        ...(vehicleId ? { vehicleId } : {}),
+        ...(dateFrom || dateTo ? {
+          performedAt: {
+            ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
+            ...(dateTo   ? { lte: new Date(dateTo)   } : {}),
+          },
+        } : {}),
+      },
+      include: {
+        vehicle: { select: { plate: true, model: true, brand: true } },
+        driver:  { select: { name: true } },
+      },
+      orderBy: { performedAt: 'desc' },
+    });
+  }
+
   async getCostSummary(prisma: TenantPrismaService, branchId?: string) {
     const records = await prisma.fuelRecord.findMany({
       where: branchId

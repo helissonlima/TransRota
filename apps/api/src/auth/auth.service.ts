@@ -34,7 +34,7 @@ export class AuthService {
     tenantPrisma: TenantPrismaService,
     tenantId: string,
     schemaName: string,
-    user: { id: string; role: string; email: string },
+    user: { id: string; role: string; email: string; name: string },
   ) {
     const payload: TokenPayload = {
       sub: user.id,
@@ -55,7 +55,11 @@ export class AuthService {
       data: { refreshTokenHash: refreshHash, lastLoginAt: new Date() },
     });
 
-    return { accessToken, refreshToken, user: { id: user.id, email: user.email, role: user.role } };
+    return {
+      accessToken,
+      refreshToken,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    };
   }
 
   async refreshTokens(

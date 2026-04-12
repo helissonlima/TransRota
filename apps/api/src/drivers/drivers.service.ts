@@ -6,11 +6,37 @@ import { CreateDriverDocumentDto } from './dto/create-driver-document.dto';
 
 @Injectable()
 export class DriversService {
+  private normalizeCpf(cpf: string) {
+    return (cpf || '').replace(/\D/g, '');
+  }
+
+  private normalizeLicense(licenseNumber: string) {
+    return (licenseNumber || '').replace(/\D/g, '');
+  }
+
+  private normalizeName(name: string) {
+    return (name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+
   async create(prisma: TenantPrismaService, dto: CreateDriverDto) {
-    const existing = await prisma.driver.findFirst({
-      where: { OR: [{ cpf: dto.cpf }, { licenseNumber: dto.licenseNumber }] },
+    const normalizedCpf = this.normalizeCpf(dto.cpf);
+    const normalizedLicense = this.normalizeLicense(dto.licenseNumber);
+    const normalizedName = this.normalizeName(dto.name);
+
+    const existing = await prisma.driver.findMany({
+      where: { isActive: true },
+      select: { id: true, cpf: true, licenseNumber: true, name: true },
     });
-    if (existing) throw new ConflictException('CPF ou CNH já cadastrado');
+
+    const hasDuplicate = existing.some((driver) =>
+      this.normalizeCpf(driver.cpf) === normalizedCpf ||
+      this.normalizeLicense(driver.licenseNumber) === normalizedLicense ||
+      this.normalizeName(driver.name) === normalizedName,
+    );
+
+    if (hasDuplicate) {
+      throw new ConflictException('Motorista já cadastrado com mesmo nome, CPF ou CNH');
+    }
 
     const { branchId, ...rest } = dto;
 
@@ -25,6 +51,8 @@ export class DriversService {
     return prisma.driver.create({
       data: {
         ...rest,
+        cpf: dto.cpf,
+        licenseNumber: dto.licenseNumber,
         licenseExpiry: new Date(rest.licenseExpiry),
         branchId: resolvedBranchId,
       } as any,
@@ -56,7 +84,31 @@ export class DriversService {
   }
 
   async update(prisma: TenantPrismaService, id: string, dto: UpdateDriverDto) {
-    await this.findOne(prisma, id);
+    const current = await this.findOne(prisma, id);
+
+    const nextName = dto.name ?? current.name;
+    const nextCpf = dto.cpf ?? current.cpf;
+    const nextLicense = dto.licenseNumber ?? current.licenseNumber;
+
+    const normalizedCpf = this.normalizeCpf(nextCpf);
+    const normalizedLicense = this.normalizeLicense(nextLicense);
+    const normalizedName = this.normalizeName(nextName);
+
+    const others = await prisma.driver.findMany({
+      where: { isActive: true, id: { not: id } },
+      select: { id: true, cpf: true, licenseNumber: true, name: true },
+    });
+
+    const hasDuplicate = others.some((driver) =>
+      this.normalizeCpf(driver.cpf) === normalizedCpf ||
+      this.normalizeLicense(driver.licenseNumber) === normalizedLicense ||
+      this.normalizeName(driver.name) === normalizedName,
+    );
+
+    if (hasDuplicate) {
+      throw new ConflictException('Já existe outro motorista com mesmo nome, CPF ou CNH');
+    }
+
     return prisma.driver.update({ where: { id }, data: dto });
   }
 

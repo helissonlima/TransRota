@@ -2,11 +2,13 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { TenantPrismaService } from '../core/prisma/tenant-prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -57,6 +59,30 @@ export class UsersService {
   async deactivate(prisma: TenantPrismaService, id: string) {
     await this.findOne(prisma, id);
     await prisma.user.update({ where: { id }, data: { isActive: false } });
+  }
+
+  async updateProfile(prisma: TenantPrismaService, id: string, dto: UpdateProfileDto, currentUserId: string, isAdmin: boolean) {
+    if (id !== currentUserId && !isAdmin) {
+      throw new ForbiddenException('Acesso negado');
+    }
+
+    await this.findOne(prisma, id);
+
+    if (dto.email) {
+      const existing = await prisma.user.findUnique({ where: { email: dto.email } });
+      if (existing && existing.id !== id) {
+        throw new ConflictException('E-mail já cadastrado');
+      }
+    }
+
+    return prisma.user.update({
+      where: { id },
+      data: {
+        ...(dto.name !== undefined ? { name: dto.name } : {}),
+        ...(dto.email !== undefined ? { email: dto.email } : {}),
+      },
+      select: { id: true, name: true, email: true, role: true, branchId: true, updatedAt: true },
+    });
   }
 
   async changePassword(prisma: TenantPrismaService, id: string, currentPassword: string, newPassword: string) {

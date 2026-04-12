@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import api from '@/lib/api';
 import { cn } from '@/lib/cn';
+import { Header } from '@/components/layout/header';
 
 // ───────────────────────────────────────────────────────────────
 // Types
@@ -56,7 +57,7 @@ const TYPE_COLOR: Record<ProductType, string> = {
   SERVICE: 'text-blue-400 bg-blue-500/10',
 };
 const STATUS_COLOR: Record<string, string> = {
-  DRAFT: 'text-[#94a3b8] bg-[#1e2d4a]',
+  DRAFT: 'text-slate-500 bg-slate-100',
   CONFIRMED: 'text-blue-400 bg-blue-500/10',
   IN_PROGRESS: 'text-amber-400 bg-amber-500/10',
   COMPLETED: 'text-emerald-400 bg-emerald-500/10',
@@ -225,71 +226,73 @@ export default function ProductsPage() {
     (p.stockItems ?? []).reduce((acc, s) => acc + (Number(s.quantity) || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#0b1120] text-white">
-      {/* Header */}
-      <div className="border-b border-[#1e2d4a] px-6 py-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-500/15 flex items-center justify-center">
-              <Package className="w-5 h-5 text-teal-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Produtos & Estoque</h1>
-              <p className="text-xs text-[#64748b] mt-0.5">{products.length} produto{products.length !== 1 ? 's' : ''} cadastrado{products.length !== 1 ? 's' : ''}</p>
-            </div>
+    <div className="flex flex-col min-h-screen bg-brand-bg">
+      <Header title="Produtos & Estoque" />
+      <main className="flex-1 p-6 max-w-[1400px] mx-auto w-full space-y-6">
+        {/* Page title */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-brand-text-primary">Produtos & Estoque</h1>
+            <p className="text-sm text-brand-text-secondary mt-0.5">
+              {products.length} produto{products.length !== 1 ? 's' : ''} cadastrado{products.length !== 1 ? 's' : ''}
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            {alerts.length > 0 && (
-              <span className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                <AlertTriangle className="w-3.5 h-3.5" /> {alerts.length} alerta{alerts.length !== 1 ? 's' : ''} de estoque
-              </span>
-            )}
+          {alerts.length > 0 && (
+            <span className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              <AlertTriangle className="w-3.5 h-3.5" /> {alerts.length} alerta{alerts.length !== 1 ? 's' : ''} de estoque
+            </span>
+          )}
+        </div>
+
+        {/* Tabs + action button */}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-1 bg-slate-100/80 rounded-2xl p-1 overflow-x-auto">
+            {TABS.map(t => {
+              const Icon = t.icon;
+              const active = tab === t.id;
+              return (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={cn('flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap',
+                    active ? 'bg-white text-primary-700 shadow-sm' : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-white/60'
+                  )}>
+                  <Icon className={cn('w-4 h-4 flex-shrink-0', active ? 'text-primary-600' : '')} />{t.label}
+                </button>
+              );
+            })}
+          </div>
+          <div>
             {tab === 'catalog' && (
               <button onClick={() => setShowProductModal(true)} className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white transition-colors">
                 <Plus className="w-4 h-4" /> Novo Produto
               </button>
             )}
             {tab === 'stock' && (
-              <button onClick={() => setShowMovModal(true)} className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white transition-colors">
+              <button onClick={() => setShowMovModal(true)} className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white transition-colors">
                 <ArrowUpCircle className="w-4 h-4" /> Movimentar
               </button>
             )}
             {tab === 'production' && (
-              <button onClick={() => setShowProdModal(true)} className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition-colors">
+              <button onClick={() => setShowProdModal(true)} className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white transition-colors">
                 <Plus className="w-4 h-4" /> Nova Ordem
               </button>
             )}
             {tab === 'sales' && (
-              <button onClick={() => setShowSaleModal(true)} className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
+              <button onClick={() => setShowSaleModal(true)} className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white transition-colors">
                 <Plus className="w-4 h-4" /> Novo Pedido
               </button>
             )}
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 mt-5">
-          {TABS.map(t => {
-            const Icon = t.icon;
-            return (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                className={cn('flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all', tab === t.id ? 'bg-primary-600/20 text-primary-300 ring-1 ring-primary-500/30' : 'text-[#64748b] hover:text-white hover:bg-[#1e2d4a]')}>
-                <Icon className="w-4 h-4" />{t.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-6">
+        {/* Content */}
+        <div>
 
         {/* ── CATALOG ── */}
         {tab === 'catalog' && (
           <div>
             <div className="relative mb-5">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nome ou SKU..." className="w-full max-w-md bg-[#0f1c36] border border-[#1e2d4a] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-[#4a5568] focus:outline-none focus:border-primary-500" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nome ou SKU..." className="w-full max-w-md bg-white border border-brand-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-brand-text-primary placeholder:text-brand-text-secondary focus:outline-none focus:border-primary-500" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredProducts.map(product => {
@@ -297,32 +300,32 @@ export default function ProductsPage() {
                 const isLow = product.type !== 'SERVICE' && product.minStock && qty <= product.minStock;
                 return (
                   <motion.div key={product.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#0f1c36] border border-[#1e2d4a] rounded-2xl p-4 hover:border-[#2e4a7a] transition-all cursor-pointer"
+                    className="bg-white border border-brand-border rounded-2xl p-4 hover:border-primary-300 shadow-card hover:shadow-card-hover transition-all cursor-pointer"
                     onClick={() => setSelectedProduct(product)}>
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="font-semibold text-sm text-white">{product.name}</p>
-                        <p className="text-xs text-[#64748b] font-mono mt-0.5">{product.sku}</p>
+                        <p className="font-semibold text-sm text-brand-text-primary">{product.name}</p>
+                        <p className="text-xs text-brand-text-secondary font-mono mt-0.5">{product.sku}</p>
                       </div>
                       <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium', TYPE_COLOR[product.type])}>
                         {TYPE_LABEL[product.type]}
                       </span>
                     </div>
                     {product.type !== 'SERVICE' && (
-                      <div className={cn('flex items-center gap-2 text-sm font-semibold', isLow ? 'text-amber-400' : 'text-white')}>
+                      <div className={cn('flex items-center gap-2 text-sm font-semibold', isLow ? 'text-amber-600' : 'text-brand-text-primary')}>
                         {isLow && <AlertTriangle className="w-4 h-4" />}
                         {qty.toLocaleString('pt-BR', { maximumFractionDigits: 3 })} {product.unit}
                       </div>
                     )}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#1e2d4a]">
-                      <span className="text-xs text-[#64748b]">Venda: <span className="text-white">{product.salePrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span></span>
-                      {product.bom && <span className="text-xs text-teal-400 flex items-center gap-1"><Wrench className="w-3 h-3" />BOM</span>}
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand-border">
+                      <span className="text-xs text-brand-text-secondary">Venda: <span className="font-semibold text-brand-text-primary">{product.salePrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span></span>
+                      {product.bom && <span className="text-xs text-primary-600 flex items-center gap-1"><Wrench className="w-3 h-3" />BOM</span>}
                     </div>
                   </motion.div>
                 );
               })}
               {filteredProducts.length === 0 && (
-                <div className="col-span-full text-center py-20 text-[#64748b]">
+                <div className="col-span-full text-center py-20 text-brand-text-secondary">
                   <Package className="w-12 h-12 mx-auto mb-3 opacity-30" />
                   <p>Nenhum produto encontrado</p>
                 </div>
@@ -335,39 +338,39 @@ export default function ProductsPage() {
         {tab === 'stock' && (
           <div>
             {alerts.length > 0 && (
-              <div className="mb-5 p-4 rounded-2xl bg-amber-900/20 border border-amber-500/30">
-                <p className="text-sm font-semibold text-amber-400 mb-2 flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Estoque Baixo</p>
+              <div className="mb-5 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+                <p className="text-sm font-semibold text-amber-700 mb-2 flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Estoque Baixo</p>
                 <div className="flex flex-wrap gap-2">
                   {alerts.map(a => (
-                    <span key={a.id} className="text-xs px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                    <span key={a.id} className="text-xs px-3 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
                       {a.product.name} — {Number(a.quantity).toLocaleString('pt-BR', { maximumFractionDigits: 3 })} {a.product.unit}
                     </span>
                   ))}
                 </div>
               </div>
             )}
-            <div className="rounded-2xl border border-[#1e2d4a] overflow-hidden">
+            <div className="rounded-2xl border border-brand-border shadow-card overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-[#0f1c36] text-[#64748b] text-xs uppercase tracking-wide">
+                <thead className="bg-slate-50 text-brand-text-secondary text-xs uppercase tracking-wide">
                   <tr>
                     {['Produto', 'SKU', 'Tipo', 'Qtd em Estoque', 'Estoque Mín.', 'Localização', 'Status'].map(h => (
                       <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#0f1929]">
+                <tbody className="divide-y divide-gray-100">
                   {stock.map(s => {
                     const isLow = s.product.minStock && Number(s.quantity) <= Number(s.product.minStock);
                     return (
-                      <tr key={s.id} className="hover:bg-[#0f1929] transition-colors">
+                      <tr key={s.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-5 py-3.5 font-medium">{s.product.name}</td>
-                        <td className="px-5 py-3.5 text-[#94a3b8] font-mono text-xs">{s.product.sku}</td>
+                        <td className="px-5 py-3.5 text-brand-text-secondary font-mono text-xs">{s.product.sku}</td>
                         <td className="px-5 py-3.5"><span className={cn('text-xs px-2 py-0.5 rounded-full', TYPE_COLOR[s.product.type])}>{TYPE_LABEL[s.product.type]}</span></td>
-                        <td className={cn('px-5 py-3.5 font-semibold', isLow ? 'text-amber-400' : 'text-white')}>
-                          {Number(s.quantity).toLocaleString('pt-BR', { maximumFractionDigits: 3 })} <span className="text-xs text-[#64748b]">{s.product.unit}</span>
+                        <td className={cn('px-5 py-3.5 font-semibold', isLow ? 'text-amber-600' : 'text-brand-text-primary')}>
+                          {Number(s.quantity).toLocaleString('pt-BR', { maximumFractionDigits: 3 })} <span className="text-xs text-brand-text-secondary">{s.product.unit}</span>
                         </td>
-                        <td className="px-5 py-3.5 text-[#64748b]">{s.product.minStock ? `${Number(s.product.minStock)} ${s.product.unit}` : '—'}</td>
-                        <td className="px-5 py-3.5 text-[#64748b]">{s.location?.name ?? 'Principal'}</td>
+                        <td className="px-5 py-3.5 text-brand-text-secondary">{s.product.minStock ? `${Number(s.product.minStock)} ${s.product.unit}` : '—'}</td>
+                        <td className="px-5 py-3.5 text-brand-text-secondary">{s.location?.name ?? 'Principal'}</td>
                         <td className="px-5 py-3.5">
                           {isLow ? (
                             <span className="flex items-center gap-1 text-xs text-amber-400"><AlertTriangle className="w-3.5 h-3.5" /> Baixo</span>
@@ -379,7 +382,7 @@ export default function ProductsPage() {
                     );
                   })}
                   {stock.length === 0 && (
-                    <tr><td colSpan={7} className="text-center py-16 text-[#64748b]">Nenhum item em estoque</td></tr>
+                    <tr><td colSpan={7} className="text-center py-16 text-brand-text-secondary">Nenhum item em estoque</td></tr>
                   )}
                 </tbody>
               </table>
@@ -391,38 +394,38 @@ export default function ProductsPage() {
         {tab === 'bom' && (
           <div className="max-w-3xl">
             <div className="mb-5">
-              <label className="block text-xs text-[#64748b] mb-2">Selecione o produto para ver/editar a ficha técnica</label>
+              <label className="block text-xs text-brand-text-secondary mb-2">Selecione o produto para ver/editar a ficha técnica</label>
               <select value={bomProductId} onChange={e => setBomProductId(e.target.value)}
-                className="bg-[#0f1c36] border border-[#1e2d4a] rounded-xl px-4 py-2.5 text-sm text-white w-full max-w-sm focus:outline-none focus:border-primary-500">
+                className="bg-slate-50 border border-brand-border rounded-xl px-4 py-2.5 text-sm text-brand-text-primary w-full max-w-sm focus:outline-none focus:border-primary-500">
                 <option value="">— Selecione —</option>
                 {products.filter(p => p.type !== 'RAW_MATERIAL' && p.type !== 'SERVICE').map(p => (
                   <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
                 ))}
               </select>
             </div>
-            {bomLoading && <p className="text-[#64748b] text-sm">Carregando BOM...</p>}
+            {bomLoading && <p className="text-brand-text-secondary text-sm">Carregando BOM...</p>}
             {bomProductId && !bomLoading && bom && (
-              <div className="rounded-2xl border border-[#1e2d4a] overflow-hidden">
-                <div className="bg-[#0f1c36] px-5 py-4 border-b border-[#1e2d4a]">
-                  <p className="font-semibold text-sm">Ficha Técnica — {products.find(p => p.id === bomProductId)?.name}</p>
-                  <p className="text-xs text-[#64748b] mt-0.5">Rendimento por ciclo: {Number(bom.yield)} {products.find(p => p.id === bomProductId)?.unit}</p>
+              <div className="rounded-2xl border border-brand-border shadow-card overflow-hidden">
+                <div className="bg-slate-50 px-5 py-4 border-b border-brand-border">
+                  <p className="font-semibold text-sm text-brand-text-primary">Ficha Técnica — {products.find(p => p.id === bomProductId)?.name}</p>
+                  <p className="text-xs text-brand-text-secondary mt-0.5">Rendimento por ciclo: {Number(bom.yield)} {products.find(p => p.id === bomProductId)?.unit}</p>
                 </div>
                 <table className="w-full text-sm">
-                  <thead className="bg-[#0a1628] text-[#64748b] text-xs uppercase tracking-wide">
+                  <thead className="bg-slate-100 text-brand-text-secondary text-xs uppercase tracking-wide">
                     <tr>
                       {['Componente', 'SKU', 'Quantidade', 'Perda %', 'Qtd Real'].map(h => <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>)}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#0f1929]">
+                  <tbody className="divide-y divide-gray-100">
                     {bom.items?.map((item: any) => {
                       const realQty = Number(item.quantity) * (1 + Number(item.lossPercent) / 100);
                       return (
-                        <tr key={item.id} className="hover:bg-[#0f1929]">
+                        <tr key={item.id} className="hover:bg-slate-50">
                           <td className="px-5 py-3.5 font-medium">{item.component.name}</td>
-                          <td className="px-5 py-3.5 text-[#94a3b8] font-mono text-xs">{item.component.sku}</td>
+                          <td className="px-5 py-3.5 text-brand-text-secondary font-mono text-xs">{item.component.sku}</td>
                           <td className="px-5 py-3.5">{Number(item.quantity)} {item.unit}</td>
-                          <td className="px-5 py-3.5 text-[#64748b]">{Number(item.lossPercent)}%</td>
-                          <td className="px-5 py-3.5 text-amber-300">{realQty.toFixed(3)} {item.unit}</td>
+                          <td className="px-5 py-3.5 text-brand-text-secondary">{Number(item.lossPercent)}%</td>
+                          <td className="px-5 py-3.5 text-amber-600">{realQty.toFixed(3)} {item.unit}</td>
                         </tr>
                       );
                     })}
@@ -431,7 +434,7 @@ export default function ProductsPage() {
               </div>
             )}
             {bomProductId && !bomLoading && !bom && (
-              <div className="text-center py-12 text-[#64748b]">
+              <div className="text-center py-12 text-brand-text-secondary">
                 <Wrench className="w-10 h-10 mx-auto mb-2 opacity-30" />
                 <p className="text-sm">Nenhuma ficha técnica cadastrada para este produto.</p>
                 <p className="text-xs mt-1">Use a API para criar a BOM via POST /products/:id/bom</p>
@@ -442,23 +445,23 @@ export default function ProductsPage() {
 
         {/* ── PRODUCTION ── */}
         {tab === 'production' && (
-          <div className="rounded-2xl border border-[#1e2d4a] overflow-hidden">
+          <div className="rounded-2xl border border-brand-border shadow-card overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-[#0f1c36] text-[#64748b] text-xs uppercase tracking-wide">
+              <thead className="bg-slate-50 text-brand-text-secondary text-xs uppercase tracking-wide">
                 <tr>
                   {['Nº Ordem', 'Produto', 'Quantidade', 'Status', 'Data', 'Ações'].map(h => (
                     <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#0f1929]">
+              <tbody className="divide-y divide-gray-100">
                 {productionOrders.map(o => (
-                  <tr key={o.id} className="hover:bg-[#0f1929] transition-colors">
-                    <td className="px-5 py-3.5 font-mono text-xs text-[#94a3b8]">{o.number}</td>
+                  <tr key={o.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-5 py-3.5 font-mono text-xs text-brand-text-secondary">{o.number}</td>
                     <td className="px-5 py-3.5 font-medium">{o.product.name}</td>
                     <td className="px-5 py-3.5">{Number(o.quantity)} {o.product.unit}</td>
                     <td className="px-5 py-3.5"><span className={cn('text-xs px-2.5 py-1 rounded-full font-medium', STATUS_COLOR[o.status])}>{STATUS_LABEL[o.status]}</span></td>
-                    <td className="px-5 py-3.5 text-[#64748b]">{new Date(o.createdAt).toLocaleDateString('pt-BR')}</td>
+                    <td className="px-5 py-3.5 text-brand-text-secondary">{new Date(o.createdAt).toLocaleDateString('pt-BR')}</td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         {o.status === 'DRAFT' && (
@@ -475,7 +478,7 @@ export default function ProductsPage() {
                   </tr>
                 ))}
                 {productionOrders.length === 0 && (
-                  <tr><td colSpan={6} className="text-center py-16 text-[#64748b]">Nenhuma ordem de produção</td></tr>
+                  <tr><td colSpan={6} className="text-center py-16 text-brand-text-secondary">Nenhuma ordem de produção</td></tr>
                 )}
               </tbody>
             </table>
@@ -484,23 +487,23 @@ export default function ProductsPage() {
 
         {/* ── SALES ── */}
         {tab === 'sales' && (
-          <div className="rounded-2xl border border-[#1e2d4a] overflow-hidden">
+          <div className="rounded-2xl border border-brand-border shadow-card overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-[#0f1c36] text-[#64748b] text-xs uppercase tracking-wide">
+              <thead className="bg-slate-50 text-brand-text-secondary text-xs uppercase tracking-wide">
                 <tr>
                   {['Nº Pedido', 'Cliente', 'Total', 'Status', 'Data', 'Ações'].map(h => (
                     <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#0f1929]">
+              <tbody className="divide-y divide-gray-100">
                 {saleOrders.map(o => (
-                  <tr key={o.id} className="hover:bg-[#0f1929] transition-colors">
-                    <td className="px-5 py-3.5 font-mono text-xs text-[#94a3b8]">{o.number}</td>
+                  <tr key={o.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-5 py-3.5 font-mono text-xs text-brand-text-secondary">{o.number}</td>
                     <td className="px-5 py-3.5 font-medium">{o.clientName}</td>
                     <td className="px-5 py-3.5">{Number(o.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                     <td className="px-5 py-3.5"><span className={cn('text-xs px-2.5 py-1 rounded-full font-medium', STATUS_COLOR[o.status])}>{STATUS_LABEL[o.status]}</span></td>
-                    <td className="px-5 py-3.5 text-[#64748b]">{new Date(o.createdAt).toLocaleDateString('pt-BR')}</td>
+                    <td className="px-5 py-3.5 text-brand-text-secondary">{new Date(o.createdAt).toLocaleDateString('pt-BR')}</td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
                         {o.status === 'DRAFT' && (
@@ -517,7 +520,7 @@ export default function ProductsPage() {
                   </tr>
                 ))}
                 {saleOrders.length === 0 && (
-                  <tr><td colSpan={6} className="text-center py-16 text-[#64748b]">Nenhum pedido de venda</td></tr>
+                  <tr><td colSpan={6} className="text-center py-16 text-brand-text-secondary">Nenhum pedido de venda</td></tr>
                 )}
               </tbody>
             </table>
@@ -526,20 +529,20 @@ export default function ProductsPage() {
 
         {/* ── MOVEMENTS ── */}
         {tab === 'movements' && (
-          <div className="rounded-2xl border border-[#1e2d4a] overflow-hidden">
+          <div className="rounded-2xl border border-brand-border shadow-card overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-[#0f1c36] text-[#64748b] text-xs uppercase tracking-wide">
+              <thead className="bg-slate-50 text-brand-text-secondary text-xs uppercase tracking-wide">
                 <tr>
                   {['Produto', 'Tipo', 'Quantidade', 'Motivo', 'Data'].map(h => (
                     <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#0f1929]">
+              <tbody className="divide-y divide-gray-100">
                 {movements.map(m => {
                   const isIn = ['ENTRY', 'PRODUCTION_IN', 'TRANSFER_IN'].includes(m.type);
                   return (
-                    <tr key={m.id} className="hover:bg-[#0f1929] transition-colors">
+                    <tr key={m.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-5 py-3.5 font-medium">{m.product.name}</td>
                       <td className="px-5 py-3.5">
                         <span className={cn('text-xs px-2 py-0.5 rounded-full flex items-center gap-1 w-fit', isIn ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10')}>
@@ -550,19 +553,20 @@ export default function ProductsPage() {
                       <td className={cn('px-5 py-3.5 font-semibold', isIn ? 'text-emerald-400' : 'text-red-400')}>
                         {isIn ? '+' : '-'}{Number(m.quantity).toLocaleString('pt-BR', { maximumFractionDigits: 3 })} {m.product.unit}
                       </td>
-                      <td className="px-5 py-3.5 text-[#64748b]">{m.reason ?? '—'}</td>
-                      <td className="px-5 py-3.5 text-[#64748b]">{new Date(m.createdAt).toLocaleString('pt-BR')}</td>
+                      <td className="px-5 py-3.5 text-brand-text-secondary">{m.reason ?? '—'}</td>
+                      <td className="px-5 py-3.5 text-brand-text-secondary">{new Date(m.createdAt).toLocaleString('pt-BR')}</td>
                     </tr>
                   );
                 })}
                 {movements.length === 0 && (
-                  <tr><td colSpan={5} className="text-center py-16 text-[#64748b]">Nenhuma movimentação registrada</td></tr>
+                  <tr><td colSpan={5} className="text-center py-16 text-brand-text-secondary">Nenhuma movimentação registrada</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         )}
-      </div>
+        </div>
+      </main>
 
       {/* ──────────── MODALS ──────────── */}
 
@@ -602,7 +606,7 @@ export default function ProductsPage() {
                 </Field>
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowProductModal(false)} className="px-4 py-2 text-sm text-[#94a3b8] hover:text-white transition-colors">Cancelar</button>
+                <button type="button" onClick={() => setShowProductModal(false)} className="px-4 py-2 text-sm text-brand-text-secondary hover:text-brand-text-primary transition-colors">Cancelar</button>
                 <button type="submit" disabled={createProduct.isPending} className="px-5 py-2 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-colors">
                   {createProduct.isPending ? 'Salvando...' : 'Criar Produto'}
                 </button>
@@ -643,8 +647,8 @@ export default function ProductsPage() {
                 </Field>
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowMovModal(false)} className="px-4 py-2 text-sm text-[#94a3b8]">Cancelar</button>
-                <button type="submit" disabled={createMovement.isPending} className="px-5 py-2 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded-xl">
+                <button type="button" onClick={() => setShowMovModal(false)} className="px-4 py-2 text-sm text-brand-text-secondary">Cancelar</button>
+                <button type="submit" disabled={createMovement.isPending} className="px-5 py-2 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-xl">
                   {createMovement.isPending ? 'Registrando...' : 'Registrar'}
                 </button>
               </div>
@@ -671,8 +675,8 @@ export default function ProductsPage() {
                 <textarea {...prodForm.register('notes')} rows={2} className={inputCls + ' resize-none'} />
               </Field>
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowProdModal(false)} className="px-4 py-2 text-sm text-[#94a3b8]">Cancelar</button>
-                <button type="submit" disabled={createProdOrder.isPending} className="px-5 py-2 text-sm bg-violet-600 hover:bg-violet-700 text-white rounded-xl">
+                <button type="button" onClick={() => setShowProdModal(false)} className="px-4 py-2 text-sm text-brand-text-secondary">Cancelar</button>
+                <button type="submit" disabled={createProdOrder.isPending} className="px-5 py-2 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-xl">
                   {createProdOrder.isPending ? 'Criando...' : 'Criar Ordem'}
                 </button>
               </div>
@@ -702,14 +706,14 @@ export default function ProductsPage() {
               </div>
 
               <div>
-                <p className="text-xs text-[#64748b] mb-2 font-medium uppercase tracking-wide">Itens do pedido</p>
+                <p className="text-xs text-brand-text-secondary mb-2 font-medium uppercase tracking-wide">Itens do pedido</p>
                 {saleItems.map((item, idx) => {
                   const p = products.find(x => x.id === item.productId);
                   return (
                     <div key={idx} className="flex items-center gap-2 mb-2 text-sm">
-                      <span className="flex-1 text-white">{p?.name ?? item.productId}</span>
-                      <span className="text-[#94a3b8]">{item.quantity} × {item.unitPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                      <button type="button" onClick={() => setSaleItems(s => s.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-300"><X className="w-3.5 h-3.5" /></button>
+                      <span className="flex-1 text-brand-text-primary">{p?.name ?? item.productId}</span>
+                      <span className="text-brand-text-secondary">{item.quantity} × {item.unitPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                      <button type="button" onClick={() => setSaleItems(s => s.filter((_, i) => i !== idx))} className="text-red-500 hover:text-red-700"><X className="w-3.5 h-3.5" /></button>
                     </div>
                   );
                 })}
@@ -718,14 +722,14 @@ export default function ProductsPage() {
                     const p = products[0];
                     if (p) setSaleItems(s => [...s, { productId: p.id, quantity: 1, unitPrice: Number(p.salePrice) }]);
                   }}
-                  className="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1 mt-1">
+                  className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 mt-1">
                   <Plus className="w-3.5 h-3.5" /> Adicionar item
                 </button>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => { setShowSaleModal(false); setSaleItems([]); }} className="px-4 py-2 text-sm text-[#94a3b8]">Cancelar</button>
-                <button type="submit" disabled={createSale.isPending || saleItems.length === 0} className="px-5 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl disabled:opacity-50">
+                <button type="button" onClick={() => { setShowSaleModal(false); setSaleItems([]); }} className="px-4 py-2 text-sm text-brand-text-secondary">Cancelar</button>
+                <button type="submit" disabled={createSale.isPending || saleItems.length === 0} className="px-5 py-2 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-xl disabled:opacity-50">
                   {createSale.isPending ? 'Criando...' : 'Criar Pedido'}
                 </button>
               </div>
@@ -740,12 +744,12 @@ export default function ProductsPage() {
 // ───────────────────────────────────────────────────────────────
 // Helpers
 // ───────────────────────────────────────────────────────────────
-const inputCls = 'w-full bg-[#0a1628] border border-[#1e2d4a] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-[#4a5568] focus:outline-none focus:border-primary-500';
+const inputCls = 'w-full bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-brand-text-primary placeholder:text-brand-text-secondary focus:outline-none focus:border-primary-500';
 
 function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
   return (
     <div>
-      <label className="block text-xs text-[#64748b] mb-1.5">{label}</label>
+      <label className="block text-xs text-brand-text-secondary mb-1.5">{label}</label>
       {children}
       {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
     </div>
@@ -758,10 +762,10 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-xl bg-[#0f1c36] border border-[#1e2d4a] rounded-2xl shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e2d4a]">
-          <h2 className="font-semibold text-sm">{title}</h2>
-          <button onClick={onClose} className="text-[#64748b] hover:text-white transition-colors"><X className="w-4 h-4" /></button>
+        className="w-full max-w-xl bg-white border border-brand-border rounded-2xl shadow-modal overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-brand-border">
+          <h2 className="font-semibold text-sm text-brand-text-primary">{title}</h2>
+          <button onClick={onClose} className="text-brand-text-secondary hover:text-brand-text-primary transition-colors"><X className="w-4 h-4" /></button>
         </div>
         <div className="p-5">{children}</div>
       </motion.div>

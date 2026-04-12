@@ -201,4 +201,61 @@ export class DailyKmService {
 
     return Object.values(grouped);
   }
+
+  async getMonthlySummaryByVehicle(
+    prisma: TenantPrismaService,
+    year: number,
+    month: number,
+    vehicleId?: string,
+  ) {
+    const start = new Date(year, month - 1, 1);
+    const end = new Date(year, month, 1);
+
+    const records = await (prisma as any).dailyKmLog.findMany({
+      where: {
+        date: { gte: start, lt: end },
+        ...(vehicleId ? { vehicleId } : {}),
+      },
+      include: {
+        vehicle: { select: { id: true, plate: true, model: true, brand: true } },
+      },
+    });
+
+    const grouped: Record<
+      string,
+      {
+        vehicle: { id: string; plate: string; model: string; brand: string };
+        month: string;
+        totalKm: number;
+        workKm: number;
+        personalKm: number;
+        daysCount: number;
+      }
+    > = {};
+
+    for (const r of records) {
+      const key = r.vehicleId;
+      if (!grouped[key]) {
+        grouped[key] = {
+          vehicle: {
+            id: r.vehicleId,
+            plate: r.vehicle?.plate ?? '',
+            model: r.vehicle?.model ?? '',
+            brand: r.vehicle?.brand ?? '',
+          },
+          month: `${year}-${String(month).padStart(2, '0')}`,
+          totalKm: 0,
+          workKm: 0,
+          personalKm: 0,
+          daysCount: 0,
+        };
+      }
+      grouped[key].totalKm += r.totalKm ?? 0;
+      grouped[key].workKm += r.workKm ?? 0;
+      grouped[key].personalKm += r.personalKm ?? 0;
+      grouped[key].daysCount += 1;
+    }
+
+    return Object.values(grouped);
+  }
 }

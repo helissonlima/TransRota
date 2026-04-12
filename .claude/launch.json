@@ -4,7 +4,7 @@
     {
       "name": "web",
       "runtimeExecutable": "/opt/homebrew/bin/node",
-      "runtimeArgs": ["/Users/helisson/Desktop/Projetos/TransRota/apps/web/node_modules/next/dist/bin/next", "dev"],
+      "runtimeArgs": ["/Users/helisson/Desktop/Projetos/TransRota/node_modules/next/dist/bin/next", "dev"],
       "port": 3000,
       "autoPort": false,
       "cwd": "/Users/helisson/Desktop/Projetos/TransRota/apps/web"

@@ -2,8 +2,10 @@ import {
   Body, Controller, Delete, Get, Param,
   Patch, Post, Query, UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { VehiclesService } from './vehicles.service';
+import { FuelService } from './fuel.service';
+import { MaintenanceService } from './maintenance.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,7 +20,11 @@ import { TenantPrismaService } from '../core/prisma/tenant-prisma.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('vehicles')
 export class VehiclesController {
-  constructor(private readonly vehiclesService: VehiclesService) {}
+  constructor(
+    private readonly vehiclesService: VehiclesService,
+    private readonly fuelService: FuelService,
+    private readonly maintenanceService: MaintenanceService,
+  ) {}
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
@@ -41,6 +47,36 @@ export class VehiclesController {
   @ApiOperation({ summary: 'Veículos com manutenção pendente' })
   getAlerts(@TenantPrisma() prisma: TenantPrismaService) {
     return this.vehiclesService.getAlerts(prisma);
+  }
+
+  // ── Standalone report endpoints ──────────────────────────────────────────
+
+  @Get('fuel-records')
+  @ApiOperation({ summary: 'Listar todos os abastecimentos (para relatórios)' })
+  @ApiQuery({ name: 'vehicleId', required: false })
+  @ApiQuery({ name: 'dateFrom',  required: false })
+  @ApiQuery({ name: 'dateTo',    required: false })
+  allFuel(
+    @TenantPrisma() prisma: TenantPrismaService,
+    @Query('vehicleId') vehicleId?: string,
+    @Query('dateFrom')  dateFrom?: string,
+    @Query('dateTo')    dateTo?: string,
+  ) {
+    return this.fuelService.findAll(prisma, vehicleId, dateFrom, dateTo);
+  }
+
+  @Get('maintenance-records')
+  @ApiOperation({ summary: 'Listar todas as manutenções (para relatórios)' })
+  @ApiQuery({ name: 'vehicleId', required: false })
+  @ApiQuery({ name: 'dateFrom',  required: false })
+  @ApiQuery({ name: 'dateTo',    required: false })
+  allMaintenance(
+    @TenantPrisma() prisma: TenantPrismaService,
+    @Query('vehicleId') vehicleId?: string,
+    @Query('dateFrom')  dateFrom?: string,
+    @Query('dateTo')    dateTo?: string,
+  ) {
+    return this.maintenanceService.findAll(prisma, vehicleId, dateFrom, dateTo);
   }
 
   @Get(':id')

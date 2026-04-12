@@ -25,6 +25,13 @@ const passwordSchema = z
 
 type PasswordForm = z.infer<typeof passwordSchema>;
 
+const profileSchema = z.object({
+  name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
+  email: z.string().email('E-mail inválido'),
+});
+
+type ProfileForm = z.infer<typeof profileSchema>;
+
 const roleLabel: Record<string, string> = {
   ADMIN: 'Administrador',
   MANAGER: 'Gerente',
@@ -88,21 +95,91 @@ export default function ProfilePage() {
   const [userRole, setUserRole] = useState('');
   const [tenantId, setTenantId] = useState('');
   const [pwdSaved, setPwdSaved] = useState(false);
-
-  useEffect(() => {
-    setUserId(localStorage.getItem('userId') ?? '');
-    setUserName(localStorage.getItem('userName') ?? '');
-    setUserEmail(localStorage.getItem('userEmail') ?? '');
-    setUserRole(localStorage.getItem('userRole') ?? '');
-    setTenantId(localStorage.getItem('tenantId') ?? '');
-  }, []);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(false);
 
   const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
+    register: registerProfile,
+    handleSubmit: handleSubmitProfile,
+    reset: resetProfile,
+    formState: { errors: profileErrors, isSubmitting: isSubmittingProfile, isDirty: profileDirty },
+  } = useForm<ProfileForm>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { name: '', email: '' },
+  });
+
+  useEffect(() => {
+    const storedId = localStorage.getItem('userId') ?? '';
+    const storedName = localStorage.getItem('userName') ?? '';
+    const storedEmail = localStorage.getItem('userEmail') ?? '';
+    const storedRole = localStorage.getItem('userRole') ?? '';
+    const storedTenantId = localStorage.getItem('tenantId') ?? '';
+
+    setUserId(storedId);
+    setUserName(storedName);
+    setUserEmail(storedEmail);
+    setUserRole(storedRole);
+    setTenantId(storedTenantId);
+    resetProfile({ name: storedName, email: storedEmail });
+
+    if (!storedId) return;
+
+    setLoadingProfile(true);
+    api
+      .get(`/users/${storedId}`)
+      .then((r) => {
+        const data = r.data as { id: string; name: string; email: string; role: string };
+        setUserName(data.name ?? storedName);
+        setUserEmail(data.email ?? storedEmail);
+        setUserRole(data.role ?? storedRole);
+        resetProfile({
+          name: data.name ?? storedName,
+          email: data.email ?? storedEmail,
+        });
+        localStorage.setItem('userName', data.name ?? storedName);
+        localStorage.setItem('userEmail', data.email ?? storedEmail);
+        localStorage.setItem('userRole', data.role ?? storedRole);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingProfile(false));
+  }, [resetProfile]);
+
+  const {
+    register: registerPassword,
+    handleSubmit: handleSubmitPassword,
+    reset: resetPassword,
+    formState: { errors: passwordErrors, isSubmitting: isSubmittingPassword },
   } = useForm<PasswordForm>({ resolver: zodResolver(passwordSchema) });
+
+  const onUpdateProfile = async (data: ProfileForm) => {
+    if (!userId) {
+      toast.error('Usuário não identificado. Faça login novamente.');
+      return;
+    }
+
+    try {
+      const resp = await api.patch(`/users/${userId}/profile`, data);
+      const updated = resp.data as { name: string; email: string; role?: string };
+
+      const nextName = updated.name ?? data.name;
+      const nextEmail = updated.email ?? data.email;
+
+      setUserName(nextName);
+      setUserEmail(nextEmail);
+      if (updated.role) setUserRole(updated.role);
+
+      localStorage.setItem('userName', nextName);
+      localStorage.setItem('userEmail', nextEmail);
+      if (updated.role) localStorage.setItem('userRole', updated.role);
+
+      resetProfile({ name: nextName, email: nextEmail });
+      setProfileSaved(true);
+      toast.success('Perfil atualizado com sucesso!');
+      setTimeout(() => setProfileSaved(false), 3000);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? 'Erro ao atualizar perfil.');
+    }
+  };
 
   const onChangePassword = async (data: PasswordForm) => {
     try {
@@ -110,7 +187,7 @@ export default function ProfilePage() {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
-      reset();
+      resetPassword();
       setPwdSaved(true);
       toast.success('Senha alterada com sucesso!');
       setTimeout(() => setPwdSaved(false), 3000);
@@ -185,6 +262,57 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Editar Perfil */}
+        <div className="card p-0 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 py-4 border-b border-brand-border">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+              <User className="w-4 h-4 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-brand-text-primary">Editar Perfil</h2>
+              <p className="text-xs text-brand-text-secondary">Atualize seu nome e e-mail</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmitProfile(onUpdateProfile)} className="p-5 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-brand-text-primary mb-1.5">Nome</label>
+              <input
+                {...registerProfile('name')}
+                placeholder="Seu nome"
+                className={cn('input-base', profileErrors.name && 'border-danger-400 focus:border-danger-500')}
+              />
+              {profileErrors.name && <p className="text-danger-500 text-xs mt-1">{profileErrors.name.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-brand-text-primary mb-1.5">E-mail</label>
+              <input
+                type="email"
+                {...registerProfile('email')}
+                placeholder="voce@empresa.com"
+                className={cn('input-base', profileErrors.email && 'border-danger-400 focus:border-danger-500')}
+              />
+              {profileErrors.email && <p className="text-danger-500 text-xs mt-1">{profileErrors.email.message}</p>}
+            </div>
+
+            <div className="flex justify-between items-center pt-1">
+              <span className="text-xs text-brand-text-secondary">
+                {loadingProfile ? 'Carregando dados do perfil...' : `Tenant: ${tenantId || '—'}`}
+              </span>
+              <Button
+                type="submit"
+                variant={profileSaved ? 'success' : 'primary'}
+                loading={isSubmittingProfile}
+                disabled={!profileDirty && !profileSaved}
+                leftIcon={profileSaved ? <Check className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
+              >
+                {profileSaved ? 'Perfil salvo!' : 'Salvar perfil'}
+              </Button>
+            </div>
+          </form>
+        </div>
+
         {/* Alterar Senha */}
         <div className="card p-0 overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 py-4 border-b border-brand-border">
@@ -197,30 +325,30 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit(onChangePassword)} className="p-5 space-y-4">
+          <form onSubmit={handleSubmitPassword(onChangePassword)} className="p-5 space-y-4">
             <PasswordInput
               label="Senha atual"
               placeholder="••••••••"
-              error={errors.currentPassword?.message}
-              {...register('currentPassword')}
+              error={passwordErrors.currentPassword?.message}
+              {...registerPassword('currentPassword')}
             />
             <PasswordInput
               label="Nova senha"
               placeholder="Mínimo 8 caracteres"
-              error={errors.newPassword?.message}
-              {...register('newPassword')}
+              error={passwordErrors.newPassword?.message}
+              {...registerPassword('newPassword')}
             />
             <PasswordInput
               label="Confirmar nova senha"
               placeholder="Repita a nova senha"
-              error={errors.confirmPassword?.message}
-              {...register('confirmPassword')}
+              error={passwordErrors.confirmPassword?.message}
+              {...registerPassword('confirmPassword')}
             />
             <div className="flex justify-end pt-1">
               <Button
                 type="submit"
                 variant={pwdSaved ? 'success' : 'primary'}
-                loading={isSubmitting}
+                loading={isSubmittingPassword}
                 leftIcon={pwdSaved ? <Check className="w-4 h-4" /> : <Key className="w-4 h-4" />}
               >
                 {pwdSaved ? 'Senha salva!' : 'Salvar nova senha'}

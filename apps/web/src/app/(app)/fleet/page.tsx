@@ -433,6 +433,7 @@ export default function FleetPage() {
   const [section, setSection]           = useState<'vehicles' | 'oil'>('vehicles');
   const [headerSearch, setHeaderSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [vehicleModal, setVehicleModal] = useState(false);
   const [oilModal, setOilModal]         = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -563,11 +564,12 @@ export default function FleetPage() {
     createVehicle.mutate(payload as any);
   };
 
-  const filtered = vehicles.filter(v =>
-    [v.plate, v.model, v.brand, String(v.tag ?? '')].some(s =>
+  const filtered = vehicles.filter(v => {
+    if (typeFilter && v.type !== typeFilter) return false;
+    return [v.plate, v.model, v.brand, String(v.tag ?? '')].some(s =>
       s.toLowerCase().includes(headerSearch.toLowerCase()),
-    ),
-  );
+    );
+  });
 
   const filteredOil = oilRecords.filter(r => {
     const target = `${r.vehicle?.plate ?? ''} ${r.vehicle?.brand ?? ''} ${r.vehicle?.model ?? ''}`.toLowerCase();
@@ -727,6 +729,28 @@ export default function FleetPage() {
                   ))}
                 </div>
 
+                <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5">
+                  {[
+                    { key: '', label: 'Todos' },
+                    { key: 'CAR', label: 'Carros' },
+                    { key: 'MOTORCYCLE', label: 'Motos' },
+                    { key: 'TRUCK', label: 'Caminhões' },
+                    { key: 'UTILITY', label: 'Utilitários' },
+                    { key: 'VAN', label: 'Vans' },
+                  ].map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setTypeFilter(tab.key)}
+                      className={cn(
+                        'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+                        typeFilter === tab.key ? 'bg-primary-600 text-white shadow-sm' : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
+                      )}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
                 {!loadingVehicles && (
                   <span className="text-sm text-brand-text-secondary">
                     <span className="font-semibold text-brand-text-primary">{filtered.length}</span> veículos
@@ -771,6 +795,7 @@ export default function FleetPage() {
                           onClick={() => {
                             setSelectedOil(null);
                             setSelectedVehicle(v);
+                            setDetailVehicle(v);
                           }}
                         />
                       </motion.div>

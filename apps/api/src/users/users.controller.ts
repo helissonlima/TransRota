@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -15,6 +16,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -55,6 +57,17 @@ export class UsersController {
     return this.usersService.findOne(prisma, id);
   }
 
+  @Patch(':id/profile')
+  @ApiOperation({ summary: 'Atualizar dados do próprio perfil' })
+  updateProfile(
+    @TenantPrisma() prisma: TenantPrismaService,
+    @Param('id') id: string,
+    @CurrentUser() me: TokenPayload,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.usersService.updateProfile(prisma, id, dto, me.sub, me.role === UserRole.ADMIN);
+  }
+
   @Patch(':id/role')
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Alterar role do usuário' })
@@ -85,7 +98,7 @@ export class UsersController {
   ) {
     // Só permite alterar a própria senha (a menos que seja ADMIN)
     if (me.sub !== id && me.role !== UserRole.ADMIN) {
-      throw new Error('Forbidden');
+      throw new ForbiddenException('Acesso negado');
     }
     await this.usersService.changePassword(prisma, id, body.currentPassword, body.newPassword);
   }

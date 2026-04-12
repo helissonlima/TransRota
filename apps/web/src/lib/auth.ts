@@ -18,7 +18,8 @@ export async function login(credentials: LoginCredentials) {
   localStorage.setItem('refreshToken', data.refreshToken);
   localStorage.setItem('userId', data.user.id);
   localStorage.setItem('userRole', data.user.role);
-  localStorage.setItem('userName', data.user.email);
+  localStorage.setItem('userName', data.user.name ?? data.user.email);
+  localStorage.setItem('userEmail', data.user.email);
 
   return data;
 }

@@ -55,6 +55,30 @@ export class MaintenanceService {
   async findByVehicle(prisma: TenantPrismaService, vehicleId: string) {
     return prisma.maintenanceRecord.findMany({
       where: { vehicleId },
+      include: { vehicle: { select: { plate: true, model: true, brand: true } } },
+      orderBy: { performedAt: 'desc' },
+    });
+  }
+
+  async findAll(
+    prisma: TenantPrismaService,
+    vehicleId?: string,
+    dateFrom?: string,
+    dateTo?: string,
+  ) {
+    return prisma.maintenanceRecord.findMany({
+      where: {
+        ...(vehicleId ? { vehicleId } : {}),
+        ...(dateFrom || dateTo ? {
+          performedAt: {
+            ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
+            ...(dateTo   ? { lte: new Date(dateTo)   } : {}),
+          },
+        } : {}),
+      },
+      include: {
+        vehicle: { select: { plate: true, model: true, brand: true } },
+      },
       orderBy: { performedAt: 'desc' },
     });
   }

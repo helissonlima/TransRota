@@ -3,6 +3,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { LicenseCategory, DriverStatus } from '@transrota/shared';
+import { Transform } from 'class-transformer';
 
 export class CreateDriverDto {
   @ApiProperty()
@@ -11,8 +12,10 @@ export class CreateDriverDto {
   name: string;
 
   @ApiProperty({ example: '123.456.789-09' })
+  @Transform(({ value }) => (value ? String(value).replace(/\D/g, '') : value))
   @IsString()
-  @Matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, { message: 'CPF inválido' })
+  @Length(11, 11, { message: 'CPF deve ter 11 dígitos' })
+  @Matches(/^\d{11}$/, { message: 'CPF inválido' })
   cpf: string;
 
   @ApiProperty({ example: '(11) 99999-9999' })
@@ -21,6 +24,7 @@ export class CreateDriverDto {
   phone: string;
 
   @ApiProperty({ example: '12345678901' })
+  @Transform(({ value }) => (value ? String(value).replace(/\D/g, '') : value))
   @IsString()
   @Length(11, 11, { message: 'CNH deve ter exatamente 11 dígitos' })
   @Matches(/^\d{11}$/, { message: 'CNH deve conter apenas dígitos' })

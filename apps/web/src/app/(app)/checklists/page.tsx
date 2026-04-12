@@ -58,22 +58,31 @@ interface ChecklistTemplate {
   isActive: boolean;
 }
 
+interface ChecklistResponse {
+  id: string;
+  status: 'OK' | 'NOK' | 'NA';
+  notes?: string;
+  item: { description: string; isRequired: boolean; order: number };
+}
+
 interface ChecklistExecution {
   id: string;
   createdAt: string;
+  executedAt: string;
   hasIssues: boolean;
-  completedAt?: string;
-  resolutionStatus?: ResolutionStatus;
+  resolutionStatus: ResolutionStatus;
+  resolvedAt?: string;
+  resolvedByName?: string;
   inspectorId?: string;
   inspectorName?: string;
   fuelLevel?: string;
   externalDamage?: string;
   internalDamage?: string;
   unitLocation?: string;
-  vehicle: { plate: string; brand: string };
+  vehicle: { plate: string; brand: string; model: string };
   driver: { name: string };
   checklist: { name: string; type: ChecklistType };
-  _count?: { issues: number };
+  responses?: ChecklistResponse[];
 }
 
 interface Vehicle {
@@ -169,6 +178,7 @@ export default function ChecklistsPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<ChecklistTemplate | null>(null);
   const [executeModalOpen, setExecuteModalOpen] = useState(false);
   const [executingTemplate, setExecutingTemplate] = useState<ChecklistTemplate | null>(null);
+  const [selectedExecution, setSelectedExecution] = useState<ChecklistExecution | null>(null);
 
   const { data: templates = [], isLoading: loadingTemplates } = useQuery<ChecklistTemplate[]>({
     queryKey: ['checklists', typeFilter],
@@ -220,6 +230,17 @@ export default function ChecklistsPage() {
     onError: () => toast.error('Erro ao iniciar execução.'),
   });
 
+  const resolveMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: 'RESOLVED' | 'APPROVED' }) =>
+      api.patch(`/checklists/executions/${id}/resolve`, { status }).then((r) => r.data),
+    onSuccess: (updated) => {
+      toast.success(updated.resolutionStatus === 'APPROVED' ? 'Execução aprovada!' : 'Execução marcada como resolvida!');
+      qc.invalidateQueries({ queryKey: ['checklist-executions'] });
+      setSelectedExecution((prev) => prev ? { ...prev, ...updated } : null);
+    },
+    onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Erro ao atualizar status.'),
+  });
+
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm<ChecklistFormData>({
     resolver: zodResolver(checklistSchema),
     defaultValues: {
@@ -265,7 +286,7 @@ export default function ChecklistsPage() {
       header: 'Data/Hora',
       cell: (row) => (
         <span className="text-xs text-brand-text-secondary">
-          {format(parseISO(row.createdAt), "dd/MM 'às' HH:mm", { locale: ptBR })}
+          {row.createdAt ? format(parseISO(row.createdAt), "dd/MM 'às' HH:mm", { locale: ptBR }) : '—'}
         </span>
       ),
     },
@@ -319,25 +340,18 @@ export default function ChecklistsPage() {
       key: 'hasIssues',
       header: 'Status',
       cell: (row) => {
-        // Use resolutionStatus if available
-        if (row.resolutionStatus) {
-          const config = RESOLUTION_CONFIG[row.resolutionStatus];
+        const config = RESOLUTION_CONFIG[row.resolutionStatus];
+        if (row.resolutionStatus !== 'PENDING') {
           return <Badge variant={config.variant} dot>{config.label}</Badge>;
-        }
-        if (!row.completedAt) {
-          return <Badge variant="warning" dot>Em Andamento</Badge>;
         }
         if (row.hasIssues) {
           return (
             <div className="flex items-center gap-2">
               <Badge variant="danger" dot>Com Problemas</Badge>
-              {(row._count?.issues ?? 0) > 0 && (
-                <span className="text-xs text-danger-600 font-semibold">{row._count?.issues} ocorrências</span>
-              )}
             </div>
           );
         }
-        return <Badge variant="success" dot>Aprovado</Badge>;
+        return <Badge variant="success" dot>OK</Badge>;
       },
     },
   ];
@@ -492,7 +506,7 @@ export default function ChecklistsPage() {
                       <div className="px-5 py-3 bg-slate-50/80 rounded-b-2xl border-t border-brand-border/50 flex items-center justify-between">
                         <div className="flex items-center gap-1.5 text-xs text-brand-text-secondary">
                           <ClipboardCheck className="w-3.5 h-3.5" />
-                          <span><span className="font-semibold text-brand-text-primary">{template._count.executions}</span> execuções</span>
+                          <span><span className="font-semibold text-brand-text-primary">{template._count?.executions ?? 0}</span> execuções</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-brand-text-secondary">
                           <span>{template.items.length} itens</span>
@@ -518,6 +532,7 @@ export default function ChecklistsPage() {
             data={executions}
             loading={loadingExecutions}
             rowKey={(r) => r.id}
+            onRowClick={(r) => setSelectedExecution(r)}
             emptyIcon={ClipboardX}
             emptyTitle="Nenhuma execução registrada"
             emptyDescription="As execuções de checklist aparecerão aqui."
@@ -525,6 +540,191 @@ export default function ChecklistsPage() {
           />
         </div>
       </div>
+
+      {/* Execution Detail Modal */}
+      {selectedExecution && (
+        <Modal
+          open={!!selectedExecution}
+          onClose={() => setSelectedExecution(null)}
+          title={selectedExecution.checklist.name}
+          description={`${selectedExecution.createdAt ? format(parseISO(selectedExecution.createdAt), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR }) : ''} • ${selectedExecution.driver.name}`}
+          size="xl"
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                {selectedExecution.resolutionStatus === 'PENDING' && selectedExecution.hasIssues && (
+                  <Button
+                    variant="secondary"
+                    loading={resolveMutation.isPending}
+                    onClick={() => resolveMutation.mutate({ id: selectedExecution.id, status: 'RESOLVED' })}
+                  >
+                    Marcar como Resolvido
+                  </Button>
+                )}
+                {selectedExecution.resolutionStatus === 'RESOLVED' && (
+                  <Button
+                    loading={resolveMutation.isPending}
+                    onClick={() => resolveMutation.mutate({ id: selectedExecution.id, status: 'APPROVED' })}
+                  >
+                    Aprovar
+                  </Button>
+                )}
+              </div>
+              <Button variant="secondary" onClick={() => setSelectedExecution(null)}>Fechar</Button>
+            </div>
+          }
+        >
+          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
+            {/* Info grid */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Tipo</div>
+                <div className="text-sm font-semibold text-brand-text-primary flex items-center gap-2">
+                  <Badge variant={TYPE_CONFIG[selectedExecution.checklist.type].variant}>
+                    {TYPE_CONFIG[selectedExecution.checklist.type].label}
+                  </Badge>
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Status</div>
+                <div className="text-sm font-semibold">
+                  {(() => {
+                    const config = RESOLUTION_CONFIG[selectedExecution.resolutionStatus];
+                    if (selectedExecution.resolutionStatus !== 'PENDING') {
+                      return <Badge variant={config.variant} dot>{config.label}</Badge>;
+                    }
+                    if (selectedExecution.hasIssues) return <Badge variant="danger" dot>Com Problemas</Badge>;
+                    return <Badge variant="success" dot>OK</Badge>;
+                  })()}
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Veículo</div>
+                <div className="text-sm font-semibold text-brand-text-primary">
+                  <span className="font-mono">{selectedExecution.vehicle.plate}</span>
+                  <span className="text-brand-text-secondary"> — {selectedExecution.vehicle.brand} {selectedExecution.vehicle.model}</span>
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Motorista</div>
+                <div className="text-sm font-semibold text-brand-text-primary">{selectedExecution.driver.name}</div>
+              </div>
+              {selectedExecution.inspectorName && (
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <div className="text-xs text-brand-text-secondary mb-1">Inspetor</div>
+                  <div className="text-sm font-semibold text-brand-text-primary">{selectedExecution.inspectorName}</div>
+                </div>
+              )}
+              {selectedExecution.fuelLevel && (
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <div className="text-xs text-brand-text-secondary mb-1">Combustível</div>
+                  <div className="text-sm font-semibold text-brand-text-primary flex items-center gap-1.5">
+                    <Fuel className="w-4 h-4 text-brand-text-secondary" />
+                    {selectedExecution.fuelLevel}
+                  </div>
+                </div>
+              )}
+              {selectedExecution.unitLocation && (
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <div className="text-xs text-brand-text-secondary mb-1">Localização</div>
+                  <div className="text-sm font-semibold text-brand-text-primary flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-brand-text-secondary" />
+                    {selectedExecution.unitLocation}
+                  </div>
+                </div>
+              )}
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Data/Hora</div>
+                <div className="text-sm font-semibold text-brand-text-primary">
+                  {format(parseISO(selectedExecution.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </div>
+              </div>
+              {selectedExecution.resolvedAt && (
+                <div className="bg-slate-50 rounded-xl p-3">
+                  <div className="text-xs text-brand-text-secondary mb-1">
+                    {selectedExecution.resolutionStatus === 'APPROVED' ? 'Aprovado em' : 'Resolvido em'}
+                  </div>
+                  <div className="text-sm font-semibold text-brand-text-primary">
+                    {format(parseISO(selectedExecution.resolvedAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                    {selectedExecution.resolvedByName && (
+                      <span className="text-brand-text-secondary"> por {selectedExecution.resolvedByName}</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Avarias */}
+            {(selectedExecution.externalDamage || selectedExecution.internalDamage) && (
+              <div className="space-y-2">
+                {selectedExecution.externalDamage && (
+                  <div className="bg-warning-50 rounded-xl border border-warning-200 p-3">
+                    <div className="text-xs text-warning-600 font-semibold mb-1 flex items-center gap-1.5">
+                      <Shield className="w-3.5 h-3.5" /> Avaria Externa
+                    </div>
+                    <div className="text-sm text-warning-800">{selectedExecution.externalDamage}</div>
+                  </div>
+                )}
+                {selectedExecution.internalDamage && (
+                  <div className="bg-warning-50 rounded-xl border border-warning-200 p-3">
+                    <div className="text-xs text-warning-600 font-semibold mb-1 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5" /> Avaria Interna
+                    </div>
+                    <div className="text-sm text-warning-800">{selectedExecution.internalDamage}</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Itens verificados */}
+            {selectedExecution.responses && selectedExecution.responses.length > 0 && (
+              <div>
+                <div className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-2">
+                  Itens Verificados
+                </div>
+                <div className="space-y-1.5">
+                  {selectedExecution.responses.map((r) => (
+                    <div
+                      key={r.id}
+                      className={cn(
+                        'flex items-start gap-3 rounded-xl px-3 py-2.5 border',
+                        r.status === 'OK' && 'bg-success-50 border-success-200',
+                        r.status === 'NOK' && 'bg-danger-50 border-danger-200',
+                        r.status === 'NA' && 'bg-slate-50 border-slate-200',
+                      )}
+                    >
+                      <div className={cn(
+                        'mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold',
+                        r.status === 'OK' && 'bg-success-500',
+                        r.status === 'NOK' && 'bg-danger-500',
+                        r.status === 'NA' && 'bg-slate-400',
+                      )}>
+                        {r.status === 'OK' ? '✓' : r.status === 'NOK' ? '✗' : '—'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className={cn(
+                          'text-sm font-medium',
+                          r.status === 'OK' && 'text-success-800',
+                          r.status === 'NOK' && 'text-danger-800',
+                          r.status === 'NA' && 'text-slate-600',
+                        )}>
+                          {r.item.description}
+                          {r.item.isRequired && (
+                            <span className="ml-1 text-xs font-normal opacity-60">*</span>
+                          )}
+                        </div>
+                        {r.notes && (
+                          <div className="text-xs text-brand-text-secondary mt-0.5">{r.notes}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
 
       {/* Create Checklist Modal */}
       <Modal

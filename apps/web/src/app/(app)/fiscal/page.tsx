@@ -32,7 +32,7 @@ import { Modal } from '@/components/ui/modal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/cn';
 
-type TaxType = 'IPVA' | 'LICENCIAMENTO' | 'SEGURO' | 'MULTA' | 'OUTRO';
+type TaxType = 'IPVA' | 'LICENSING' | 'INSURANCE' | 'FINE' | 'OTHER';
 type PaymentStatus = 'PENDING' | 'PAID' | 'OVERDUE' | 'EXEMPT';
 
 interface TaxRecord {
@@ -40,10 +40,11 @@ interface TaxRecord {
   type: TaxType;
   year: number;
   dueDate: string;
-  value: number;
+  value: number | string;
   paymentStatus: PaymentStatus;
   notes?: string;
   paidAt?: string;
+  paidValue?: number | string;
   vehicle: { id: string; plate: string; model: string; brand: string };
 }
 
@@ -65,7 +66,7 @@ interface TaxSummary {
 
 const taxSchema = z.object({
   vehicleId: z.string().min(1, 'Veículo obrigatório'),
-  type: z.enum(['IPVA', 'LICENCIAMENTO', 'SEGURO', 'MULTA', 'OUTRO']),
+  type: z.enum(['IPVA', 'LICENSING', 'INSURANCE', 'FINE', 'OTHER']),
   year: z.coerce.number().min(2000).max(2099, 'Ano inválido'),
   dueDate: z.string().min(1, 'Data de vencimento obrigatória'),
   value: z.coerce.number().min(0.01, 'Valor inválido'),
@@ -75,11 +76,11 @@ const taxSchema = z.object({
 type TaxFormData = z.infer<typeof taxSchema>;
 
 const TYPE_CONFIG: Record<TaxType, { label: string; variant: 'info' | 'warning' | 'success' | 'danger' | 'gray' }> = {
-  IPVA: { label: 'IPVA', variant: 'info' },
-  LICENCIAMENTO: { label: 'Licenciamento', variant: 'warning' },
-  SEGURO: { label: 'Seguro', variant: 'success' },
-  MULTA: { label: 'Multa', variant: 'danger' },
-  OUTRO: { label: 'Outro', variant: 'gray' },
+  IPVA:      { label: 'IPVA',          variant: 'info' },
+  LICENSING: { label: 'Licenciamento', variant: 'warning' },
+  INSURANCE: { label: 'Seguro',        variant: 'success' },
+  FINE:      { label: 'Multa',         variant: 'danger' },
+  OTHER:     { label: 'Outro',         variant: 'gray' },
 };
 
 const STATUS_CONFIG: Record<PaymentStatus, {
@@ -103,10 +104,17 @@ function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+function toMoney(value: number | string | null | undefined): number {
+  if (value === null || value === undefined) return 0;
+  const parsed = typeof value === 'number' ? value : Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export default function FiscalPage() {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<PaymentStatus | ''>('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [payConfirmId, setPayConfirmId] = useState<string | null>(null);
   const [selectedTax, setSelectedTax] = useState<TaxRecord | null>(null);
   const [editingTaxId, setEditingTaxId] = useState<string | null>(null);
@@ -152,6 +160,7 @@ export default function FiscalPage() {
       toast.success('Lançamento excluído com sucesso!');
       qc.invalidateQueries({ queryKey: ['taxes'] });
       setSelectedTax(null);
+      setDetailOpen(false);
     },
     onError: () => toast.error('Erro ao excluir lançamento.'),
   });
@@ -169,8 +178,12 @@ export default function FiscalPage() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<TaxFormData>({
     resolver: zodResolver(taxSchema),
     defaultValues: {
-      type: 'IPVA',
+      type: 'IPVA' as TaxType,
       year: new Date().getFullYear(),
+      vehicleId: '',
+      dueDate: '',
+      value: 0,
+      notes: '',
     },
   });
 
@@ -179,13 +192,13 @@ export default function FiscalPage() {
     (acc, t) => {
       if (t.paymentStatus === 'PENDING') {
         acc.totalPending++;
-        acc.pendingValue += t.value;
+        acc.pendingValue += toMoney(t.value);
       } else if (t.paymentStatus === 'PAID') {
         acc.totalPaid++;
-        acc.paidValue += t.value;
+        acc.paidValue += toMoney(t.paidValue ?? t.value);
       } else if (t.paymentStatus === 'OVERDUE') {
         acc.totalOverdue++;
-        acc.overdueValue += t.value;
+        acc.overdueValue += toMoney(t.value);
       }
       return acc;
     },
@@ -410,7 +423,10 @@ export default function FiscalPage() {
                           tax.paymentStatus === 'OVERDUE' && 'bg-danger-50/30',
                           selectedTaxResolved?.id === tax.id && 'bg-primary-50/40',
                         )}
-                        onClick={() => setSelectedTax(tax)}
+                        onClick={() => {
+                          setSelectedTax(tax);
+                          setDetailOpen(true);
+                        }}
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
@@ -432,7 +448,7 @@ export default function FiscalPage() {
                             'text-sm',
                             tax.paymentStatus === 'OVERDUE' ? 'text-danger-600 font-semibold' : 'text-brand-text-secondary',
                           )}>
-                            {format(parseISO(tax.dueDate), 'dd/MM/yyyy')}
+                            {tax.dueDate ? format(parseISO(tax.dueDate), 'dd/MM/yyyy') : '—'}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right font-semibold text-brand-text-primary">
@@ -444,16 +460,20 @@ export default function FiscalPage() {
                         <td className="px-4 py-3 text-center">
                           {tax.paymentStatus !== 'PAID' && tax.paymentStatus !== 'EXEMPT' && (
                             <button
-                              onClick={() => setPayConfirmId(tax.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTax(tax);
+                                setPayConfirmId(tax.id);
+                              }}
                               className="text-xs text-success-600 hover:text-success-700 font-semibold flex items-center gap-1 mx-auto hover:bg-success-50 px-2 py-1 rounded-lg transition-colors"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               Pagar
                             </button>
                           )}
-                          {tax.paymentStatus === 'PAID' && tax.paidAt && (
+                          {tax.paymentStatus === 'PAID' && (
                             <span className="text-xs text-brand-text-secondary">
-                              {format(parseISO(tax.paidAt), 'dd/MM/yy')}
+                              {tax.paidAt ? format(parseISO(tax.paidAt), 'dd/MM/yy') : 'Pago'}
                             </span>
                           )}
                         </td>
@@ -466,6 +486,125 @@ export default function FiscalPage() {
           </div>
         )}
       </div>
+
+      {/* Tax Detail Modal */}
+      {selectedTaxResolved && (
+        <Modal
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          title={`${TYPE_CONFIG[selectedTaxResolved.type].label} • ${selectedTaxResolved.vehicle.plate}`}
+          description={`${selectedTaxResolved.vehicle.brand} ${selectedTaxResolved.vehicle.model} • Ano ${selectedTaxResolved.year}`}
+          size="lg"
+          footer={
+            <div className="w-full flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
+                {selectedTaxResolved.paymentStatus !== 'PAID' && selectedTaxResolved.paymentStatus !== 'EXEMPT' && (
+                  <Button
+                    size="sm"
+                    loading={payMutation.isPending}
+                    leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                    onClick={() => setPayConfirmId(selectedTaxResolved.id)}
+                  >
+                    Marcar como Pago
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  leftIcon={<Pencil className="w-4 h-4" />}
+                  onClick={() => {
+                    setEditingTaxId(selectedTaxResolved.id);
+                    reset({
+                      vehicleId: selectedTaxResolved.vehicle.id,
+                      type: selectedTaxResolved.type,
+                      year: selectedTaxResolved.year,
+                      dueDate: selectedTaxResolved.dueDate?.slice(0, 10),
+                      value: selectedTaxResolved.value,
+                      notes: selectedTaxResolved.notes,
+                    });
+                    setDetailOpen(false);
+                    setModalOpen(true);
+                  }}
+                >
+                  Editar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  loading={deleteMutation.isPending}
+                  leftIcon={<Trash2 className="w-4 h-4" />}
+                  onClick={() => {
+                    if (confirm(`Deseja excluir o lançamento ${TYPE_CONFIG[selectedTaxResolved.type].label} do veículo ${selectedTaxResolved.vehicle.plate}?`)) {
+                      deleteMutation.mutate(selectedTaxResolved.id);
+                    }
+                  }}
+                >
+                  Excluir
+                </Button>
+              </div>
+              <Button size="sm" variant="secondary" onClick={() => setDetailOpen(false)}>
+                Fechar
+              </Button>
+            </div>
+          }
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Veículo</div>
+                <div className="text-sm font-semibold text-brand-text-primary">
+                  <span className="font-mono">{selectedTaxResolved.vehicle.plate}</span>
+                  <span className="text-brand-text-secondary"> — {selectedTaxResolved.vehicle.brand} {selectedTaxResolved.vehicle.model}</span>
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Status</div>
+                <Badge variant={STATUS_CONFIG[selectedTaxResolved.paymentStatus].variant} dot>
+                  {STATUS_CONFIG[selectedTaxResolved.paymentStatus].label}
+                </Badge>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Tipo</div>
+                <Badge variant={TYPE_CONFIG[selectedTaxResolved.type].variant}>
+                  {TYPE_CONFIG[selectedTaxResolved.type].label}
+                </Badge>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Ano de Referência</div>
+                <div className="text-sm font-semibold text-brand-text-primary">{selectedTaxResolved.year}</div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Vencimento</div>
+                <div className={cn(
+                  'text-sm font-semibold',
+                  selectedTaxResolved.paymentStatus === 'OVERDUE' ? 'text-danger-600' : 'text-brand-text-primary',
+                )}>
+                  {selectedTaxResolved.dueDate ? format(parseISO(selectedTaxResolved.dueDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : '—'}
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Valor</div>
+                <div className="text-sm font-semibold text-brand-text-primary">{formatCurrency(selectedTaxResolved.value)}</div>
+              </div>
+              {selectedTaxResolved.paidAt && (
+                <div className="bg-success-50 rounded-xl p-3 border border-success-200 col-span-2">
+                  <div className="text-xs text-success-700 mb-1">Pagamento registrado em</div>
+                  <div className="text-sm font-semibold text-success-700">
+                    {format(parseISO(selectedTaxResolved.paidAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {selectedTaxResolved.notes && (
+              <div className="bg-slate-50 rounded-xl p-3 border border-brand-border">
+                <div className="text-xs text-brand-text-secondary mb-1">Observações</div>
+                <div className="text-sm text-brand-text-primary">{selectedTaxResolved.notes}</div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
 
       {/* New Tax Modal */}
       <Modal

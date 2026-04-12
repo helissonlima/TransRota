@@ -17,7 +17,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { format, parseISO, startOfMonth, endOfMonth } from 'date-fns';
+import { format, parseISO, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import api from '@/lib/api';
 import { Header } from '@/components/layout/header';
@@ -55,6 +55,15 @@ interface DailyKmSummary {
   totalKm: number;
 }
 
+interface VehicleSummary {
+  vehicle: { id: string; plate: string; model: string; brand: string };
+  month: string;
+  personalKm: number;
+  workKm: number;
+  totalKm: number;
+  daysCount: number;
+}
+
 interface Vehicle {
   id: string;
   plate: string;
@@ -87,6 +96,7 @@ type RecordFormData = z.infer<typeof recordSchema>;
 const TABS = [
   { key: 'records', label: 'Registros' },
   { key: 'summary', label: 'Resumo por Condutor' },
+  { key: 'vehicleSummary', label: 'Resumo por Veículo' },
 ] as const;
 
 function StatusBadge({ status }: { status: DailyKmStatus }) {
@@ -96,11 +106,16 @@ function StatusBadge({ status }: { status: DailyKmStatus }) {
 
 export default function DailyKmPage() {
   const qc = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'records' | 'summary'>('records');
+  const [activeTab, setActiveTab] = useState<'records' | 'summary' | 'vehicleSummary'>('records');
   const [modalOpen, setModalOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [summaryDetailOpen, setSummaryDetailOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DailyKmRecord | null>(null);
+  const [selectedSummary, setSelectedSummary] = useState<DailyKmSummary | null>(null);
+  const [selectedVehicleSummary, setSelectedVehicleSummary] = useState<VehicleSummary | null>(null);
+  const [vehicleSummaryDetailOpen, setVehicleSummaryDetailOpen] = useState(false);
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
-  const [dateFrom, setDateFrom] = useState(() => format(startOfMonth(new Date()), 'yyyy-MM-dd'));
+  const [dateFrom, setDateFrom] = useState(() => format(startOfMonth(subMonths(new Date(), 5)), 'yyyy-MM-dd'));
   const [dateTo, setDateTo] = useState(() => format(endOfMonth(new Date()), 'yyyy-MM-dd'));
   const summaryDate = parseISO(dateFrom);
   const summaryYear = String(summaryDate.getFullYear());
@@ -116,6 +131,12 @@ export default function DailyKmPage() {
     queryKey: ['daily-km-summary', summaryYear, summaryMonth],
     queryFn: () => api.get('/daily-km/summary', { params: { year: summaryYear, month: summaryMonth } }).then((r) => r.data),
     enabled: activeTab === 'summary',
+  });
+
+  const { data: vehicleSummary = [], isLoading: loadingVehicleSummary } = useQuery<VehicleSummary[]>({
+    queryKey: ['daily-km-vehicle-summary', summaryYear, summaryMonth],
+    queryFn: () => api.get('/daily-km/summary/vehicles', { params: { year: summaryYear, month: summaryMonth } }).then((r) => r.data),
+    enabled: activeTab === 'vehicleSummary',
   });
 
   const { data: vehicles = [] } = useQuery<Vehicle[]>({
@@ -376,7 +397,7 @@ export default function DailyKmPage() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2, delay: i * 0.03 }}
                             className={cn('hover:bg-slate-50/60 transition-colors cursor-pointer', selectedRecord?.id === record.id && 'bg-primary-50/40')}
-                            onClick={() => setSelectedRecord(record)}
+                            onClick={() => { setSelectedRecord(record); setDetailOpen(true); }}
                           >
                             <td className="px-4 py-3 text-brand-text-secondary text-xs whitespace-nowrap">
                               {format(parseISO(record.date), 'dd/MM/yyyy', { locale: ptBR })}
@@ -456,7 +477,8 @@ export default function DailyKmPage() {
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2, delay: i * 0.03 }}
-                            className="hover:bg-slate-50/60 transition-colors"
+                            className={cn('hover:bg-slate-50/60 transition-colors cursor-pointer', selectedSummary?.driver.id === row.driver.id && selectedSummary?.month === row.month && 'bg-primary-50/40')}
+                            onClick={() => { setSelectedSummary(row); setSummaryDetailOpen(true); }}
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
@@ -481,8 +503,346 @@ export default function DailyKmPage() {
               )}
             </motion.div>
           )}
+          {activeTab === 'vehicleSummary' && (
+            <motion.div
+              key="vehicleSummary"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              {loadingVehicleSummary ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="bg-white rounded-2xl border border-brand-border shadow-card p-4">
+                      <Skeleton className="h-5 w-40 mb-2" />
+                      <Skeleton className="h-4 w-64" />
+                    </div>
+                  ))}
+                </div>
+              ) : vehicleSummary.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-brand-border shadow-card">
+                  <Car className="w-12 h-12 text-slate-300 mb-3" />
+                  <p className="font-semibold text-brand-text-primary">Nenhum resumo disponível</p>
+                  <p className="text-sm text-brand-text-secondary mt-1">Os resumos por veículo aparecerão aqui após registros serem criados.</p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl border border-brand-border shadow-card overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-brand-border bg-slate-50/80">
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Veículo</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Mês</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Dias</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Pessoal</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Trabalho</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Total</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-brand-border/50">
+                        {vehicleSummary.map((row, i) => (
+                          <motion.tr
+                            key={`${row.vehicle.id}-${row.month}`}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.2, delay: i * 0.03 }}
+                            className={cn('hover:bg-slate-50/60 transition-colors cursor-pointer', selectedVehicleSummary?.vehicle.id === row.vehicle.id && selectedVehicleSummary?.month === row.month && 'bg-primary-50/40')}
+                            onClick={() => { setSelectedVehicleSummary(row); setVehicleSummaryDetailOpen(true); }}
+                          >
+                            <td className="px-4 py-3">
+                              <div className="flex flex-col">
+                                <span className="font-mono font-bold text-brand-text-primary">{row.vehicle.plate}</span>
+                                <span className="text-xs text-brand-text-secondary">{row.vehicle.brand} {row.vehicle.model}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-brand-text-secondary capitalize">
+                              {format(parseISO(row.month + '-01'), 'MMMM yyyy', { locale: ptBR })}
+                            </td>
+                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">{row.daysCount}</td>
+                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">{row.personalKm.toLocaleString('pt-BR')}</td>
+                            <td className="px-4 py-3 text-right text-primary-600 font-semibold font-mono">{row.workKm.toLocaleString('pt-BR')}</td>
+                            <td className="px-4 py-3 text-right font-bold text-brand-text-primary font-mono">{row.totalKm.toLocaleString('pt-BR')}</td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
+
+      {/* Vehicle Summary Detail Modal */}
+      {selectedVehicleSummary && (
+        <Modal
+          open={vehicleSummaryDetailOpen}
+          onClose={() => setVehicleSummaryDetailOpen(false)}
+          title={`${selectedVehicleSummary.vehicle.plate} — ${selectedVehicleSummary.vehicle.brand} ${selectedVehicleSummary.vehicle.model}`}
+          description={`Resumo de ${format(parseISO(selectedVehicleSummary.month + '-01'), 'MMMM yyyy', { locale: ptBR })}`}
+          size="lg"
+          footer={<Button variant="secondary" onClick={() => setVehicleSummaryDetailOpen(false)}>Fechar</Button>}
+        >
+          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Placa</div>
+                <div className="text-sm font-semibold text-brand-text-primary font-mono">{selectedVehicleSummary.vehicle.plate}</div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Veículo</div>
+                <div className="text-sm font-semibold text-brand-text-primary">{selectedVehicleSummary.vehicle.brand} {selectedVehicleSummary.vehicle.model}</div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Mês</div>
+                <div className="text-sm font-semibold text-brand-text-primary capitalize">{format(parseISO(selectedVehicleSummary.month + '-01'), 'MMMM yyyy', { locale: ptBR })}</div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Dias Registrados</div>
+                <div className="text-sm font-semibold text-brand-text-primary">{selectedVehicleSummary.daysCount}</div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
+              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Quilometragem</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary-600 font-mono">{selectedVehicleSummary.workKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary mt-1">KM Trabalho</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-text-secondary font-mono">{selectedVehicleSummary.personalKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary mt-1">KM Pessoal</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-text-primary font-mono">{selectedVehicleSummary.totalKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary mt-1">KM Total</div>
+                </div>
+              </div>
+            </div>
+
+            {selectedVehicleSummary.totalKm > 0 && (
+              <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
+                <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Distribuição</h4>
+                <div className="space-y-2">
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-primary-600 font-medium">Trabalho</span>
+                      <span className="text-brand-text-secondary">{((selectedVehicleSummary.workKm / selectedVehicleSummary.totalKm) * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary-500 rounded-full" style={{ width: `${(selectedVehicleSummary.workKm / selectedVehicleSummary.totalKm) * 100}%` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-brand-text-secondary font-medium">Pessoal</span>
+                      <span className="text-brand-text-secondary">{((selectedVehicleSummary.personalKm / selectedVehicleSummary.totalKm) * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-slate-400 rounded-full" style={{ width: `${(selectedVehicleSummary.personalKm / selectedVehicleSummary.totalKm) * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {/* Summary Detail Modal */}
+      {selectedSummary && (
+        <Modal
+          open={summaryDetailOpen}
+          onClose={() => setSummaryDetailOpen(false)}
+          title={selectedSummary.driver.name}
+          description={`Resumo de ${format(parseISO(selectedSummary.month + '-01'), 'MMMM yyyy', { locale: ptBR })}`}
+          size="lg"
+          footer={<Button variant="secondary" onClick={() => setSummaryDetailOpen(false)}>Fechar</Button>}
+        >
+          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Condutor</div>
+                <div className="text-sm font-semibold text-brand-text-primary">{selectedSummary.driver.name}</div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Mês</div>
+                <div className="text-sm font-semibold text-brand-text-primary capitalize">{format(parseISO(selectedSummary.month + '-01'), 'MMMM yyyy', { locale: ptBR })}</div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
+              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Quilometragem</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary-600 font-mono">{selectedSummary.workKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary mt-1">KM Trabalho</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-text-secondary font-mono">{selectedSummary.personalKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary mt-1">KM Pessoal</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-brand-text-primary font-mono">{selectedSummary.totalKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary mt-1">KM Total</div>
+                </div>
+              </div>
+            </div>
+
+            {selectedSummary.totalKm > 0 && (
+              <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
+                <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Distribuição</h4>
+                <div className="space-y-2">
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-primary-600 font-medium">Trabalho</span>
+                      <span className="text-brand-text-secondary">{((selectedSummary.workKm / selectedSummary.totalKm) * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary-500 rounded-full" style={{ width: `${(selectedSummary.workKm / selectedSummary.totalKm) * 100}%` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-brand-text-secondary font-medium">Pessoal</span>
+                      <span className="text-brand-text-secondary">{((selectedSummary.personalKm / selectedSummary.totalKm) * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-slate-400 rounded-full" style={{ width: `${(selectedSummary.personalKm / selectedSummary.totalKm) * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {/* Detail Modal */}
+      {selectedRecord && (
+        <Modal
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          title={`${selectedRecord.vehicle.plate} — ${selectedRecord.vehicle.brand} ${selectedRecord.vehicle.model}`}
+          description={`${format(parseISO(selectedRecord.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })} • ${selectedRecord.driver.name}`}
+          size="xl"
+          footer={
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => setDetailOpen(false)}>Fechar</Button>
+              <Button
+                leftIcon={<Pencil className="w-4 h-4" />}
+                onClick={() => {
+                  setDetailOpen(false);
+                  setEditingRecordId(selectedRecord.id);
+                  reset({
+                    date: selectedRecord.date?.slice(0, 10),
+                    vehicleId: selectedRecord.vehicleId ?? selectedRecord.vehicle.id,
+                    driverId: selectedRecord.driverId ?? selectedRecord.driver.id,
+                    initialKm: selectedRecord.initialKm,
+                    finalKm: selectedRecord.finalKm,
+                    personalInitialKm: selectedRecord.personalInitialKm ?? 0,
+                    personalFinalKm: selectedRecord.personalFinalKm ?? 0,
+                    status: selectedRecord.status,
+                    notes: selectedRecord.notes,
+                  });
+                  setModalOpen(true);
+                }}
+              >
+                Editar
+              </Button>
+            </div>
+          }
+        >
+          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: 'Data', value: format(parseISO(selectedRecord.date), 'dd/MM/yyyy (EEEE)', { locale: ptBR }) },
+                { label: 'Status', value: selectedRecord.status },
+                { label: 'Condutor', value: selectedRecord.driver.name },
+                { label: 'Placa', value: selectedRecord.vehicle.plate, mono: true },
+                { label: 'Veículo', value: `${selectedRecord.vehicle.brand} ${selectedRecord.vehicle.model}` },
+              ].map((item) => (
+                <div key={item.label} className="bg-slate-50 rounded-xl p-3">
+                  <div className="text-xs text-brand-text-secondary mb-1">{item.label}</div>
+                  <div className={cn('text-sm font-semibold text-brand-text-primary', item.mono && 'font-mono')}>
+                    {item.label === 'Status' ? <StatusBadge status={selectedRecord.status} /> : item.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-2 flex items-center gap-2">
+                <Car className="w-4 h-4 text-primary-600" />
+                KM de Trabalho
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-slate-50 rounded-xl p-3 text-center">
+                  <div className="text-xs text-brand-text-secondary mb-1">KM Inicial</div>
+                  <div className="text-lg font-bold text-brand-text-primary font-mono">{selectedRecord.initialKm.toLocaleString('pt-BR')}</div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3 text-center">
+                  <div className="text-xs text-brand-text-secondary mb-1">KM Final</div>
+                  <div className="text-lg font-bold text-brand-text-primary font-mono">{selectedRecord.finalKm.toLocaleString('pt-BR')}</div>
+                </div>
+                <div className="bg-primary-50 rounded-xl p-3 text-center border border-primary-200">
+                  <div className="text-xs text-primary-600 mb-1">KM Trabalho</div>
+                  <div className="text-lg font-bold text-primary-700 font-mono">{selectedRecord.workKm.toLocaleString('pt-BR')}</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-2 flex items-center gap-2">
+                <User className="w-4 h-4 text-brand-text-secondary" />
+                KM Pessoal
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-slate-50 rounded-xl p-3 text-center">
+                  <div className="text-xs text-brand-text-secondary mb-1">KM Inicial</div>
+                  <div className="text-lg font-bold text-brand-text-primary font-mono">{(selectedRecord.personalInitialKm ?? 0).toLocaleString('pt-BR')}</div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3 text-center">
+                  <div className="text-xs text-brand-text-secondary mb-1">KM Final</div>
+                  <div className="text-lg font-bold text-brand-text-primary font-mono">{(selectedRecord.personalFinalKm ?? 0).toLocaleString('pt-BR')}</div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3 text-center">
+                  <div className="text-xs text-brand-text-secondary mb-1">KM Pessoal</div>
+                  <div className="text-lg font-bold text-brand-text-secondary font-mono">{selectedRecord.personalKm.toLocaleString('pt-BR')}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
+              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Resumo Total</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-xl font-bold text-primary-600 font-mono">{selectedRecord.workKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary">Trabalho</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-brand-text-secondary font-mono">{selectedRecord.personalKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary">Pessoal</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-brand-text-primary font-mono">{selectedRecord.totalKm.toLocaleString('pt-BR')}</div>
+                  <div className="text-xs text-brand-text-secondary">Total</div>
+                </div>
+              </div>
+            </div>
+
+            {selectedRecord.notes && (
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Observações</div>
+                <div className="text-sm text-brand-text-primary">{selectedRecord.notes}</div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
 
       {/* Create Record Modal */}
       <Modal

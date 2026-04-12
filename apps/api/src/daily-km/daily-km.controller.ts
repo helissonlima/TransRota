@@ -68,6 +68,26 @@ export class DailyKmController {
     );
   }
 
+  @Get('summary/vehicles')
+  @ApiOperation({ summary: 'Resumo mensal de KM por veículo' })
+  @ApiQuery({ name: 'year', required: true, example: 2024 })
+  @ApiQuery({ name: 'month', required: true, example: 1 })
+  @ApiQuery({ name: 'vehicleId', required: false })
+  getMonthlySummaryByVehicle(
+    @TenantPrisma() prisma: TenantPrismaService,
+    @Query('year') year: string,
+    @Query('month') month: string,
+    @Query('vehicleId') vehicleId?: string,
+  ) {
+    const now = new Date();
+    return this.dailyKmService.getMonthlySummaryByVehicle(
+      prisma,
+      year ? parseInt(year, 10) : now.getFullYear(),
+      month ? parseInt(month, 10) : now.getMonth() + 1,
+      vehicleId,
+    );
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Detalhe de registro KM diário' })
   findOne(

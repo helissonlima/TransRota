@@ -29,7 +29,7 @@ import { Modal } from '@/components/ui/modal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/cn';
 
-type EquipmentType = 'DRONE' | 'GERADOR' | 'OUTRO';
+type EquipmentType = 'DRONE' | 'GERADOR' | 'OUTRO' | 'EMPILHADEIRA' | string;
 
 interface Equipment {
   id: string;
@@ -64,17 +64,17 @@ interface ApiEquipment {
 interface ApiEquipmentLog {
   id: string;
   date: string;
-  initialKm?: number;
-  finalKm?: number;
-  totalKm?: number;
-  totalCost?: number;
+  initialKm?: number | string;
+  finalKm?: number | string;
+  totalKm?: number | string;
+  totalCost?: number | string;
   notes?: string;
 }
 
 const equipmentSchema = z.object({
   tagNumber: z.coerce.number().min(0, 'Tag obrigatória'),
   name: z.string().min(2, 'Nome obrigatório'),
-  type: z.enum(['DRONE', 'GERADOR', 'OUTRO']),
+  type: z.enum(['DRONE', 'GERADOR', 'EMPILHADEIRA', 'OUTRO']),
   identifier: z.string().optional(),
   isActive: z.boolean().default(true),
 });
@@ -90,27 +90,38 @@ const logSchema = z.object({
 type EquipmentFormData = z.infer<typeof equipmentSchema>;
 type LogFormData = z.infer<typeof logSchema>;
 
-const TYPE_CONFIG: Record<EquipmentType, {
-  label: string;
-  variant: 'purple' | 'orange' | 'gray';
-  bg: string;
-  text: string;
-  icon: string;
-}> = {
-  DRONE: { label: 'Drone', variant: 'purple', bg: 'bg-purple-50', text: 'text-purple-700', icon: '🚁' },
-  GERADOR: { label: 'Gerador', variant: 'orange', bg: 'bg-orange-50', text: 'text-orange-700', icon: '⚡' },
-  OUTRO: { label: 'Outro', variant: 'gray', bg: 'bg-slate-100', text: 'text-slate-600', icon: '📦' },
+const TYPE_CONFIG_MAP: Record<string, { label: string; variant: 'purple' | 'orange' | 'gray' | 'blue' | 'emerald'; bg: string; text: string; icon: string }> = {
+  DRONE:        { label: 'Drone',        variant: 'purple',  bg: 'bg-purple-50',  text: 'text-purple-700',  icon: '🚁' },
+  GERADOR:      { label: 'Gerador',      variant: 'orange',  bg: 'bg-orange-50',  text: 'text-orange-700',  icon: '⚡' },
+  EMPILHADEIRA: { label: 'Empilhadeira', variant: 'blue',    bg: 'bg-blue-50',    text: 'text-blue-700',    icon: '🏗️' },
+  OUTRO:        { label: 'Outro',        variant: 'gray',    bg: 'bg-slate-100',  text: 'text-slate-600',   icon: '📦' },
 };
+
+const FALLBACK_CONFIG = { label: 'Outro', variant: 'gray' as const, bg: 'bg-slate-100', text: 'text-slate-600', icon: '📦' };
+
+function getTypeConfig(type: string) {
+  return TYPE_CONFIG_MAP[type] ?? { ...FALLBACK_CONFIG, label: type };
+}
+
+const TYPE_CONFIG = TYPE_CONFIG_MAP;
 
 function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+function toNumber(value: number | string | null | undefined): number | undefined {
+  if (value === null || value === undefined || value === '') return undefined;
+  const parsed = typeof value === 'number' ? value : Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 export default function EquipmentPage() {
   const qc = useQueryClient();
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
+  const [selectedLog, setSelectedLog] = useState<EquipmentLog | null>(null);
   const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
   const [logModalOpen, setLogModalOpen] = useState(false);
+  const [logDetailOpen, setLogDetailOpen] = useState(false);
 
   const { data: equipmentList = [], isLoading } = useQuery<Equipment[]>({
     queryKey: ['equipment'],
@@ -135,10 +146,10 @@ export default function EquipmentPage() {
         (r.data as ApiEquipmentLog[]).map((log) => ({
           id: log.id,
           date: log.date,
-          kmOut: log.initialKm,
-          kmReturn: log.finalKm,
-          kmTotal: log.totalKm,
-          cost: log.totalCost,
+          kmOut: toNumber(log.initialKm),
+          kmReturn: toNumber(log.finalKm),
+          kmTotal: toNumber(log.totalKm),
+          cost: toNumber(log.totalCost),
           notes: log.notes,
         })),
       ),
@@ -207,6 +218,10 @@ export default function EquipmentPage() {
   const kmOut = watchLog('kmOut') ?? 0;
   const kmReturn = watchLog('kmReturn') ?? 0;
   const calculatedKmTotal = Math.max(0, (kmReturn ?? 0) - (kmOut ?? 0));
+  const meterLabel = selectedEquipment?.type === 'GERADOR' ? 'Horímetro' : 'KM';
+  const meterOutLabel = selectedEquipment?.type === 'GERADOR' ? 'Horímetro Saída' : 'KM Saída';
+  const meterReturnLabel = selectedEquipment?.type === 'GERADOR' ? 'Horímetro Chegada' : 'KM Chegada';
+  const meterTotalLabel = selectedEquipment?.type === 'GERADOR' ? 'Horas Utilizadas' : 'KM Total';
 
   return (
     <div className="min-h-screen">
@@ -277,7 +292,7 @@ export default function EquipmentPage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                   {equipmentList.map((equip, i) => {
-                    const config = TYPE_CONFIG[equip.type];
+                    const config = getTypeConfig(equip.type);
                     return (
                       <motion.div
                         key={equip.id}
@@ -358,14 +373,14 @@ export default function EquipmentPage() {
               {/* Equipment info card */}
               <div className="bg-white rounded-2xl border border-brand-border shadow-card p-5">
                 <div className="flex items-center gap-4">
-                  <div className={cn('w-14 h-14 rounded-2xl flex items-center justify-center text-3xl', TYPE_CONFIG[selectedEquipment.type].bg)}>
-                    {TYPE_CONFIG[selectedEquipment.type].icon}
+                  <div className={cn('w-14 h-14 rounded-2xl flex items-center justify-center text-3xl', getTypeConfig(selectedEquipment.type).bg)}>
+                    {getTypeConfig(selectedEquipment.type).icon}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
                       <h2 className="text-lg font-bold text-brand-text-primary">{selectedEquipment.name}</h2>
-                      <Badge variant={TYPE_CONFIG[selectedEquipment.type].variant}>
-                        {TYPE_CONFIG[selectedEquipment.type].label}
+                      <Badge variant={getTypeConfig(selectedEquipment.type).variant}>
+                        {getTypeConfig(selectedEquipment.type).label}
                       </Badge>
                       {selectedEquipment.isActive
                         ? <Badge variant="success" dot>Ativo</Badge>
@@ -425,7 +440,14 @@ export default function EquipmentPage() {
                               initial={{ opacity: 0, x: -8 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ duration: 0.2, delay: i * 0.03 }}
-                              className="hover:bg-slate-50/60 transition-colors"
+                              className={cn(
+                                'hover:bg-slate-50/60 transition-colors cursor-pointer',
+                                selectedLog?.id === log.id && 'bg-primary-50/40',
+                              )}
+                              onClick={() => {
+                                setSelectedLog(log);
+                                setLogDetailOpen(true);
+                              }}
                             >
                               <td className="px-4 py-3 text-brand-text-secondary text-xs whitespace-nowrap">
                                 {format(parseISO(log.date), 'dd/MM/yyyy', { locale: ptBR })}
@@ -457,6 +479,60 @@ export default function EquipmentPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Log Detail Modal */}
+      {selectedLog && (
+        <Modal
+          open={logDetailOpen}
+          onClose={() => setLogDetailOpen(false)}
+          title={selectedEquipment ? `Uso - ${selectedEquipment.name}` : 'Detalhe do Uso'}
+          description={format(parseISO(selectedLog.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          size="md"
+          footer={<Button variant="secondary" onClick={() => setLogDetailOpen(false)}>Fechar</Button>}
+        >
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">Data</div>
+                <div className="text-sm font-semibold text-brand-text-primary">
+                  {format(parseISO(selectedLog.date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">KM Total</div>
+                <div className="text-sm font-semibold text-brand-text-primary font-mono">
+                  {selectedLog.kmTotal != null ? selectedLog.kmTotal.toLocaleString('pt-BR') : '—'}
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">KM Saída</div>
+                <div className="text-sm font-semibold text-brand-text-primary font-mono">
+                  {selectedLog.kmOut != null ? selectedLog.kmOut.toLocaleString('pt-BR') : '—'}
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs text-brand-text-secondary mb-1">KM Chegada</div>
+                <div className="text-sm font-semibold text-brand-text-primary font-mono">
+                  {selectedLog.kmReturn != null ? selectedLog.kmReturn.toLocaleString('pt-BR') : '—'}
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3 col-span-2">
+                <div className="text-xs text-brand-text-secondary mb-1">Custo</div>
+                <div className="text-sm font-semibold text-primary-600">
+                  {selectedLog.cost != null ? formatCurrency(selectedLog.cost) : '—'}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl p-3 border border-brand-border">
+              <div className="text-xs text-brand-text-secondary mb-1">Observações</div>
+              <div className="text-sm text-brand-text-primary whitespace-pre-wrap">
+                {selectedLog.notes || 'Sem observações.'}
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* New Equipment Modal */}
       <Modal

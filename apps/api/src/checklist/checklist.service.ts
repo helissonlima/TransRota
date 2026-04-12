@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { TenantPrismaService } from '../core/prisma/tenant-prisma.service';
 import { CreateChecklistDto } from './dto/create-checklist.dto';
 import { ExecuteChecklistDto } from './dto/execute-checklist.dto';
+import { ResolveStatus } from './dto/resolve-execution.dto';
 
 @Injectable()
 export class ChecklistService {
@@ -28,7 +29,10 @@ export class ChecklistService {
   async findAll(prisma: TenantPrismaService, type?: string) {
     return prisma.checklist.findMany({
       where: { isActive: true, ...(type ? { type: type as any } : {}) },
-      include: { items: { orderBy: { order: 'asc' } } },
+      include: {
+        items: { orderBy: { order: 'asc' } },
+        _count: { select: { executions: true } },
+      },
       orderBy: { name: 'asc' },
     });
   }
@@ -109,19 +113,79 @@ export class ChecklistService {
     });
   }
 
-  async getExecutions(prisma: TenantPrismaService, vehicleId?: string, driverId?: string) {
-    return prisma.checklistExecution.findMany({
+  async getExecutions(
+    prisma: TenantPrismaService,
+    vehicleId?: string,
+    driverId?: string,
+    resolutionStatus?: string,
+  ) {
+    const list = await prisma.checklistExecution.findMany({
       where: {
         ...(vehicleId ? { vehicleId } : {}),
         ...(driverId ? { driverId } : {}),
+        ...(resolutionStatus ? { resolutionStatus: resolutionStatus as any } : {}),
       },
       include: {
         checklist: { select: { name: true, type: true } },
-        vehicle: { select: { plate: true, model: true } },
+        vehicle: { select: { plate: true, brand: true, model: true } },
         driver: { select: { name: true } },
+        inspector: { select: { name: true } },
+        resolvedBy: { select: { name: true } },
+        responses: {
+          include: {
+            item: { select: { description: true, isRequired: true, order: true } },
+          },
+          orderBy: { item: { order: 'asc' } },
+        },
       },
       orderBy: { executedAt: 'desc' },
-      take: 50,
+      take: 100,
+    });
+
+    return list.map((e) => ({
+      ...e,
+      createdAt: e.executedAt,
+      inspectorName: e.inspector?.name ?? null,
+      resolvedByName: e.resolvedBy?.name ?? null,
+    }));
+  }
+
+  async resolveExecution(
+    prisma: TenantPrismaService,
+    id: string,
+    status: ResolveStatus,
+    resolvedById: string,
+  ) {
+    const execution = await prisma.checklistExecution.findUnique({ where: { id } });
+    if (!execution) throw new NotFoundException('Execução não encontrada');
+
+    if (status === ResolveStatus.RESOLVED && execution.resolutionStatus !== 'PENDING') {
+      throw new BadRequestException('Somente execuções pendentes podem ser marcadas como resolvidas');
+    }
+    if (status === ResolveStatus.APPROVED && execution.resolutionStatus !== 'RESOLVED') {
+      throw new BadRequestException('Somente execuções resolvidas podem ser aprovadas');
+    }
+
+    return prisma.checklistExecution.update({
+      where: { id },
+      data: {
+        resolutionStatus: status as any,
+        resolvedById,
+        resolvedAt: new Date(),
+      },
+      include: {
+        checklist: { select: { name: true, type: true } },
+        vehicle: { select: { plate: true, brand: true, model: true } },
+        driver: { select: { name: true } },
+        inspector: { select: { name: true } },
+        resolvedBy: { select: { name: true } },
+        responses: {
+          include: {
+            item: { select: { description: true, isRequired: true, order: true } },
+          },
+          orderBy: { item: { order: 'asc' } },
+        },
+      },
     });
   }
 }
