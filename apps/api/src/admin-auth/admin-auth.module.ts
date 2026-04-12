@@ -7,6 +7,8 @@ import {
   AdminUsersController,
   AdminPlansController,
   AdminOperationsController,
+  AdminNotificationsController,
+  AdminSettingsController,
 } from './admin-auth.controller';
 import { AdminAuthService } from './admin-auth.service';
 import { MasterPrismaModule } from '../core/prisma/master-prisma.module';
@@ -26,7 +28,7 @@ import { SuperAdminGuard } from './guards/super-admin.guard';
       }),
     }),
   ],
-  controllers: [AdminAuthController, AdminCompaniesController, AdminUsersController, AdminPlansController, AdminOperationsController],
+  controllers: [AdminAuthController, AdminCompaniesController, AdminUsersController, AdminPlansController, AdminOperationsController, AdminNotificationsController, AdminSettingsController],
   providers: [AdminAuthService, SuperAdminGuard],
 })
 export class AdminAuthModule {}

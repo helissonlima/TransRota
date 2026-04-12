@@ -8,7 +8,6 @@ import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
-  Search,
   MapPin,
   Truck,
   User,
@@ -19,8 +18,9 @@ import {
   FileEdit,
   ChevronRight,
   Package,
-  X,
   Navigation,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
@@ -116,7 +116,7 @@ const routeSchema = z.object({
 
 type RouteFormData = z.infer<typeof routeSchema>;
 
-function RouteCard({ route, onClick }: { route: Route; onClick: () => void }) {
+function RouteCard({ route, onClick, selected }: { route: Route; onClick: () => void; selected?: boolean }) {
   const config = STATUS_CONFIG[route.status];
   const progress = route._count.stops > 0
     ? ((route.completedStops ?? 0) / route._count.stops) * 100
@@ -133,22 +133,23 @@ function RouteCard({ route, onClick }: { route: Route; onClick: () => void }) {
       className={cn(
         'bg-white rounded-xl border shadow-card hover:shadow-card-hover transition-shadow cursor-pointer',
         config.cardBorder,
+        selected && 'ring-2 ring-primary-200 border-primary-500',
       )}
       onClick={onClick}
     >
       {/* Card body */}
-      <div className="p-4">
+      <div className="p-3">
         {/* Route name + date */}
-        <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
-            <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0', config.headerBg)}>
-              <config.icon className={cn('w-3.5 h-3.5', config.headerText)} />
+            <div className={cn('w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0', config.headerBg)}>
+              <config.icon className={cn('w-3 h-3', config.headerText)} />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-brand-text-primary leading-tight truncate max-w-[140px]">
+              <p className="text-[13px] font-semibold text-brand-text-primary leading-tight truncate max-w-[120px]">
                 {route.name}
               </p>
-              <p className="text-xs text-brand-text-secondary mt-0.5">
+              <p className="text-[11px] text-brand-text-secondary mt-0.5">
                 {format(parseISO(route.scheduledDate), 'dd/MM/yyyy', { locale: ptBR })}
               </p>
             </div>
@@ -158,21 +159,20 @@ function RouteCard({ route, onClick }: { route: Route; onClick: () => void }) {
 
         {/* Vehicle + Driver */}
         {route.vehicle && (
-          <div className="flex items-center gap-1.5 text-xs text-brand-text-secondary mb-1">
+          <div className="flex items-center gap-1 text-xs text-brand-text-secondary mb-0.5">
             <Truck className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="font-plate font-semibold text-brand-text-primary">{route.vehicle.plate}</span>
-            <span className="text-brand-text-secondary">· {route.vehicle.brand}</span>
           </div>
         )}
         {route.driver && (
-          <div className="flex items-center gap-1.5 text-xs text-brand-text-secondary mb-3">
+          <div className="flex items-center gap-1 text-xs text-brand-text-secondary mb-2">
             <User className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>{route.driver.name}</span>
+            <span className="truncate">{route.driver.name}</span>
           </div>
         )}
 
         {/* Progress */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-1 text-brand-text-secondary">
               <Package className="w-3 h-3" />
@@ -208,19 +208,21 @@ function KanbanColumn({
   routes,
   loading,
   onSelectRoute,
+  selectedRouteId,
 }: {
   status: RouteStatus;
   routes: Route[];
   loading: boolean;
   onSelectRoute: (route: Route) => void;
+  selectedRouteId?: string;
 }) {
   const config = STATUS_CONFIG[status];
   const Icon = config.icon;
 
   return (
-    <div className="kanban-column flex flex-col">
+    <div className="kanban-column flex flex-col rounded-2xl border border-brand-border bg-slate-50/70 backdrop-blur-sm min-w-[300px]">
       {/* Column header */}
-      <div className={cn('flex items-center justify-between px-4 py-3 rounded-t-xl', config.headerBg)}>
+      <div className={cn('flex items-center justify-between px-4 py-3 rounded-t-2xl border-b border-brand-border/60', config.headerBg)}>
         <div className="flex items-center gap-2">
           <div className={cn('w-2 h-2 rounded-full', config.dotColor)} />
           <span className={cn('text-sm font-semibold', config.headerText)}>{config.label}</span>
@@ -231,10 +233,10 @@ function KanbanColumn({
       </div>
 
       {/* Cards */}
-      <div className="flex-1 p-3 space-y-2.5 min-h-[200px] max-h-[calc(100vh-280px)] overflow-y-auto scrollbar-thin">
+      <div className="flex-1 p-3 space-y-2 min-h-[200px] max-h-[calc(100vh-280px)] overflow-y-auto scrollbar-thin">
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border border-brand-border p-4 space-y-2">
+            <div key={i} className="bg-white rounded-xl border border-brand-border p-3 space-y-2">
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-3 w-24" />
             </div>
@@ -250,6 +252,7 @@ function KanbanColumn({
               <RouteCard
                 key={route.id}
                 route={route}
+                selected={selectedRouteId === route.id}
                 onClick={() => onSelectRoute(route)}
               />
             ))}
@@ -262,9 +265,10 @@ function KanbanColumn({
 
 export default function RoutesPage() {
   const qc = useQueryClient();
-  const [search, setSearch] = useState('');
+  const [headerSearch, setHeaderSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const { data: routes = [], isLoading } = useQuery<Route[]>({
     queryKey: ['routes'],
@@ -293,15 +297,25 @@ export default function RoutesPage() {
     onError: (error: any) => toast.error(error?.response?.data?.message ?? 'Erro ao criar rota.'),
   });
 
+  const cancelMutation = useMutation({
+    mutationFn: (id: string) => api.patch(`/routes/${id}/cancel`),
+    onSuccess: () => {
+      toast.success('Rota cancelada com sucesso!');
+      qc.invalidateQueries({ queryKey: ['routes'] });
+      setDetailOpen(false);
+    },
+    onError: (error: any) => toast.error(error?.response?.data?.message ?? 'Erro ao cancelar rota.'),
+  });
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm<RouteFormData>({
     resolver: zodResolver(routeSchema),
   });
 
   const filteredRoutes = routes.filter(
     (r) =>
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.driver?.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.vehicle?.plate.toLowerCase().includes(search.toLowerCase()),
+      r.name.toLowerCase().includes(headerSearch.toLowerCase()) ||
+      r.driver?.name.toLowerCase().includes(headerSearch.toLowerCase()) ||
+      r.vehicle?.plate.toLowerCase().includes(headerSearch.toLowerCase()),
   );
 
   const grouped = KANBAN_COLUMNS.reduce((acc, status) => {
@@ -309,55 +323,107 @@ export default function RoutesPage() {
     return acc;
   }, {} as Record<RouteStatus, Route[]>);
 
+  const routeStats = {
+    total: filteredRoutes.length,
+    scheduled: grouped.SCHEDULED.length,
+    inProgress: grouped.IN_PROGRESS.length,
+    completed: grouped.COMPLETED.length,
+  };
+
+  const selectedRouteResolved = selectedRoute
+    ? (routes.find((r) => r.id === selectedRoute.id) ?? selectedRoute)
+    : null;
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header
         title="Rotas"
         breadcrumbs={[{ label: 'Rotas' }]}
+        searchQuery={headerSearch}
+        onSearchQueryChange={setHeaderSearch}
+        searchPlaceholder="Buscar rota, motorista ou placa..."
       />
 
       <div className="flex-1 p-6 flex flex-col gap-5 max-w-[1800px] mx-auto w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { label: 'Total', value: routeStats.total, tone: 'bg-blue-50 text-blue-700 border-blue-100' },
+            { label: 'Agendadas', value: routeStats.scheduled, tone: 'bg-sky-50 text-sky-700 border-sky-100' },
+            { label: 'Em Andamento', value: routeStats.inProgress, tone: 'bg-amber-50 text-amber-700 border-amber-100' },
+            { label: 'Concluídas', value: routeStats.completed, tone: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+          ].map((item) => (
+            <div key={item.label} className="bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
+              <p className="text-xs text-brand-text-secondary uppercase tracking-wide">{item.label}</p>
+              <p className="text-2xl font-black text-brand-text-primary mt-1">{item.value}</p>
+            </div>
+          ))}
+        </div>
+
         {/* Toolbar */}
-        <div className="flex items-center gap-3">
-          <div className="relative max-w-sm flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary pointer-events-none" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar rota, motorista ou placa..."
-              className="input-base pl-9"
-            />
-            {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+        <div className="flex items-center justify-between gap-3 flex-wrap bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-brand-text-secondary">
+              <span className="font-semibold text-brand-text-primary">{filteredRoutes.length}</span> rota(s) exibida(s)
+            </div>
 
-          <div className="flex items-center gap-2 text-sm text-brand-text-secondary">
-            <span className="font-semibold text-brand-text-primary">{routes.length}</span> rotas total
-          </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {selectedRouteResolved && (
+                <span className="hidden md:inline-flex text-xs font-medium text-brand-text-secondary bg-slate-100 px-2 py-1 rounded-md">
+                  Selecionado: {selectedRouteResolved.name}
+                </span>
+              )}
 
-          <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Nova Rota
-          </Button>
+              <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
+                Nova Rota
+              </Button>
+
+              <Button
+                size="sm"
+                variant="secondary"
+                leftIcon={<Pencil className="w-4 h-4" />}
+                disabled={!selectedRouteResolved}
+                onClick={() => selectedRouteResolved && setDetailOpen(true)}
+              >
+                Editar
+              </Button>
+
+              <Button
+                size="sm"
+                variant="danger"
+                leftIcon={<Trash2 className="w-4 h-4" />}
+                disabled={!selectedRouteResolved || cancelMutation.isPending}
+                onClick={() => {
+                  if (!selectedRouteResolved) return;
+                  if (confirm(`Deseja cancelar a rota ${selectedRouteResolved.name}?`)) {
+                    cancelMutation.mutate(selectedRouteResolved.id);
+                  }
+                }}
+              >
+                Excluir
+              </Button>
+            </div>
+          </div>
 
           {/* Live indicator */}
-          <div className="ml-auto flex items-center gap-1.5 text-xs text-brand-text-secondary bg-white border border-brand-border rounded-lg px-2.5 py-1.5">
+          <div className="flex items-center gap-1.5 text-xs text-brand-text-secondary bg-white border border-brand-border rounded-lg px-2.5 py-1.5">
             <div className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse-soft" />
             Atualizando em tempo real
           </div>
         </div>
 
         {/* Kanban board */}
-        <div className="flex-1 flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
+        <div className="flex-1 flex gap-4 overflow-x-auto pb-4 scrollbar-thin rounded-2xl bg-gradient-to-b from-slate-50 to-white p-2 border border-brand-border/60">
           {KANBAN_COLUMNS.map((status) => (
             <KanbanColumn
               key={status}
               status={status}
               routes={grouped[status]}
               loading={isLoading}
-              onSelectRoute={setSelectedRoute}
+              onSelectRoute={(route) => {
+                setSelectedRoute(route);
+                setDetailOpen(true);
+              }}
+              selectedRouteId={selectedRouteResolved?.id}
             />
           ))}
 
@@ -427,46 +493,45 @@ export default function RoutesPage() {
       </Modal>
 
       {/* Route detail modal */}
-      {selectedRoute && (
+      {selectedRouteResolved && (
         <Modal
-          open={!!selectedRoute}
-          onClose={() => setSelectedRoute(null)}
-          title={selectedRoute.name}
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          title={selectedRouteResolved.name}
           size="lg"
-          footer={<Button variant="secondary" onClick={() => setSelectedRoute(null)}>Fechar</Button>}
+          footer={<Button variant="secondary" onClick={() => setDetailOpen(false)}>Fechar</Button>}
         >
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <RouteStatusBadge status={selectedRoute.status} />
+              <RouteStatusBadge status={selectedRouteResolved.status} />
               <span className="text-sm text-brand-text-secondary">
-                {format(parseISO(selectedRoute.scheduledDate), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                {format(parseISO(selectedRouteResolved.scheduledDate), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              {selectedRoute.vehicle && (
+              {selectedRouteResolved.vehicle && (
                 <div className="bg-slate-50 rounded-xl p-3">
                   <div className="text-xs text-brand-text-secondary mb-1">Veículo</div>
-                  <div className="text-sm font-semibold text-brand-text-primary font-plate">{selectedRoute.vehicle.plate}</div>
-                  <div className="text-xs text-brand-text-secondary">{selectedRoute.vehicle.brand} {selectedRoute.vehicle.model}</div>
+                  <div className="text-sm font-semibold text-brand-text-primary font-plate">{selectedRouteResolved.vehicle.plate}</div>
+                  <div className="text-xs text-brand-text-secondary">{selectedRouteResolved.vehicle.brand} {selectedRouteResolved.vehicle.model}</div>
                 </div>
               )}
-              {selectedRoute.driver && (
+              {selectedRouteResolved.driver && (
                 <div className="bg-slate-50 rounded-xl p-3">
                   <div className="text-xs text-brand-text-secondary mb-1">Motorista</div>
-                  <div className="text-sm font-semibold text-brand-text-primary">{selectedRoute.driver.name}</div>
+                  <div className="text-sm font-semibold text-brand-text-primary">{selectedRouteResolved.driver.name}</div>
                 </div>
               )}
             </div>
 
-            {/* Stops */}
-            {selectedRoute.stops && selectedRoute.stops.length > 0 && (
+            {selectedRouteResolved.stops && selectedRouteResolved.stops.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-brand-text-primary mb-3">
-                  Paradas ({selectedRoute.stops.length})
+                  Paradas ({selectedRouteResolved.stops.length})
                 </h4>
                 <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
-                  {selectedRoute.stops.map((stop) => (
+                  {selectedRouteResolved.stops.map((stop) => (
                     <div key={stop.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                       <div className={cn(
                         'w-6 h-6 rounded-full flex items-center justify-center text-2xs font-bold flex-shrink-0',

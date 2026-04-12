@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -48,5 +48,16 @@ export class AuthController {
   async logout(@Request() req: TenantRequest, @CurrentUser() user: TokenPayload) {
     await this.authService.logout(req.tenantPrisma, user.sub);
     return { message: 'Logout realizado com sucesso' };
+  }
+
+  @Get('tenant-config')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Configurações do tenant (features habilitadas)' })
+  tenantConfig(@Request() req: TenantRequest) {
+    return {
+      tenantId: req.tenantId,
+      features: req.tenantFeatures ?? [],
+    };
   }
 }

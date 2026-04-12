@@ -28,6 +28,7 @@ model Plan {
   isActive        Boolean   @default(true)
   createdAt       DateTime  @default(now())
   companies       Company[]
+  billingSubscriptions BillingSubscription[]
 
   @@schema("public")
 }
@@ -36,6 +37,40 @@ enum PlanType {
   STARTER
   PROFESSIONAL
   ENTERPRISE
+
+  @@schema("public")
+}
+
+enum PaymentProvider {
+  ASAAS
+  SICOOB
+  NONE
+
+  @@schema("public")
+}
+
+enum PaymentEnvironment {
+  SANDBOX
+  PRODUCTION
+
+  @@schema("public")
+}
+
+model PaymentGatewaySettings {
+  id                     String             @id @default(uuid())
+  singletonKey           String             @unique @default("default")
+  provider               PaymentProvider    @default(ASAAS)
+  environment            PaymentEnvironment @default(SANDBOX)
+  asaasApiKey            String?
+  asaasWalletId          String?
+  asaasWebhookToken      String?
+  sicoobClientId         String?
+  sicoobClientSecret     String?
+  sicoobCertificateBase64 String?
+  sicoobPixKey           String?
+  isActive               Boolean            @default(true)
+  updatedAt              DateTime           @updatedAt
+  createdAt              DateTime           @default(now())
 
   @@schema("public")
 }
@@ -53,10 +88,13 @@ model Company {
   plan            Plan           @relation(fields: [planId], references: [id])
   isActive        Boolean        @default(true)
   trialEndsAt     DateTime?
+  features        String[]       @default([]) // módulos habilitados para esta empresa
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-  subscriptions   Subscription[]
-  auditLogs       MasterAuditLog[]
+  subscriptions      Subscription[]
+  auditLogs          MasterAuditLog[]
+  billingCustomer    BillingCustomer?
+  notifications      AdminNotification[]
 
   @@schema("public")
 }
@@ -98,6 +136,167 @@ model SuperAdmin {
   lastLoginAt      DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+
+  @@schema("public")
+}
+
+// ─── Cliente de Billing (Asaas) ──────────────────────────────────────────────
+
+model BillingCustomer {
+  id                String   @id @default(uuid())
+  companyId         String   @unique
+  company           Company  @relation(fields: [companyId], references: [id])
+  asaasCustomerId   String   @unique  // ID do cliente no Asaas
+  name              String
+  cpfCnpj           String
+  email             String
+  phone             String?
+  postalCode        String?
+  address           String?
+  addressNumber     String?
+  complement        String?
+  province          String?
+  city              String?
+  state             String?  @db.Char(2)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  invoices       Invoice[]
+  billingSubscription BillingSubscription?
+
+  @@schema("public")
+}
+
+// ─── Assinatura de Billing (recorrente no Asaas) ─────────────────────────────
+
+model BillingSubscription {
+  id                    String                  @id @default(uuid())
+  billingCustomerId     String                  @unique
+  billingCustomer       BillingCustomer         @relation(fields: [billingCustomerId], references: [id])
+  asaasSubscriptionId   String                  @unique  // ID da subscription no Asaas
+  planId                String
+  plan                  Plan                    @relation(fields: [planId], references: [id])
+  billingType           BillingType
+  value                 Decimal                 @db.Decimal(10, 2)
+  nextDueDate           DateTime
+  cycle                 BillingCycle            @default(MONTHLY)
+  status                BillingSubscriptionStatus @default(ACTIVE)
+  description           String?
+  externalReference     String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@schema("public")
+}
+
+enum BillingType {
+  BOLETO
+  CREDIT_CARD
+  PIX
+  UNDEFINED
+
+  @@schema("public")
+}
+
+enum BillingCycle {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMIANNUALLY
+  YEARLY
+
+  @@schema("public")
+}
+
+enum BillingSubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+
+  @@schema("public")
+}
+
+// ─── Faturas / Cobranças ─────────────────────────────────────────────────────
+
+model Invoice {
+  id                  String        @id @default(uuid())
+  billingCustomerId   String
+  billingCustomer     BillingCustomer @relation(fields: [billingCustomerId], references: [id])
+  asaasPaymentId      String?       @unique  // ID do pagamento no Asaas
+  value               Decimal       @db.Decimal(10, 2)
+  netValue            Decimal?      @db.Decimal(10, 2)
+  billingType         BillingType
+  status              InvoiceStatus @default(PENDING)
+  dueDate             DateTime
+  paidAt              DateTime?
+  invoiceUrl          String?       // URL do boleto/fatura no Asaas
+  bankSlipUrl         String?       // URL do boleto PDF
+  pixQrCode           String?       // Código Pix copia-e-cola
+  pixQrCodeImage      String?       // QR code base64
+  description         String?
+  externalReference   String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@schema("public")
+}
+
+enum InvoiceStatus {
+  PENDING
+  RECEIVED
+  CONFIRMED
+  OVERDUE
+  REFUNDED
+  RECEIVED_IN_CASH
+  REFUND_REQUESTED
+  REFUND_IN_PROGRESS
+  CHARGEBACK_REQUESTED
+  CHARGEBACK_DISPUTE
+  AWAITING_CHARGEBACK_REVERSAL
+  DUNNING_REQUESTED
+  DUNNING_RECEIVED
+  AWAITING_RISK_ANALYSIS
+
+  @@schema("public")
+}
+
+// ─── Log de Webhooks Asaas ───────────────────────────────────────────────────
+
+model BillingWebhookLog {
+  id          String   @id @default(uuid())
+  event       String
+  payload     Json
+  processed   Boolean  @default(false)
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@schema("public")
+}
+
+// ─── Notificações do Admin ───────────────────────────────────────────────────
+
+model AdminNotification {
+  id          String                 @id @default(uuid())
+  type        AdminNotificationType
+  title       String
+  message     String
+  companyId   String?
+  company     Company?               @relation(fields: [companyId], references: [id])
+  metadata    Json?
+  isRead      Boolean                @default(false)
+  createdAt   DateTime               @default(now())
+
+  @@schema("public")
+}
+
+enum AdminNotificationType {
+  NEW_COMPANY
+  PAYMENT_RECEIVED
+  PAYMENT_OVERDUE
+  SUBSCRIPTION_CANCELLED
+  TRIAL_EXPIRING
+  SYSTEM
 
   @@schema("public")
 }

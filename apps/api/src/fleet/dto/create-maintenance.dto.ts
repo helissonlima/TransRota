@@ -18,10 +18,17 @@ export class CreateMaintenanceDto {
   @Min(0)
   cost?: number;
 
-  @ApiProperty({ example: 47500 })
+  @ApiProperty({ example: 47500, required: false })
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  km: number;
+  km?: number;
+
+  @ApiProperty({ example: 1200, required: false, description: 'Horas trabalhadas (para máquinas pesadas)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  workedHours?: number;
 
   @ApiProperty()
   @IsDateString()
@@ -31,6 +38,12 @@ export class CreateMaintenanceDto {
   @IsOptional()
   @IsNumber()
   nextDueKm?: number;
+
+  @ApiProperty({ required: false, example: 1500, description: 'Próxima manutenção por hora (para máquinas pesadas)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  nextDueHours?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()

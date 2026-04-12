@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Building2, Activity, Circle, Search, ToggleLeft, ToggleRight, ChevronRight, Plus, X, Eye, EyeOff } from 'lucide-react';
+import { Building2, Activity, Circle, Search, ToggleLeft, ToggleRight, ChevronRight, Plus, X, Eye, EyeOff, Trash2, LayoutGrid } from 'lucide-react';
+import { toast } from 'sonner';
 import adminApi from '@/lib/admin-api';
 import { cn } from '@/lib/cn';
 
@@ -66,12 +67,51 @@ export default function AdminCompaniesPage() {
     },
   });
 
+  const removeCompany = useMutation({
+    mutationFn: (id: string) => adminApi.delete(`/admin/companies/${id}`),
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ['admin', 'companies'] });
+      const previous = queryClient.getQueryData<Company[]>(['admin', 'companies']) ?? [];
+      queryClient.setQueryData<Company[]>(
+        ['admin', 'companies'],
+        previous.filter((company) => company.id !== id),
+      );
+      return { previous };
+    },
+    onError: (error: any, _id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['admin', 'companies'], context.previous);
+      }
+      const msg = error?.response?.data?.message;
+      toast.error(Array.isArray(msg) ? msg.join(', ') : (msg ?? 'Erro ao apagar empresa'));
+    },
+    onSuccess: () => {
+      toast.success('Empresa removida permanentemente');
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'companies'] });
+      await queryClient.refetchQueries({ queryKey: ['admin', 'companies'], type: 'active' });
+    },
+  });
+
   const filtered = companies.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.cnpj.includes(search) ||
       c.email.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const handleDeleteCompany = (company: Company) => {
+    const phrase = window.prompt(
+      `Para excluir PERMANENTEMENTE a empresa \"${company.name}\", digite APAGAR`,
+    );
+
+    if (phrase !== 'APAGAR') {
+      toast.error('Confirmação inválida. Digite APAGAR para excluir.');
+      return;
+    }
+    removeCompany.mutate(company.id);
+  };
 
   const planColor: Record<string, string> = {
     STARTER: 'text-blue-400 bg-blue-500/10',
@@ -269,19 +309,43 @@ export default function AdminCompaniesPage() {
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <button
-                      onClick={() => toggle.mutate(company.id)}
-                      disabled={toggle.isPending}
-                      className={cn(
-                        'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition-colors',
-                        company.isActive
-                          ? 'text-red-400 hover:bg-red-900/20'
-                          : 'text-emerald-400 hover:bg-emerald-900/20',
-                      )}
-                    >
-                      {company.isActive ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-                      {company.isActive ? 'Desativar' : 'Ativar'}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => toggle.mutate(company.id)}
+                        disabled={toggle.isPending || removeCompany.isPending}
+                        className={cn(
+                          'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition-colors',
+                          company.isActive
+                            ? 'text-red-400 hover:bg-red-900/20'
+                            : 'text-emerald-400 hover:bg-emerald-900/20',
+                        )}
+                      >
+                        {company.isActive ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                        {company.isActive ? 'Desativar' : 'Ativar'}
+                      </button>
+
+                      <button
+                        onClick={() => router.push(`/admin/companies/${company.id}/features`)}
+                        title="Gerenciar módulos habilitados"
+                        className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg text-violet-400 hover:bg-violet-900/20 transition-colors"
+                      >
+                        <LayoutGrid className="w-4 h-4" />
+                        Módulos
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteCompany(company)}
+                        disabled={removeCompany.isPending}
+                        title="Excluir empresa permanentemente"
+                        className={cn(
+                          'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition-colors',
+                          'text-rose-400 hover:bg-rose-900/20',
+                        )}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Apagar
+                      </button>
+                    </div>
                   </td>
                   <td className="px-5 py-3.5">
                     <button

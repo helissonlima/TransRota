@@ -7,12 +7,16 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "pnpm --parallel --filter './apps/*' dev",
-    "build": "pnpm --filter './packages/*' build && pnpm --filter './apps/*' build",
-    "lint": "pnpm --parallel --filter './apps/*' lint",
+    "dev": "npm run dev:all",
+    "dev:all": "concurrently -n api,web -c cyan,magenta \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace @transrota/api",
+    "dev:web": "npm run dev --workspace @transrota/web",
+    "build": "npm run build --workspace @transrota/shared && npm run build --workspace @transrota/api && npm run build --workspace @transrota/web",
+    "lint": "npm run lint --workspace @transrota/api && npm run lint --workspace @transrota/web",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "prettier": "^3.3.3",
     "typescript": "^5.5.4"
   },

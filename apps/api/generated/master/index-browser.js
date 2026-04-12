@@ -136,6 +136,23 @@ exports.Prisma.PlanScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PaymentGatewaySettingsScalarFieldEnum = {
+  id: 'id',
+  singletonKey: 'singletonKey',
+  provider: 'provider',
+  environment: 'environment',
+  asaasApiKey: 'asaasApiKey',
+  asaasWalletId: 'asaasWalletId',
+  asaasWebhookToken: 'asaasWebhookToken',
+  sicoobClientId: 'sicoobClientId',
+  sicoobClientSecret: 'sicoobClientSecret',
+  sicoobCertificateBase64: 'sicoobCertificateBase64',
+  sicoobPixKey: 'sicoobPixKey',
+  isActive: 'isActive',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.CompanyScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -146,6 +163,7 @@ exports.Prisma.CompanyScalarFieldEnum = {
   planId: 'planId',
   isActive: 'isActive',
   trialEndsAt: 'trialEndsAt',
+  features: 'features',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -173,6 +191,81 @@ exports.Prisma.SuperAdminScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.BillingCustomerScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  asaasCustomerId: 'asaasCustomerId',
+  name: 'name',
+  cpfCnpj: 'cpfCnpj',
+  email: 'email',
+  phone: 'phone',
+  postalCode: 'postalCode',
+  address: 'address',
+  addressNumber: 'addressNumber',
+  complement: 'complement',
+  province: 'province',
+  city: 'city',
+  state: 'state',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BillingSubscriptionScalarFieldEnum = {
+  id: 'id',
+  billingCustomerId: 'billingCustomerId',
+  asaasSubscriptionId: 'asaasSubscriptionId',
+  planId: 'planId',
+  billingType: 'billingType',
+  value: 'value',
+  nextDueDate: 'nextDueDate',
+  cycle: 'cycle',
+  status: 'status',
+  description: 'description',
+  externalReference: 'externalReference',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InvoiceScalarFieldEnum = {
+  id: 'id',
+  billingCustomerId: 'billingCustomerId',
+  asaasPaymentId: 'asaasPaymentId',
+  value: 'value',
+  netValue: 'netValue',
+  billingType: 'billingType',
+  status: 'status',
+  dueDate: 'dueDate',
+  paidAt: 'paidAt',
+  invoiceUrl: 'invoiceUrl',
+  bankSlipUrl: 'bankSlipUrl',
+  pixQrCode: 'pixQrCode',
+  pixQrCodeImage: 'pixQrCodeImage',
+  description: 'description',
+  externalReference: 'externalReference',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BillingWebhookLogScalarFieldEnum = {
+  id: 'id',
+  event: 'event',
+  payload: 'payload',
+  processed: 'processed',
+  error: 'error',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AdminNotificationScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  title: 'title',
+  message: 'message',
+  companyId: 'companyId',
+  metadata: 'metadata',
+  isRead: 'isRead',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.MasterAuditLogScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -190,6 +283,10 @@ exports.Prisma.MasterAuditLogScalarFieldEnum = {
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.NullableJsonNullValueInput = {
@@ -218,6 +315,17 @@ exports.PlanType = exports.$Enums.PlanType = {
   ENTERPRISE: 'ENTERPRISE'
 };
 
+exports.PaymentProvider = exports.$Enums.PaymentProvider = {
+  ASAAS: 'ASAAS',
+  SICOOB: 'SICOOB',
+  NONE: 'NONE'
+};
+
+exports.PaymentEnvironment = exports.$Enums.PaymentEnvironment = {
+  SANDBOX: 'SANDBOX',
+  PRODUCTION: 'PRODUCTION'
+};
+
 exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
   ACTIVE: 'ACTIVE',
   CANCELLED: 'CANCELLED',
@@ -225,11 +333,65 @@ exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
   TRIALING: 'TRIALING'
 };
 
+exports.BillingType = exports.$Enums.BillingType = {
+  BOLETO: 'BOLETO',
+  CREDIT_CARD: 'CREDIT_CARD',
+  PIX: 'PIX',
+  UNDEFINED: 'UNDEFINED'
+};
+
+exports.BillingCycle = exports.$Enums.BillingCycle = {
+  WEEKLY: 'WEEKLY',
+  BIWEEKLY: 'BIWEEKLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  SEMIANNUALLY: 'SEMIANNUALLY',
+  YEARLY: 'YEARLY'
+};
+
+exports.BillingSubscriptionStatus = exports.$Enums.BillingSubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  EXPIRED: 'EXPIRED'
+};
+
+exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
+  PENDING: 'PENDING',
+  RECEIVED: 'RECEIVED',
+  CONFIRMED: 'CONFIRMED',
+  OVERDUE: 'OVERDUE',
+  REFUNDED: 'REFUNDED',
+  RECEIVED_IN_CASH: 'RECEIVED_IN_CASH',
+  REFUND_REQUESTED: 'REFUND_REQUESTED',
+  REFUND_IN_PROGRESS: 'REFUND_IN_PROGRESS',
+  CHARGEBACK_REQUESTED: 'CHARGEBACK_REQUESTED',
+  CHARGEBACK_DISPUTE: 'CHARGEBACK_DISPUTE',
+  AWAITING_CHARGEBACK_REVERSAL: 'AWAITING_CHARGEBACK_REVERSAL',
+  DUNNING_REQUESTED: 'DUNNING_REQUESTED',
+  DUNNING_RECEIVED: 'DUNNING_RECEIVED',
+  AWAITING_RISK_ANALYSIS: 'AWAITING_RISK_ANALYSIS'
+};
+
+exports.AdminNotificationType = exports.$Enums.AdminNotificationType = {
+  NEW_COMPANY: 'NEW_COMPANY',
+  PAYMENT_RECEIVED: 'PAYMENT_RECEIVED',
+  PAYMENT_OVERDUE: 'PAYMENT_OVERDUE',
+  SUBSCRIPTION_CANCELLED: 'SUBSCRIPTION_CANCELLED',
+  TRIAL_EXPIRING: 'TRIAL_EXPIRING',
+  SYSTEM: 'SYSTEM'
+};
+
 exports.Prisma.ModelName = {
   Plan: 'Plan',
+  PaymentGatewaySettings: 'PaymentGatewaySettings',
   Company: 'Company',
   Subscription: 'Subscription',
   SuperAdmin: 'SuperAdmin',
+  BillingCustomer: 'BillingCustomer',
+  BillingSubscription: 'BillingSubscription',
+  Invoice: 'Invoice',
+  BillingWebhookLog: 'BillingWebhookLog',
+  AdminNotification: 'AdminNotification',
   MasterAuditLog: 'MasterAuditLog'
 };
 

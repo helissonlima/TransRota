@@ -8,8 +8,8 @@ import { z } from 'zod';
 import { motion } from 'framer-motion';
 import {
   User, Building2, Shield, Key, Eye, EyeOff,
-  UserPlus, Search, Trash2, Clock, Copy, Check,
-  X, Hash,
+  UserPlus, Trash2, Clock, Copy, Check,
+  Hash, Tractor,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Header } from '@/components/layout/header';
@@ -118,16 +118,31 @@ export default function SettingsPage() {
   const [userId, setUserId] = useState('');
   const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('');
-  const [search, setSearch] = useState('');
+  const [headerSearch, setHeaderSearch] = useState('');
   const [userModal, setUserModal] = useState(false);
   const [pwdSaved, setPwdSaved] = useState(false);
+  const [heavyMachinesEnabled, setHeavyMachinesEnabled] = useState(false);
+  const heavyMachinesStorageKey = tenantId
+    ? `feature:heavy-machines-enabled:${tenantId}`
+    : 'feature:heavy-machines-enabled';
 
   useEffect(() => {
-    setTenantId(localStorage.getItem('tenantId') ?? '');
+    const tId = localStorage.getItem('tenantId') ?? '';
+    setTenantId(tId);
     setUserId(localStorage.getItem('userId') ?? '');
     setUserName(localStorage.getItem('userName') ?? '');
     setUserRole(localStorage.getItem('userRole') ?? '');
+    const key = tId ? `feature:heavy-machines-enabled:${tId}` : 'feature:heavy-machines-enabled';
+    setHeavyMachinesEnabled(localStorage.getItem(key) === 'true');
   }, []);
+
+  const toggleHeavyMachines = (enabled: boolean) => {
+    setHeavyMachinesEnabled(enabled);
+    localStorage.setItem(heavyMachinesStorageKey, String(enabled));
+    toast.success(enabled
+      ? 'Máquinas pesadas habilitadas no cadastro da frota.'
+      : 'Máquinas pesadas desabilitadas no cadastro da frota.');
+  };
 
   const { data: users = [], isLoading: loadingUsers } = useQuery<TenantUser[]>({
     queryKey: ['settings', 'users'],
@@ -135,7 +150,7 @@ export default function SettingsPage() {
   });
 
   const filtered = users.filter(
-    (u) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()),
+    (u) => u.name.toLowerCase().includes(headerSearch.toLowerCase()) || u.email.toLowerCase().includes(headerSearch.toLowerCase()),
   );
 
   const createUserMutation = useMutation({
@@ -176,7 +191,13 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen">
-      <Header title="Configurações" breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Configurações' }]} />
+      <Header
+        title="Configurações"
+        breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Configurações' }]}
+        searchQuery={headerSearch}
+        onSearchQueryChange={setHeaderSearch}
+        searchPlaceholder="Buscar por nome ou e-mail..."
+      />
 
       <div className="p-6 max-w-[1100px] mx-auto space-y-6">
 
@@ -224,6 +245,44 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        <div className="card p-0 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 py-4 border-b border-brand-border">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <Tractor className="w-4 h-4 text-amber-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-brand-text-primary">Operação de Máquinas Pesadas</h2>
+              <p className="text-xs text-brand-text-secondary">Ative para cadastrar tratores, escavadeiras e máquinas sem placa na frota</p>
+            </div>
+          </div>
+
+          <div className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-brand-text-primary">Exibir máquinas sem placa no cadastro de veículos</p>
+              <p className="text-xs text-brand-text-secondary mt-1">
+                Quando ativo, o sistema habilita modo sem placa e controle de manutenção por horas trabalhadas.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => toggleHeavyMachines(!heavyMachinesEnabled)}
+              className={cn(
+                'relative inline-flex h-7 w-12 items-center rounded-full transition-colors',
+                heavyMachinesEnabled ? 'bg-primary-600' : 'bg-slate-300',
+              )}
+              aria-pressed={heavyMachinesEnabled}
+            >
+              <span
+                className={cn(
+                  'inline-block h-5 w-5 transform rounded-full bg-white transition-transform',
+                  heavyMachinesEnabled ? 'translate-x-6' : 'translate-x-1',
+                )}
+              />
+            </button>
+          </div>
+        </div>
+
         {/* Usuários */}
         <div className="card p-0 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-brand-border">
@@ -239,18 +298,6 @@ export default function SettingsPage() {
             <Button size="sm" leftIcon={<UserPlus className="w-4 h-4" />} onClick={() => { setUserModal(true); resetUser(); }}>
               Novo usuário
             </Button>
-          </div>
-
-          <div className="px-5 py-3 border-b border-brand-border">
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary" />
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nome ou e-mail..." className="input-base pl-9" />
-              {search && (
-                <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
           </div>
 
           <div className="overflow-x-auto">

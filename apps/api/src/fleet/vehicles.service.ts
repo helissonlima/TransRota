@@ -5,11 +5,28 @@ import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 
 @Injectable()
 export class VehiclesService {
+  private async generateNoPlateCode(prisma: TenantPrismaService): Promise<string> {
+    const existing = await prisma.vehicle.findMany({
+      where: { plate: { startsWith: 'HMQ' } },
+      select: { plate: true },
+    });
+    const max = existing.reduce((acc, v) => {
+      const n = Number(v.plate.replace('HMQ', ''));
+      return Number.isFinite(n) ? Math.max(acc, n) : acc;
+    }, 0);
+    return `HMQ${String(max + 1).padStart(4, '0')}`;
+  }
+
   async create(prisma: TenantPrismaService, dto: CreateVehicleDto) {
-    const existing = await prisma.vehicle.findUnique({ where: { plate: dto.plate } });
+    const basePlate = dto.plate?.toUpperCase().replace(/\s/g, '').replace('-', '');
+    const resolvedPlate = dto.withoutPlate || !basePlate
+      ? await this.generateNoPlateCode(prisma)
+      : basePlate;
+
+    const existing = await prisma.vehicle.findUnique({ where: { plate: resolvedPlate } });
     if (existing) throw new ConflictException('Placa já cadastrada');
 
-    const { branchId, nextMaintenanceKm, nextMaintenanceDate, ...rest } = dto;
+    const { branchId, nextMaintenanceKm, nextMaintenanceDate, withoutPlate, ...rest } = dto;
 
     // Se branchId não foi fornecido, usa a primeira branch disponível do tenant
     let resolvedBranchId = branchId;
@@ -22,6 +39,13 @@ export class VehiclesService {
     return prisma.vehicle.create({
       data: {
         ...rest,
+        plate: resolvedPlate,
+        ...(withoutPlate
+          ? {
+              category: rest.category ?? 'MAQUINA_PESADA',
+              fuelType: rest.fuelType ?? 'DIESEL',
+            }
+          : {}),
         branchId: resolvedBranchId,
         ...(nextMaintenanceKm !== undefined ? { nextMaintenanceKm } : {}),
         ...(nextMaintenanceDate ? { nextMaintenanceDate } : {}),

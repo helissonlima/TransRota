@@ -7,8 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Plus, Search, Users, AlertTriangle, Phone, MapPin,
-  Route, X, ShieldAlert, ChevronDown, ChevronUp, User, FileText,
+  Plus, Users, AlertTriangle, Phone, MapPin,
+  Route, X, ShieldAlert, ChevronDown, ChevronUp, User, FileText, Pencil, Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { differenceInDays, parseISO, format } from 'date-fns';
@@ -175,9 +175,10 @@ type DriverFormData = z.infer<typeof driverSchema>;
 
 export default function DriversPage() {
   const qc = useQueryClient();
-  const [search, setSearch]           = useState('');
+  const [headerSearch, setHeaderSearch] = useState('');
   const [modalOpen, setModalOpen]     = useState(false);
   const [selected, setSelected]       = useState<Driver | null>(null);
+  const [detailOpen, setDetailOpen]   = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
 
   const { data: drivers = [], isLoading } = useQuery<Driver[]>({
@@ -196,6 +197,16 @@ export default function DriversPage() {
     onError: (e: any) => toast.error(e?.response?.data?.message ?? 'Erro ao cadastrar motorista.'),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/drivers/${id}`),
+    onSuccess: () => {
+      toast.success('Motorista desativado com sucesso!');
+      qc.invalidateQueries({ queryKey: ['drivers'] });
+      setSelected(null);
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.message ?? 'Erro ao desativar motorista.'),
+  });
+
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<DriverFormData>({
     resolver: zodResolver(driverSchema),
   });
@@ -206,7 +217,7 @@ export default function DriversPage() {
 
   const filtered = drivers.filter(d =>
     [d.name, d.cpf, d.licenseNumber].some(s =>
-      s.toLowerCase().includes(search.toLowerCase()),
+      s.toLowerCase().includes(headerSearch.toLowerCase()),
     ),
   );
 
@@ -238,6 +249,9 @@ export default function DriversPage() {
       <Header
         title="Motoristas"
         breadcrumbs={[{ label: 'Motoristas' }]}
+        searchQuery={headerSearch}
+        onSearchQueryChange={setHeaderSearch}
+        searchPlaceholder="Buscar nome, CPF ou CNH..."
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
@@ -281,7 +295,7 @@ export default function DriversPage() {
         </AnimatePresence>
 
         {/* Toolbar */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5">
             {FILTER_TABS.map(tab => (
               <button
@@ -302,14 +316,41 @@ export default function DriversPage() {
             ))}
           </div>
 
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary pointer-events-none" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar nome, CPF ou CNH..." className="input-base pl-9" />
-            {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                <X className="w-4 h-4" />
-              </button>
+          <div className="flex items-center gap-2">
+            {selected && (
+              <span className="hidden md:inline-flex text-xs font-medium text-brand-text-secondary bg-slate-100 px-2 py-1 rounded-md">
+                Selecionado: {selected.name}
+              </span>
             )}
+
+            <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
+              Cadastrar Motorista
+            </Button>
+
+            <Button
+              size="sm"
+              variant="secondary"
+              leftIcon={<Pencil className="w-4 h-4" />}
+              disabled={!selected}
+              onClick={() => selected && setDetailOpen(true)}
+            >
+              Editar
+            </Button>
+
+            <Button
+              size="sm"
+              variant="danger"
+              leftIcon={<Trash2 className="w-4 h-4" />}
+              disabled={!selected}
+              onClick={() => {
+                if (!selected) return;
+                if (confirm(`Deseja desativar o motorista ${selected.name}?`)) {
+                  deleteMutation.mutate(selected.id);
+                }
+              }}
+            >
+              Excluir
+            </Button>
           </div>
         </div>
 
@@ -337,9 +378,6 @@ export default function DriversPage() {
             </div>
             <p className="font-semibold">Nenhum motorista encontrado</p>
             <p className="text-sm mt-1 opacity-70">Tente ajustar os filtros ou cadastre um novo motorista.</p>
-            <Button className="mt-4" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-              Cadastrar Motorista
-            </Button>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
@@ -356,6 +394,7 @@ export default function DriversPage() {
                     whileHover={{ y: -3 }}
                     className={cn(
                       'bg-white rounded-2xl border shadow-card hover:shadow-card-hover transition-shadow cursor-pointer group',
+                      selected?.id === driver.id && 'ring-2 ring-primary-200 border-primary-500',
                       warn ? 'border-warning-200' : 'border-brand-border',
                     )}
                     onClick={() => setSelected(driver)}
@@ -526,12 +565,12 @@ export default function DriversPage() {
       {/* ════ DRIVER DETAIL MODAL ════ */}
       {selected && (
         <Modal
-          open={!!selected}
-          onClose={() => setSelected(null)}
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
           title={selected.name}
           description={`CNH: ${selected.licenseNumber} (Cat. ${selected.licenseCategory})`}
           size="xl"
-          footer={<Button variant="secondary" onClick={() => setSelected(null)}>Fechar</Button>}
+          footer={<Button variant="secondary" onClick={() => setDetailOpen(false)}>Fechar</Button>}
         >
           <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
             {/* Avatar + status */}

@@ -8,7 +8,6 @@ import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
-  Search,
   ClipboardList,
   ClipboardCheck,
   ClipboardX,
@@ -164,7 +163,7 @@ type ExecuteFormData = z.infer<typeof executeSchema>;
 
 export default function ChecklistsPage() {
   const qc = useQueryClient();
-  const [search, setSearch] = useState('');
+  const [headerSearch, setHeaderSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<ChecklistType | ''>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ChecklistTemplate | null>(null);
@@ -243,9 +242,16 @@ export default function ChecklistsPage() {
 
   const filtered = templates.filter(
     (t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) &&
+      t.name.toLowerCase().includes(headerSearch.toLowerCase()) &&
       (typeFilter === '' || t.type === typeFilter),
   );
+
+  const checklistStats = {
+    templates: templates.length,
+    executions: executions.length,
+    withIssues: executions.filter((e) => e.hasIssues).length,
+    pending: executions.filter((e) => e.resolutionStatus === 'PENDING').length,
+  };
 
   function openExecuteModal(template: ChecklistTemplate) {
     setExecutingTemplate(template);
@@ -341,44 +347,67 @@ export default function ChecklistsPage() {
       <Header
         title="Checklists"
         breadcrumbs={[{ label: 'Checklists' }]}
+        searchQuery={headerSearch}
+        onSearchQueryChange={setHeaderSearch}
+        searchPlaceholder="Buscar checklist..."
       />
 
       <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
-        {/* Templates section */}
-        <div>
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-            <h2 className="text-lg font-bold text-brand-text-primary">Templates de Checklist</h2>
-            <div className="flex items-center gap-3">
-              {/* Type filter */}
-              <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5">
-                <button
-                  onClick={() => setTypeFilter('')}
-                  className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all', typeFilter === '' ? 'bg-primary-600 text-white' : 'text-brand-text-secondary hover:bg-slate-50')}
-                >
-                  Todos
-                </button>
-                {(Object.entries(TYPE_CONFIG) as [ChecklistType, typeof TYPE_CONFIG[ChecklistType]][]).map(([key, cfg]) => (
-                  <button
-                    key={key}
-                    onClick={() => setTypeFilter(key)}
-                    className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all', typeFilter === key ? 'bg-primary-600 text-white' : 'text-brand-text-secondary hover:bg-slate-50')}
-                  >
-                    {cfg.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary pointer-events-none" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar checklist..."
-                  className="input-base pl-9 w-48"
-                />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { label: 'Templates', value: checklistStats.templates, icon: ClipboardList, tone: 'bg-blue-50 text-blue-700 border-blue-100' },
+            { label: 'Execuções', value: checklistStats.executions, icon: ClipboardCheck, tone: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+            { label: 'Com Problemas', value: checklistStats.withIssues, icon: AlertCircle, tone: 'bg-amber-50 text-amber-700 border-amber-100' },
+            { label: 'Pendentes', value: checklistStats.pending, icon: XCircle, tone: 'bg-rose-50 text-rose-700 border-rose-100' },
+          ].map((item) => (
+            <div key={item.label} className="bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-brand-text-secondary uppercase tracking-wide">{item.label}</p>
+                  <p className="text-2xl font-black text-brand-text-primary mt-1">{item.value}</p>
+                </div>
+                <div className={cn('w-10 h-10 rounded-xl border flex items-center justify-center', item.tone)}>
+                  <item.icon className="w-5 h-5" />
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between gap-3 flex-wrap bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5">
+              <button
+                onClick={() => setTypeFilter('')}
+                className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all', typeFilter === '' ? 'bg-primary-600 text-white' : 'text-brand-text-secondary hover:bg-slate-50')}
+              >
+                Todos
+              </button>
+              {(Object.entries(TYPE_CONFIG) as [ChecklistType, typeof TYPE_CONFIG[ChecklistType]][]).map(([key, cfg]) => (
+                <button
+                  key={key}
+                  onClick={() => setTypeFilter(key)}
+                  className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all', typeFilter === key ? 'bg-primary-600 text-white' : 'text-brand-text-secondary hover:bg-slate-50')}
+                >
+                  {cfg.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-sm text-brand-text-secondary">
+              <span className="font-semibold text-brand-text-primary">{filtered.length}</span> template(s)
+            </span>
+          </div>
+
+          <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
+            Criar Checklist
+          </Button>
+        </div>
+
+        {/* Templates section */}
+        <div className="bg-white rounded-2xl border border-brand-border shadow-card p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <h2 className="text-lg font-bold text-brand-text-primary">Templates de Checklist</h2>
+            <Badge variant="gray">{templates.length} totais</Badge>
           </div>
 
           {loadingTemplates ? (
@@ -392,7 +421,7 @@ export default function ChecklistsPage() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-brand-text-secondary">
+            <div className="flex flex-col items-center justify-center py-16 text-brand-text-secondary border-2 border-dashed border-brand-border rounded-2xl bg-slate-50/60">
               <ClipboardList className="w-12 h-12 mb-3 opacity-20" />
               <p className="font-semibold">Nenhum checklist encontrado</p>
               <Button className="mt-4" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
@@ -479,7 +508,7 @@ export default function ChecklistsPage() {
         </div>
 
         {/* Recent executions */}
-        <div>
+        <div className="bg-white rounded-2xl border border-brand-border shadow-card p-4 sm:p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-brand-text-primary">Execuções Recentes</h2>
             <Badge variant="gray">{executions.length} registros</Badge>

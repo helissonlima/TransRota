@@ -156,12 +156,29 @@ exports.Prisma.VehicleScalarFieldEnum = {
   model: 'model',
   brand: 'brand',
   year: 'year',
+  manufacturingYear: 'manufacturingYear',
   type: 'type',
   fuelType: 'fuelType',
   status: 'status',
   currentKm: 'currentKm',
   nextMaintenanceKm: 'nextMaintenanceKm',
   nextMaintenanceDate: 'nextMaintenanceDate',
+  tag: 'tag',
+  renavam: 'renavam',
+  crvNumber: 'crvNumber',
+  chassisNumber: 'chassisNumber',
+  securityCode: 'securityCode',
+  engineCode: 'engineCode',
+  documentExpiry: 'documentExpiry',
+  responsiblePerson: 'responsiblePerson',
+  tankCapacity: 'tankCapacity',
+  horsepower: 'horsepower',
+  grossWeight: 'grossWeight',
+  axles: 'axles',
+  cmt: 'cmt',
+  seats: 'seats',
+  category: 'category',
+  oilChangeIntervalKm: 'oilChangeIntervalKm',
   branchId: 'branchId',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -174,11 +191,15 @@ exports.Prisma.MaintenanceRecordScalarFieldEnum = {
   type: 'type',
   description: 'description',
   cost: 'cost',
+  partsCost: 'partsCost',
+  laborCost: 'laborCost',
   km: 'km',
   performedAt: 'performedAt',
   nextDueKm: 'nextDueKm',
   nextDueDate: 'nextDueDate',
   provider: 'provider',
+  workshopName: 'workshopName',
+  invoiceNumber: 'invoiceNumber',
   notes: 'notes',
   createdAt: 'createdAt'
 };
@@ -194,8 +215,25 @@ exports.Prisma.FuelRecordScalarFieldEnum = {
   fuelType: 'fuelType',
   isFullTank: 'isFullTank',
   station: 'station',
+  invoiceNumber: 'invoiceNumber',
   performedAt: 'performedAt',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.OilChangeRecordScalarFieldEnum = {
+  id: 'id',
+  vehicleId: 'vehicleId',
+  changeDate: 'changeDate',
+  changeKm: 'changeKm',
+  currentKm: 'currentKm',
+  nextChangeKm: 'nextChangeKm',
+  status: 'status',
+  kmDriven: 'kmDriven',
+  oilType: 'oilType',
+  responsibleName: 'responsibleName',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.DriverScalarFieldEnum = {
@@ -207,6 +245,17 @@ exports.Prisma.DriverScalarFieldEnum = {
   licenseNumber: 'licenseNumber',
   licenseCategory: 'licenseCategory',
   licenseExpiry: 'licenseExpiry',
+  birthDate: 'birthDate',
+  rg: 'rg',
+  rgIssuingOrg: 'rgIssuingOrg',
+  rgIssuingState: 'rgIssuingState',
+  nationality: 'nationality',
+  filiation: 'filiation',
+  licenseFirstDate: 'licenseFirstDate',
+  licenseIssueDate: 'licenseIssueDate',
+  licenseIssuingOrg: 'licenseIssuingOrg',
+  licenseIssuingState: 'licenseIssuingState',
+  licenseRegistrationNumber: 'licenseRegistrationNumber',
   status: 'status',
   branchId: 'branchId',
   isActive: 'isActive',
@@ -221,6 +270,92 @@ exports.Prisma.DriverDocumentScalarFieldEnum = {
   description: 'description',
   fileUrl: 'fileUrl',
   expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DailyKmLogScalarFieldEnum = {
+  id: 'id',
+  vehicleId: 'vehicleId',
+  driverId: 'driverId',
+  date: 'date',
+  dayOfWeek: 'dayOfWeek',
+  initialKm: 'initialKm',
+  finalKm: 'finalKm',
+  personalInitialKm: 'personalInitialKm',
+  personalFinalKm: 'personalFinalKm',
+  personalKm: 'personalKm',
+  workKm: 'workKm',
+  totalKm: 'totalKm',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VehicleMovementScalarFieldEnum = {
+  id: 'id',
+  vehicleId: 'vehicleId',
+  driverId: 'driverId',
+  timestamp: 'timestamp',
+  km: 'km',
+  movementType: 'movementType',
+  destinationUnit: 'destinationUnit',
+  notes: 'notes',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.VehicleBookingScalarFieldEnum = {
+  id: 'id',
+  vehicleId: 'vehicleId',
+  userId: 'userId',
+  branchId: 'branchId',
+  date: 'date',
+  timeSlot: 'timeSlot',
+  purpose: 'purpose',
+  status: 'status',
+  confirmedBy: 'confirmedBy',
+  confirmedAt: 'confirmedAt',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VehicleTaxScalarFieldEnum = {
+  id: 'id',
+  vehicleId: 'vehicleId',
+  type: 'type',
+  year: 'year',
+  dueDate: 'dueDate',
+  value: 'value',
+  paymentStatus: 'paymentStatus',
+  paidAt: 'paidAt',
+  paidValue: 'paidValue',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EquipmentScalarFieldEnum = {
+  id: 'id',
+  tag: 'tag',
+  name: 'name',
+  type: 'type',
+  identifier: 'identifier',
+  isActive: 'isActive',
+  branchId: 'branchId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EquipmentUsageLogScalarFieldEnum = {
+  id: 'id',
+  equipmentId: 'equipmentId',
+  date: 'date',
+  initialKm: 'initialKm',
+  finalKm: 'finalKm',
+  totalKm: 'totalKm',
+  totalCost: 'totalCost',
+  notes: 'notes',
   createdAt: 'createdAt'
 };
 
@@ -313,7 +448,16 @@ exports.Prisma.ChecklistExecutionScalarFieldEnum = {
   driverId: 'driverId',
   routeId: 'routeId',
   executedAt: 'executedAt',
-  hasIssues: 'hasIssues'
+  hasIssues: 'hasIssues',
+  inspectorId: 'inspectorId',
+  fuelLevel: 'fuelLevel',
+  externalDamage: 'externalDamage',
+  internalDamage: 'internalDamage',
+  unitLocation: 'unitLocation',
+  attachments: 'attachments',
+  resolutionStatus: 'resolutionStatus',
+  resolvedById: 'resolvedById',
+  resolvedAt: 'resolvedAt'
 };
 
 exports.Prisma.ChecklistResponseScalarFieldEnum = {
@@ -337,6 +481,183 @@ exports.Prisma.TenantAuditLogScalarFieldEnum = {
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.CostCenterScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  description: 'description',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FinancialEntryScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  category: 'category',
+  description: 'description',
+  amount: 'amount',
+  dueDate: 'dueDate',
+  paymentDate: 'paymentDate',
+  status: 'status',
+  paymentMethod: 'paymentMethod',
+  documentNumber: 'documentNumber',
+  costCenterId: 'costCenterId',
+  vehicleId: 'vehicleId',
+  driverId: 'driverId',
+  recurrence: 'recurrence',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DriverCommissionScalarFieldEnum = {
+  id: 'id',
+  driverId: 'driverId',
+  period: 'period',
+  routeCount: 'routeCount',
+  baseAmount: 'baseAmount',
+  percentage: 'percentage',
+  amount: 'amount',
+  bonus: 'bonus',
+  deductions: 'deductions',
+  netAmount: 'netAmount',
+  status: 'status',
+  paidAt: 'paidAt',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductScalarFieldEnum = {
+  id: 'id',
+  sku: 'sku',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  unit: 'unit',
+  categoryId: 'categoryId',
+  costPrice: 'costPrice',
+  salePrice: 'salePrice',
+  minStock: 'minStock',
+  maxStock: 'maxStock',
+  imageUrl: 'imageUrl',
+  barcode: 'barcode',
+  isActive: 'isActive',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BOMScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  yield: 'yield',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BOMItemScalarFieldEnum = {
+  id: 'id',
+  bomId: 'bomId',
+  componentId: 'componentId',
+  quantity: 'quantity',
+  unit: 'unit',
+  lossPercent: 'lossPercent',
+  notes: 'notes'
+};
+
+exports.Prisma.StockLocationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StockItemScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  locationId: 'locationId',
+  quantity: 'quantity',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StockMovementScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  type: 'type',
+  quantity: 'quantity',
+  unitCost: 'unitCost',
+  totalCost: 'totalCost',
+  locationId: 'locationId',
+  reason: 'reason',
+  referenceId: 'referenceId',
+  referenceType: 'referenceType',
+  performedById: 'performedById',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ProductionOrderScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  productId: 'productId',
+  quantity: 'quantity',
+  status: 'status',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductionOrderItemScalarFieldEnum = {
+  id: 'id',
+  productionOrderId: 'productionOrderId',
+  componentName: 'componentName',
+  requiredQty: 'requiredQty',
+  consumedQty: 'consumedQty'
+};
+
+exports.Prisma.SaleOrderScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  clientName: 'clientName',
+  clientDoc: 'clientDoc',
+  clientEmail: 'clientEmail',
+  clientPhone: 'clientPhone',
+  status: 'status',
+  subtotal: 'subtotal',
+  discount: 'discount',
+  total: 'total',
+  notes: 'notes',
+  dueDate: 'dueDate',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SaleOrderItemScalarFieldEnum = {
+  id: 'id',
+  saleOrderId: 'saleOrderId',
+  productId: 'productId',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice',
+  discount: 'discount',
+  total: 'total'
 };
 
 exports.Prisma.SortOrder = {
@@ -395,6 +716,12 @@ exports.VehicleStatus = exports.$Enums.VehicleStatus = {
   INACTIVE: 'INACTIVE'
 };
 
+exports.OilChangeStatus = exports.$Enums.OilChangeStatus = {
+  UP_TO_DATE: 'UP_TO_DATE',
+  OVERDUE: 'OVERDUE',
+  DUE_SOON: 'DUE_SOON'
+};
+
 exports.LicenseCategory = exports.$Enums.LicenseCategory = {
   A: 'A',
   B: 'B',
@@ -412,6 +739,33 @@ exports.DriverStatus = exports.$Enums.DriverStatus = {
   INACTIVE: 'INACTIVE',
   SUSPENDED: 'SUSPENDED',
   ON_LEAVE: 'ON_LEAVE'
+};
+
+exports.DailyKmStatus = exports.$Enums.DailyKmStatus = {
+  OK: 'OK',
+  NOK: 'NOK'
+};
+
+exports.BookingStatus = exports.$Enums.BookingStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.TaxType = exports.$Enums.TaxType = {
+  IPVA: 'IPVA',
+  LICENSING: 'LICENSING',
+  INSURANCE: 'INSURANCE',
+  FINE: 'FINE',
+  OTHER: 'OTHER'
+};
+
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  OVERDUE: 'OVERDUE',
+  EXEMPT: 'EXEMPT'
 };
 
 exports.RouteStatus = exports.$Enums.RouteStatus = {
@@ -446,10 +800,126 @@ exports.ChecklistType = exports.$Enums.ChecklistType = {
   MAINTENANCE: 'MAINTENANCE'
 };
 
+exports.InspectionStatus = exports.$Enums.InspectionStatus = {
+  PENDING: 'PENDING',
+  RESOLVED: 'RESOLVED',
+  APPROVED: 'APPROVED'
+};
+
 exports.ChecklistItemStatus = exports.$Enums.ChecklistItemStatus = {
   OK: 'OK',
   NOK: 'NOK',
   NA: 'NA'
+};
+
+exports.FinancialType = exports.$Enums.FinancialType = {
+  PAYABLE: 'PAYABLE',
+  RECEIVABLE: 'RECEIVABLE'
+};
+
+exports.FinancialCategory = exports.$Enums.FinancialCategory = {
+  FUEL: 'FUEL',
+  MAINTENANCE: 'MAINTENANCE',
+  INSURANCE: 'INSURANCE',
+  TAX: 'TAX',
+  TOLL: 'TOLL',
+  SALARY: 'SALARY',
+  COMMISSION: 'COMMISSION',
+  SUPPLIER: 'SUPPLIER',
+  RENT: 'RENT',
+  UTILITIES: 'UTILITIES',
+  SERVICE: 'SERVICE',
+  CONTRACT: 'CONTRACT',
+  BONUS: 'BONUS',
+  REIMBURSEMENT: 'REIMBURSEMENT',
+  OTHER: 'OTHER'
+};
+
+exports.FinancialStatus = exports.$Enums.FinancialStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  RECEIVED: 'RECEIVED',
+  OVERDUE: 'OVERDUE',
+  CANCELLED: 'CANCELLED',
+  PARTIAL: 'PARTIAL'
+};
+
+exports.PaymentMethod = exports.$Enums.PaymentMethod = {
+  CASH: 'CASH',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  PIX: 'PIX',
+  CREDIT_CARD: 'CREDIT_CARD',
+  DEBIT_CARD: 'DEBIT_CARD',
+  BOLETO: 'BOLETO',
+  CHECK: 'CHECK'
+};
+
+exports.Recurrence = exports.$Enums.Recurrence = {
+  NONE: 'NONE',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY'
+};
+
+exports.CommissionStatus = exports.$Enums.CommissionStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  PAID: 'PAID',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.ProductType = exports.$Enums.ProductType = {
+  RAW_MATERIAL: 'RAW_MATERIAL',
+  SEMI_FINISHED: 'SEMI_FINISHED',
+  FINISHED_GOOD: 'FINISHED_GOOD',
+  SERVICE: 'SERVICE'
+};
+
+exports.UnitOfMeasure = exports.$Enums.UnitOfMeasure = {
+  UN: 'UN',
+  KG: 'KG',
+  G: 'G',
+  L: 'L',
+  ML: 'ML',
+  M: 'M',
+  CM: 'CM',
+  M2: 'M2',
+  M3: 'M3',
+  CX: 'CX',
+  PC: 'PC',
+  PR: 'PR',
+  FD: 'FD',
+  SC: 'SC'
+};
+
+exports.StockMovementType = exports.$Enums.StockMovementType = {
+  ENTRY: 'ENTRY',
+  EXIT: 'EXIT',
+  ADJUSTMENT: 'ADJUSTMENT',
+  PRODUCTION_IN: 'PRODUCTION_IN',
+  PRODUCTION_OUT: 'PRODUCTION_OUT',
+  SALE_OUT: 'SALE_OUT',
+  TRANSFER_IN: 'TRANSFER_IN',
+  TRANSFER_OUT: 'TRANSFER_OUT',
+  LOSS: 'LOSS'
+};
+
+exports.ProductionOrderStatus = exports.$Enums.ProductionOrderStatus = {
+  DRAFT: 'DRAFT',
+  CONFIRMED: 'CONFIRMED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.SaleOrderStatus = exports.$Enums.SaleOrderStatus = {
+  DRAFT: 'DRAFT',
+  CONFIRMED: 'CONFIRMED',
+  PARTIALLY_DELIVERED: 'PARTIALLY_DELIVERED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  INVOICED: 'INVOICED'
 };
 
 exports.Prisma.ModelName = {
@@ -458,8 +928,15 @@ exports.Prisma.ModelName = {
   Vehicle: 'Vehicle',
   MaintenanceRecord: 'MaintenanceRecord',
   FuelRecord: 'FuelRecord',
+  OilChangeRecord: 'OilChangeRecord',
   Driver: 'Driver',
   DriverDocument: 'DriverDocument',
+  DailyKmLog: 'DailyKmLog',
+  VehicleMovement: 'VehicleMovement',
+  VehicleBooking: 'VehicleBooking',
+  VehicleTax: 'VehicleTax',
+  Equipment: 'Equipment',
+  EquipmentUsageLog: 'EquipmentUsageLog',
   Route: 'Route',
   RouteStop: 'RouteStop',
   DeliveryItem: 'DeliveryItem',
@@ -468,7 +945,21 @@ exports.Prisma.ModelName = {
   ChecklistItem: 'ChecklistItem',
   ChecklistExecution: 'ChecklistExecution',
   ChecklistResponse: 'ChecklistResponse',
-  TenantAuditLog: 'TenantAuditLog'
+  TenantAuditLog: 'TenantAuditLog',
+  CostCenter: 'CostCenter',
+  FinancialEntry: 'FinancialEntry',
+  DriverCommission: 'DriverCommission',
+  ProductCategory: 'ProductCategory',
+  Product: 'Product',
+  BOM: 'BOM',
+  BOMItem: 'BOMItem',
+  StockLocation: 'StockLocation',
+  StockItem: 'StockItem',
+  StockMovement: 'StockMovement',
+  ProductionOrder: 'ProductionOrder',
+  ProductionOrderItem: 'ProductionOrderItem',
+  SaleOrder: 'SaleOrder',
+  SaleOrderItem: 'SaleOrderItem'
 };
 
 /**

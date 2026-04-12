@@ -9,7 +9,7 @@ export class CreateCompanyDto {
 
   @ApiProperty({ example: '12.345.678/0001-90' })
   @IsString()
-  @Matches(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, { message: 'CNPJ inválido' })
+  @Matches(/^(\d{14}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})$/, { message: 'CNPJ inválido' })
   cnpj: string;
 
   @ApiProperty({ example: 'contato@empresa.com' })

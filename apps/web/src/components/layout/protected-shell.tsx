@@ -7,6 +7,7 @@ import { AdminSidebar } from '@/components/layout/admin-sidebar';
 import { isAuthenticated } from '@/lib/auth';
 import { isAdminAuthenticated } from '@/lib/admin-api';
 import { cn } from '@/lib/cn';
+import { FeaturesProvider } from '@/lib/features-context';
 
 type ShellVariant = 'app' | 'admin';
 
@@ -38,11 +39,22 @@ export function ProtectedShell({ children, variant }: ProtectedShellProps) {
   }
 
   return (
-    <div className={cn('flex min-h-screen', variant === 'app' ? 'bg-dot-grid' : 'bg-gray-950')}>
-      {variant === 'app' ? <Sidebar /> : <AdminSidebar />}
-      <main className={cn('flex-1 min-w-0', variant === 'app' ? 'overflow-auto scrollbar-thin' : 'overflow-auto bg-gray-950')}>
-        {children}
-      </main>
+    <div className={cn('flex h-screen overflow-hidden', variant === 'app' ? 'bg-dot-grid' : 'bg-gray-950')}>
+      {variant === 'app' ? (
+        <FeaturesProvider>
+          <Sidebar />
+          <main className="flex-1 min-w-0 h-screen overflow-y-auto overflow-x-hidden scrollbar-thin">
+            {children}
+          </main>
+        </FeaturesProvider>
+      ) : (
+        <>
+          <AdminSidebar />
+          <main className="flex-1 min-w-0 h-screen overflow-y-auto overflow-x-hidden bg-gray-950">
+            {children}
+          </main>
+        </>
+      )}
     </div>
   );
 }

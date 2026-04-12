@@ -16,6 +16,8 @@ import {
   XCircle,
   ChevronDown,
   Calendar,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO, isToday, isTomorrow, isYesterday } from 'date-fns';
@@ -104,6 +106,8 @@ export default function BookingsPage() {
   const [filter, setFilter] = useState<BookingStatus | ''>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [editingBookingId, setEditingBookingId] = useState<string | null>(null);
 
   const { data: bookings = [], isLoading } = useQuery<Booking[]>({
     queryKey: ['bookings', filter],
@@ -128,6 +132,28 @@ export default function BookingsPage() {
     onError: () => toast.error('Erro ao criar agendamento.'),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: BookingFormData }) => api.patch(`/bookings/${id}`, data),
+    onSuccess: () => {
+      toast.success('Agendamento atualizado com sucesso!');
+      qc.invalidateQueries({ queryKey: ['bookings'] });
+      setModalOpen(false);
+      setEditingBookingId(null);
+      reset();
+    },
+    onError: () => toast.error('Erro ao atualizar agendamento.'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/bookings/${id}`),
+    onSuccess: () => {
+      toast.success('Agendamento excluído com sucesso!');
+      qc.invalidateQueries({ queryKey: ['bookings'] });
+      setSelectedBooking(null);
+    },
+    onError: () => toast.error('Erro ao excluir agendamento.'),
+  });
+
   const confirmMutation = useMutation({
     mutationFn: (id: string) => api.patch(`/bookings/${id}/confirm`),
     onSuccess: () => {
@@ -148,6 +174,9 @@ export default function BookingsPage() {
 
   const grouped = groupByDate(bookings);
   const sortedDates = Object.keys(grouped).sort();
+  const selectedBookingResolved = selectedBooking
+    ? (bookings.find((b) => b.id === selectedBooking.id) ?? selectedBooking)
+    : null;
 
   return (
     <div className="min-h-screen">
@@ -176,9 +205,64 @@ export default function BookingsPage() {
             ))}
           </div>
 
-          <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Novo Agendamento
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {selectedBookingResolved && (
+              <span className="hidden md:inline-flex text-xs font-medium text-brand-text-secondary bg-slate-100 px-2 py-1 rounded-md">
+                Selecionado: {selectedBookingResolved.vehicle.plate}
+              </span>
+            )}
+            <Button
+              size="sm"
+              leftIcon={<Plus className="w-4 h-4" />}
+              onClick={() => {
+                setEditingBookingId(null);
+                reset({
+                  date: format(new Date(), 'yyyy-MM-dd'),
+                  timeSlot: 'MANHÃ',
+                  purpose: '',
+                  notes: '',
+                  vehicleId: '',
+                });
+                setModalOpen(true);
+              }}
+            >
+              Novo Agendamento
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              leftIcon={<Pencil className="w-4 h-4" />}
+              disabled={!selectedBookingResolved}
+              onClick={() => {
+                if (!selectedBookingResolved) return;
+                setEditingBookingId(selectedBookingResolved.id);
+                reset({
+                  vehicleId: selectedBookingResolved.vehicle.id,
+                  date: selectedBookingResolved.date?.slice(0, 10),
+                  timeSlot: selectedBookingResolved.timeSlot,
+                  purpose: selectedBookingResolved.purpose,
+                  notes: selectedBookingResolved.notes,
+                });
+                setModalOpen(true);
+              }}
+            >
+              Editar
+            </Button>
+            <Button
+              size="sm"
+              variant="danger"
+              leftIcon={<Trash2 className="w-4 h-4" />}
+              disabled={!selectedBookingResolved || deleteMutation.isPending}
+              onClick={() => {
+                if (!selectedBookingResolved) return;
+                if (confirm(`Deseja excluir o agendamento do veículo ${selectedBookingResolved.vehicle.plate}?`)) {
+                  deleteMutation.mutate(selectedBookingResolved.id);
+                }
+              }}
+            >
+              Excluir
+            </Button>
+          </div>
         </div>
 
         {/* Content */}
@@ -233,10 +317,12 @@ export default function BookingsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, delay: i * 0.03 }}
                         className={cn(
-                          'bg-white rounded-2xl border border-brand-border shadow-card hover:shadow-card-hover transition-shadow',
+                          'bg-white rounded-2xl border border-brand-border shadow-card hover:shadow-card-hover transition-shadow cursor-pointer',
                           'border-l-4',
                           config.border,
+                          selectedBookingResolved?.id === booking.id && 'ring-2 ring-primary-200 border-primary-400',
                         )}
+                        onClick={() => setSelectedBooking(booking)}
                       >
                         <div className="p-4">
                           <div className="flex items-start justify-between mb-3">
@@ -295,21 +381,27 @@ export default function BookingsPage() {
       {/* Create Booking Modal */}
       <Modal
         open={modalOpen}
-        onClose={() => { setModalOpen(false); reset(); }}
-        title="Novo Agendamento"
-        description="Agende um veículo para um colaborador."
+        onClose={() => { setModalOpen(false); setEditingBookingId(null); reset(); }}
+        title={editingBookingId ? 'Editar Agendamento' : 'Novo Agendamento'}
+        description={editingBookingId ? 'Atualize os dados do agendamento selecionado.' : 'Agende um veículo para um colaborador.'}
         size="md"
         footer={
           <>
-            <Button variant="secondary" onClick={() => { setModalOpen(false); reset(); }}>Cancelar</Button>
+            <Button variant="secondary" onClick={() => { setModalOpen(false); setEditingBookingId(null); reset(); }}>Cancelar</Button>
             <Button
-              loading={createMutation.isPending}
+              loading={createMutation.isPending || updateMutation.isPending}
               onClick={handleSubmit(
-                (d) => createMutation.mutate(d),
+                (d) => {
+                  if (editingBookingId) {
+                    updateMutation.mutate({ id: editingBookingId, data: d });
+                    return;
+                  }
+                  createMutation.mutate(d);
+                },
                 () => toast.error('Preencha todos os campos obrigatórios'),
               )}
             >
-              Criar Agendamento
+              {editingBookingId ? 'Salvar Alterações' : 'Criar Agendamento'}
             </Button>
           </>
         }

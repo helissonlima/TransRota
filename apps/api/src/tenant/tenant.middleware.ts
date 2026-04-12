@@ -10,6 +10,7 @@ import { TenantPrismaFactory } from '../core/prisma/tenant-prisma.factory';
 export interface TenantRequest extends Request {
   tenantId: string;
   schemaName: string;
+  tenantFeatures: string[];
   tenantPrisma: ReturnType<TenantPrismaFactory['getClient']> extends Promise<infer T> ? T : never;
 }
 
@@ -45,6 +46,7 @@ export class TenantMiddleware implements NestMiddleware {
 
     req.tenantId = company.id;
     req.schemaName = company.schemaName;
+    req.tenantFeatures = (company as any).features ?? [];
     req.tenantPrisma = await this.tenantPrismaFactory.getClient(company.schemaName);
 
     next();

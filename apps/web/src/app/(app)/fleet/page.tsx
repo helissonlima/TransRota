@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Plus, Search, Truck, AlertTriangle, Fuel, Wrench, Eye,
+  Plus, Truck, AlertTriangle, Fuel, Wrench, Eye,
   ChevronRight, X, Droplets, ChevronDown, ChevronUp,
-  FileText, Settings2,
+  FileText, Settings2, Pencil, Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO, differenceInDays } from 'date-fns';
@@ -156,10 +156,21 @@ function applyMaskPlate(v: string) {
   return v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
 }
 
+function isHeavyMachine(vehicle: Vehicle) {
+  return (vehicle.category ?? '').toUpperCase().startsWith('MAQUINA_PESADA') || vehicle.plate.startsWith('HMQ');
+}
+
+function vehicleCode(vehicle: Vehicle) {
+  return isHeavyMachine(vehicle)
+    ? `SEM PLACA${vehicle.tag !== undefined ? ` #${vehicle.tag}` : ''}`
+    : vehicle.plate;
+}
+
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
 const vehicleSchema = z.object({
-  plate:              z.string().regex(/^[A-Z]{3}[0-9][A-Z][0-9]{2}$|^[A-Z]{3}[0-9]{4}$/, 'Placa inválida — Mercosul: ABC1D23 · Antigo: ABC1234'),
+  plate:              z.string().optional(),
+  withoutPlate:       z.boolean().optional(),
   brand:              z.string().min(1, 'Marca obrigatória'),
   model:              z.string().min(1, 'Modelo obrigatório'),
   year:               z.coerce.number().int().min(1990).max(new Date().getFullYear() + 1),
@@ -237,7 +248,8 @@ function FormSection({ title, icon: Icon, children, defaultOpen = true }: {
 
 // ─── VehicleCard ──────────────────────────────────────────────────────────────
 
-function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => void }) {
+function VehicleCard({ vehicle, onClick, selected }: { vehicle: Vehicle; onClick: () => void; selected?: boolean }) {
+  const heavyMachine = isHeavyMachine(vehicle);
   const maintenanceSoon =
     vehicle.nextMaintenanceDate &&
     new Date(vehicle.nextMaintenanceDate) <= new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
@@ -256,7 +268,10 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
     <motion.div
       whileHover={{ y: -3 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-      className="bg-white rounded-2xl border border-brand-border shadow-card hover:shadow-card-hover transition-shadow cursor-pointer group"
+      className={cn(
+        'bg-white rounded-2xl border shadow-card hover:shadow-card-hover transition-shadow cursor-pointer group',
+        selected ? 'border-primary-500 ring-2 ring-primary-100' : 'border-brand-border',
+      )}
       onClick={onClick}
     >
       <div className="p-5 pb-4">
@@ -264,7 +279,7 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-plate text-xl font-black text-brand-text-primary tracking-wider">
-                {vehicle.plate}
+                {vehicleCode(vehicle)}
               </span>
               {vehicle.tag !== undefined && (
                 <span className="text-xs font-bold text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded-md">
@@ -304,7 +319,7 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
         <div className="flex items-center justify-between text-xs mb-1.5">
           <span className="text-brand-text-secondary">KM Atual</span>
           <span className="font-semibold text-brand-text-primary">
-            {vehicle.currentKm.toLocaleString('pt-BR')} km
+            {vehicle.currentKm.toLocaleString('pt-BR')} {heavyMachine ? 'h' : 'km'}
           </span>
         </div>
         {kmProgress !== null && (
@@ -318,7 +333,7 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
               />
             </div>
             <div className="flex justify-between text-[10px] text-brand-text-secondary mt-1">
-              <span>Próx. revisão: {vehicle.nextMaintenanceKm?.toLocaleString('pt-BR')} km</span>
+              <span>Próx. revisão: {vehicle.nextMaintenanceKm?.toLocaleString('pt-BR')} {heavyMachine ? 'h' : 'km'}</span>
               <span className={cn(kmProgress > 80 && 'text-danger-500 font-semibold')}>{Math.round(kmProgress)}%</span>
             </div>
           </>
@@ -416,11 +431,22 @@ function OilChangeCard({ record, onRegister }: { record: OilChangeRecord; onRegi
 export default function FleetPage() {
   const qc = useQueryClient();
   const [section, setSection]           = useState<'vehicles' | 'oil'>('vehicles');
-  const [search, setSearch]             = useState('');
+  const [headerSearch, setHeaderSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [vehicleModal, setVehicleModal] = useState(false);
   const [oilModal, setOilModal]         = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [selectedOil, setSelectedOil] = useState<OilChangeRecord | null>(null);
+  const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
+  const [heavyMachinesEnabled, setHeavyMachinesEnabled] = useState(false);
+
+  useEffect(() => {
+    const tenantId = localStorage.getItem('tenantId') ?? '';
+    const key = tenantId
+      ? `feature:heavy-machines-enabled:${tenantId}`
+      : 'feature:heavy-machines-enabled';
+    setHeavyMachinesEnabled(localStorage.getItem(key) === 'true');
+  }, []);
 
   // ── Queries ──
   const { data: vehicles = [], isLoading: loadingVehicles } = useQuery<Vehicle[]>({
@@ -471,6 +497,27 @@ export default function FleetPage() {
     onError: () => toast.error('Erro ao registrar troca de óleo.'),
   });
 
+  const deleteVehicle = useMutation({
+    mutationFn: (id: string) => api.delete(`/vehicles/${id}`),
+    onSuccess: () => {
+      toast.success('Veículo removido com sucesso.');
+      qc.invalidateQueries({ queryKey: ['vehicles'] });
+      setSelectedVehicle(null);
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.message ?? 'Erro ao remover veículo.'),
+  });
+
+  const deleteOilChange = useMutation({
+    mutationFn: ({ vehicleId, id }: { vehicleId: string; id: string }) =>
+      api.delete(`/vehicles/${vehicleId}/oil-changes/${id}`),
+    onSuccess: () => {
+      toast.success('Registro de troca removido.');
+      qc.invalidateQueries({ queryKey: ['oil-changes'] });
+      setSelectedOil(null);
+    },
+    onError: () => toast.error('Erro ao remover registro de troca.'),
+  });
+
   // ── Forms ──
   const vForm = useForm<VehicleFormData>({ resolver: zodResolver(vehicleSchema) });
   const { register: vr, handleSubmit: vhs, reset: vReset, setValue: vSv, watch: vw, formState: { errors: ve } } = vForm;
@@ -479,16 +526,53 @@ export default function FleetPage() {
   const { register: or, handleSubmit: ohs, reset: oReset, formState: { errors: oe } } = oForm;
 
   const plateVal  = vw('plate') ?? '';
+  const withoutPlateVal = !!vw('withoutPlate');
   const typeVal   = vw('type')  ?? '';
   const brandVal  = vw('brand') ?? '';
-  const brands    = typeVal  ? Object.keys(VEHICLE_CATALOG[typeVal]  ?? {}) : [];
-  const models    = typeVal && brandVal ? (VEHICLE_CATALOG[typeVal]?.[brandVal] ?? []) : [];
+  const heavyCatalog: Record<string, string[]> = {
+    'John Deere': ['Trator 6110J', 'Trator 6195J', 'Colheitadeira S440', 'Pulverizador M4040'],
+    'Massey Ferguson': ['Trator MF 6713', 'Trator MF 7370', 'Colheitadeira MF 6690'],
+    'New Holland': ['Trator TL5.80', 'Trator T7.190', 'Escavadeira E215C'],
+    'Caterpillar': ['Escavadeira 320', 'Escavadeira 336', 'Pá-carregadeira 938K', 'Motoniveladora 120K'],
+    'Komatsu': ['Escavadeira PC200', 'Escavadeira PC210', 'Pá-carregadeira WA200'],
+    'JCB': ['Retroescavadeira 3CX', 'Telehandler 541-70'],
+  };
+  const baseCatalog = withoutPlateVal ? { UTILITY: heavyCatalog } : VEHICLE_CATALOG;
+  const brands    = typeVal  ? Object.keys(baseCatalog[typeVal]  ?? {}) : [];
+  const models    = typeVal && brandVal ? (baseCatalog[typeVal]?.[brandVal] ?? []) : [];
+
+  const submitVehicle = (data: VehicleFormData) => {
+    const requiresPlate = !data.withoutPlate;
+    const plate = (data.plate ?? '').trim().toUpperCase();
+    if (requiresPlate && !/^[A-Z]{3}[0-9][A-Z][0-9]{2}$|^[A-Z]{3}[0-9]{4}$/.test(plate)) {
+      toast.error('Placa inválida — Mercosul: ABC1D23 · Antigo: ABC1234');
+      return;
+    }
+
+    const payload = {
+      ...data,
+      plate: requiresPlate ? plate : undefined,
+      withoutPlate: !!data.withoutPlate,
+      type: data.withoutPlate ? 'UTILITY' : data.type,
+      category: data.withoutPlate
+        ? `MAQUINA_PESADA${data.category ? `:${data.category}` : ''}`
+        : data.category,
+      fuelType: data.withoutPlate ? (data.fuelType || 'DIESEL') : data.fuelType,
+    };
+
+    createVehicle.mutate(payload as any);
+  };
 
   const filtered = vehicles.filter(v =>
     [v.plate, v.model, v.brand, String(v.tag ?? '')].some(s =>
-      s.toLowerCase().includes(search.toLowerCase()),
+      s.toLowerCase().includes(headerSearch.toLowerCase()),
     ),
   );
+
+  const filteredOil = oilRecords.filter(r => {
+    const target = `${r.vehicle?.plate ?? ''} ${r.vehicle?.brand ?? ''} ${r.vehicle?.model ?? ''}`.toLowerCase();
+    return target.includes(headerSearch.toLowerCase());
+  });
 
   const counts = {
     '':           vehicles.length,
@@ -516,34 +600,103 @@ export default function FleetPage() {
       <Header
         title="Frota"
         breadcrumbs={[{ label: 'Frota' }]}
+        searchQuery={headerSearch}
+        onSearchQueryChange={setHeaderSearch}
+        searchPlaceholder={section === 'vehicles' ? 'Buscar placa, TAG, marca ou modelo...' : 'Buscar por placa/modelo...'}
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
 
         {/* ── Section tabs ── */}
-        <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5 w-fit">
-          {SECTION_TABS.map(tab => {
-            const Icon = tab.icon;
-            const active = section === tab.key;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => setSection(tab.key as typeof section)}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
-                  active ? 'bg-primary-600 text-white shadow-sm' : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-                {tab.key === 'oil' && overdueOil > 0 && (
-                  <span className="w-5 h-5 bg-danger-500 text-white text-2xs font-bold rounded-full flex items-center justify-center">
-                    {overdueOil}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center bg-white border border-brand-border rounded-xl p-1 gap-0.5 w-fit">
+            {SECTION_TABS.map(tab => {
+              const Icon = tab.icon;
+              const active = section === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setSection(tab.key as typeof section)}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                    active ? 'bg-primary-600 text-white shadow-sm' : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                  {tab.key === 'oil' && overdueOil > 0 && (
+                    <span className="w-5 h-5 bg-danger-500 text-white text-2xs font-bold rounded-full flex items-center justify-center">
+                      {overdueOil}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {section === 'vehicles' && selectedVehicle && (
+              <span className="hidden md:inline-flex text-xs font-medium text-brand-text-secondary bg-slate-100 px-2 py-1 rounded-md">
+                Selecionado: {vehicleCode(selectedVehicle)}
+              </span>
+            )}
+            {section === 'oil' && selectedOil && (
+              <span className="hidden md:inline-flex text-xs font-medium text-brand-text-secondary bg-slate-100 px-2 py-1 rounded-md">
+                Selecionado: {selectedOil.vehicle?.plate ?? 'Registro'}
+              </span>
+            )}
+
+            {section === 'vehicles' ? (
+              <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setVehicleModal(true)}>
+                Cadastrar Veículo
+              </Button>
+            ) : (
+              <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setOilModal(true)}>
+                Registrar Troca
+              </Button>
+            )}
+
+            <Button
+              size="sm"
+              variant="secondary"
+              leftIcon={<Pencil className="w-4 h-4" />}
+              disabled={section === 'vehicles' ? !selectedVehicle : !selectedOil}
+              onClick={() => {
+                if (section === 'vehicles' && selectedVehicle) {
+                  setDetailVehicle(selectedVehicle);
+                  return;
+                }
+                if (section === 'oil' && selectedOil) {
+                  oForm.setValue('vehicleId', selectedOil.vehicleId);
+                  setOilModal(true);
+                }
+              }}
+            >
+              Editar
+            </Button>
+
+            <Button
+              size="sm"
+              variant="danger"
+              leftIcon={<Trash2 className="w-4 h-4" />}
+              disabled={section === 'vehicles' ? !selectedVehicle : !selectedOil}
+              onClick={() => {
+                if (section === 'vehicles' && selectedVehicle) {
+                  if (confirm(`Deseja remover o veículo ${vehicleCode(selectedVehicle)}?`)) {
+                    deleteVehicle.mutate(selectedVehicle.id);
+                  }
+                  return;
+                }
+                if (section === 'oil' && selectedOil) {
+                  if (confirm(`Deseja remover o registro de troca do veículo ${selectedOil.vehicle?.plate ?? ''}?`)) {
+                    deleteOilChange.mutate({ vehicleId: selectedOil.vehicleId, id: selectedOil.id });
+                  }
+                }
+              }}
+            >
+              Excluir
+            </Button>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
@@ -572,16 +725,6 @@ export default function FleetPage() {
                       </span>
                     </button>
                   ))}
-                </div>
-
-                <div className="relative flex-1 min-w-[200px] max-w-sm">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary pointer-events-none" />
-                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar placa, TAG, marca ou modelo..." className="input-base pl-9" />
-                  {search && (
-                    <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
                 </div>
 
                 {!loadingVehicles && (
@@ -616,16 +759,20 @@ export default function FleetPage() {
                   </div>
                   <p className="font-semibold">Nenhum veículo encontrado</p>
                   <p className="text-sm mt-1 opacity-70">Tente ajustar os filtros ou cadastre um novo veículo.</p>
-                  <Button className="mt-4" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setVehicleModal(true)}>
-                    Cadastrar Veículo
-                  </Button>
                 </motion.div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                   <AnimatePresence>
                     {filtered.map((v, i) => (
                       <motion.div key={v.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.25, delay: i * 0.03 }}>
-                        <VehicleCard vehicle={v} onClick={() => setSelectedVehicle(v)} />
+                        <VehicleCard
+                          vehicle={v}
+                          selected={selectedVehicle?.id === v.id}
+                          onClick={() => {
+                            setSelectedOil(null);
+                            setSelectedVehicle(v);
+                          }}
+                        />
                       </motion.div>
                     ))}
                   </AnimatePresence>
@@ -656,15 +803,23 @@ export default function FleetPage() {
                   </div>
                   <p className="font-semibold">Nenhum registro de troca de óleo</p>
                   <p className="text-sm mt-1 opacity-70">Registre a primeira troca de óleo de um veículo.</p>
-                  <Button className="mt-4" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setOilModal(true)}>
-                    Registrar Troca de Óleo
-                  </Button>
                 </motion.div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                   <AnimatePresence>
-                    {oilRecords.map((rec, i) => (
-                      <motion.div key={rec.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.25, delay: i * 0.03 }}>
+                    {filteredOil.map((rec, i) => (
+                      <motion.div
+                        key={rec.id}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.25, delay: i * 0.03 }}
+                        className={cn(selectedOil?.id === rec.id && 'ring-2 ring-primary-200 rounded-2xl')}
+                        onClick={() => {
+                          setSelectedVehicle(null);
+                          setSelectedOil(rec);
+                        }}
+                      >
                         <OilChangeCard
                           record={rec}
                           onRegister={() => {
@@ -692,7 +847,7 @@ export default function FleetPage() {
         footer={
           <>
             <Button variant="secondary" onClick={() => { setVehicleModal(false); vReset(); }}>Cancelar</Button>
-            <Button loading={createVehicle.isPending} onClick={vhs(d => createVehicle.mutate(d))}>
+            <Button loading={createVehicle.isPending} onClick={vhs(submitVehicle)}>
               Cadastrar Veículo
             </Button>
           </>
@@ -702,15 +857,55 @@ export default function FleetPage() {
 
           {/* ── Identificação ── */}
           <FormSection title="Identificação Básica" icon={Truck} defaultOpen>
-            <Field label="Placa" required>
+            {heavyMachinesEnabled && (
+              <div className="col-span-2 -mt-1 mb-1 flex items-center justify-between rounded-lg border border-brand-border bg-slate-50 px-3 py-2">
+                <div>
+                  <p className="text-sm font-medium text-brand-text-primary">Máquina pesada (sem placa)</p>
+                  <p className="text-xs text-brand-text-secondary">Ative para tratores, escavadeiras e outros equipamentos sem placa.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !withoutPlateVal;
+                    vSv('withoutPlate', next);
+                    if (next) {
+                      vSv('plate', '');
+                      vSv('type', 'UTILITY');
+                      if (!vw('fuelType')) vSv('fuelType', 'DIESEL');
+                    }
+                    vSv('brand', '');
+                    vSv('model', '');
+                  }}
+                  className={cn(
+                    'relative inline-flex h-7 w-12 items-center rounded-full transition-colors',
+                    withoutPlateVal ? 'bg-primary-600' : 'bg-slate-300',
+                  )}
+                  aria-pressed={withoutPlateVal}
+                >
+                  <span
+                    className={cn(
+                      'inline-block h-5 w-5 transform rounded-full bg-white transition-transform',
+                      withoutPlateVal ? 'translate-x-6' : 'translate-x-1',
+                    )}
+                  />
+                </button>
+              </div>
+            )}
+
+            <Field label={withoutPlateVal ? 'Identificador interno' : 'Placa'} required={!withoutPlateVal}>
               <input
                 {...vr('plate')} value={plateVal}
                 onChange={e => vSv('plate', applyMaskPlate(e.target.value), { shouldValidate: true })}
-                placeholder="ABC1D23" maxLength={7}
-                className={cn('input-base font-plate uppercase tracking-widest', ve.plate && 'border-danger-400')}
+                placeholder={withoutPlateVal ? 'Gerado automaticamente' : 'ABC1D23'}
+                maxLength={7}
+                disabled={withoutPlateVal}
+                className={cn('input-base font-plate uppercase tracking-widest', ve.plate && 'border-danger-400', withoutPlateVal && 'opacity-60 cursor-not-allowed')}
               />
-              {ve.plate ? <p className="text-danger-500 text-xs mt-1">{ve.plate.message}</p>
-                : <p className="text-xs text-brand-text-secondary mt-1">Mercosul: ABC1D23 · Antigo: ABC1234</p>}
+              <p className="text-xs text-brand-text-secondary mt-1">
+                {withoutPlateVal
+                  ? 'Código interno será criado automaticamente (ex.: HMQ0001).'
+                  : 'Mercosul: ABC1D23 · Antigo: ABC1234'}
+              </p>
             </Field>
 
             <Field label="TAG">
@@ -721,7 +916,8 @@ export default function FleetPage() {
               <select
                 {...vr('type')} value={typeVal}
                 onChange={e => { vSv('type', e.target.value, { shouldValidate: true }); vSv('brand', ''); vSv('model', ''); }}
-                className={cn('input-base', ve.type && 'border-danger-400')}
+                disabled={withoutPlateVal}
+                className={cn('input-base', ve.type && 'border-danger-400', withoutPlateVal && 'opacity-60 cursor-not-allowed')}
               >
                 <option value="">Selecionar...</option>
                 {Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -768,10 +964,18 @@ export default function FleetPage() {
             </Field>
 
             <Field label="KM Atual" required>
-              <input {...vr('currentKm')} type="number" placeholder="0" className={cn('input-base', ve.currentKm && 'border-danger-400')} />
+              <input
+                {...vr('currentKm')}
+                type="number"
+                placeholder="0"
+                className={cn('input-base', ve.currentKm && 'border-danger-400')}
+              />
+              <p className="text-xs text-brand-text-secondary mt-1">
+                {withoutPlateVal ? 'Para máquina pesada este valor representa horas trabalhadas.' : 'Quilometragem atual do veículo.'}
+              </p>
             </Field>
 
-            <Field label="KM Próx. Revisão">
+            <Field label={withoutPlateVal ? 'Próx. Manutenção (horas)' : 'KM Próx. Revisão'}>
               <input {...vr('nextMaintenanceKm')} type="number" placeholder="Opcional" className="input-base" />
             </Field>
 
@@ -826,9 +1030,13 @@ export default function FleetPage() {
             <Field label="Cap. Tanque (L)">
               <input {...vr('tankCapacity')} type="number" placeholder="Ex: 48" className="input-base" />
             </Field>
-            <Field label="Intervalo Troca de Óleo (km)">
+            <Field label={withoutPlateVal ? 'Intervalo de manutenção (horas)' : 'Intervalo Troca de Óleo (km)'}>
               <input {...vr('oilChangeIntervalKm')} type="number" placeholder="Ex: 10000" className="input-base" />
-              <p className="text-xs text-brand-text-secondary mt-1">Padrão: 10.000 km (carros) / 1.000 km (motos)</p>
+              <p className="text-xs text-brand-text-secondary mt-1">
+                {withoutPlateVal
+                  ? 'Exemplo: 250h, 500h, 1000h (controle por horímetro).'
+                  : 'Padrão: 10.000 km (carros) / 1.000 km (motos)'}
+              </p>
             </Field>
           </FormSection>
         </form>
@@ -856,7 +1064,7 @@ export default function FleetPage() {
             <select {...or('vehicleId')} className={cn('input-base', oe.vehicleId && 'border-danger-400')}>
               <option value="">Selecionar veículo...</option>
               {vehicles.map(v => (
-                <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>
+                <option key={v.id} value={v.id}>{vehicleCode(v)} — {v.brand} {v.model}</option>
               ))}
             </select>
             {oe.vehicleId && <p className="text-danger-500 text-xs mt-1">{oe.vehicleId.message}</p>}
@@ -890,24 +1098,24 @@ export default function FleetPage() {
       </Modal>
 
       {/* ════ VEHICLE DETAIL MODAL ════ */}
-      {selectedVehicle && (
+      {detailVehicle && (
         <Modal
-          open={!!selectedVehicle}
-          onClose={() => setSelectedVehicle(null)}
-          title={`${selectedVehicle.brand} ${selectedVehicle.model}`}
-          description={`Placa: ${selectedVehicle.plate}${selectedVehicle.tag !== undefined ? ` · TAG #${selectedVehicle.tag}` : ''}`}
+          open={!!detailVehicle}
+          onClose={() => setDetailVehicle(null)}
+          title={`${detailVehicle.brand} ${detailVehicle.model}`}
+          description={`Identificação: ${vehicleCode(detailVehicle)}${detailVehicle.tag !== undefined ? ` · TAG #${detailVehicle.tag}` : ''}`}
           size="xl"
-          footer={<Button variant="secondary" onClick={() => setSelectedVehicle(null)}>Fechar</Button>}
+          footer={<Button variant="secondary" onClick={() => setDetailVehicle(null)}>Fechar</Button>}
         >
           <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: 'Placa',        value: selectedVehicle.plate,                                               mono: true  },
-                { label: 'Status',       value: <VehicleStatusBadge status={selectedVehicle.status} />                            },
-                { label: 'KM Atual',     value: `${selectedVehicle.currentKm.toLocaleString('pt-BR')} km`                        },
-                { label: 'Tipo',         value: TYPE_LABELS[selectedVehicle.type] ?? selectedVehicle.type                         },
-                { label: 'Combustível',  value: FUEL_LABELS[selectedVehicle.fuelType ?? '']?.label ?? '—'                        },
-                { label: 'Rotas',        value: selectedVehicle._count.routes                                                      },
+                { label: 'Placa',        value: detailVehicle.plate,                                               mono: true  },
+                { label: 'Status',       value: <VehicleStatusBadge status={detailVehicle.status} />                            },
+                { label: 'KM Atual',     value: `${detailVehicle.currentKm.toLocaleString('pt-BR')} km`                        },
+                { label: 'Tipo',         value: TYPE_LABELS[detailVehicle.type] ?? detailVehicle.type                         },
+                { label: 'Combustível',  value: FUEL_LABELS[detailVehicle.fuelType ?? '']?.label ?? '—'                        },
+                { label: 'Rotas',        value: detailVehicle._count.routes                                                      },
               ].map(item => (
                 <div key={item.label} className="bg-slate-50 rounded-xl p-3">
                   <div className="text-xs text-brand-text-secondary mb-1">{item.label}</div>
@@ -919,17 +1127,17 @@ export default function FleetPage() {
             </div>
 
             {/* Specs */}
-            {(selectedVehicle.tankCapacity || selectedVehicle.horsepower || selectedVehicle.seats || selectedVehicle.oilChangeIntervalKm) && (
+            {(detailVehicle.tankCapacity || detailVehicle.horsepower || detailVehicle.seats || detailVehicle.oilChangeIntervalKm) && (
               <div>
                 <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">Especificações</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { label: 'Tanque',        value: selectedVehicle.tankCapacity ? `${selectedVehicle.tankCapacity} L` : null },
-                    { label: 'Potência',      value: selectedVehicle.horsepower },
-                    { label: 'Lotação',       value: selectedVehicle.seats },
-                    { label: 'Peso Bruto',    value: selectedVehicle.grossWeight },
-                    { label: 'Eixos',         value: selectedVehicle.axles },
-                    { label: 'Int. Óleo',     value: selectedVehicle.oilChangeIntervalKm ? `${selectedVehicle.oilChangeIntervalKm.toLocaleString('pt-BR')} km` : null },
+                    { label: 'Tanque',        value: detailVehicle.tankCapacity ? `${detailVehicle.tankCapacity} L` : null },
+                    { label: 'Potência',      value: detailVehicle.horsepower },
+                    { label: 'Lotação',       value: detailVehicle.seats },
+                    { label: 'Peso Bruto',    value: detailVehicle.grossWeight },
+                    { label: 'Eixos',         value: detailVehicle.axles },
+                    { label: 'Int. Óleo',     value: detailVehicle.oilChangeIntervalKm ? `${detailVehicle.oilChangeIntervalKm.toLocaleString('pt-BR')} km` : null },
                   ].filter(i => i.value).map(item => (
                     <div key={item.label} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-xs">
                       <span className="text-brand-text-secondary">{item.label}</span>
@@ -941,17 +1149,17 @@ export default function FleetPage() {
             )}
 
             {/* Docs */}
-            {(selectedVehicle.renavam || selectedVehicle.chassisNumber || selectedVehicle.crvNumber || selectedVehicle.documentExpiry) && (
+            {(detailVehicle.renavam || detailVehicle.chassisNumber || detailVehicle.crvNumber || detailVehicle.documentExpiry) && (
               <div>
                 <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">Documentação</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { label: 'RENAVAM',      value: selectedVehicle.renavam },
-                    { label: 'Nº CRV',       value: selectedVehicle.crvNumber },
-                    { label: 'Chassi',       value: selectedVehicle.chassisNumber },
-                    { label: 'Categoria',    value: selectedVehicle.category },
-                    { label: 'Vigência Doc.',value: selectedVehicle.documentExpiry ? format(parseISO(selectedVehicle.documentExpiry), 'dd/MM/yyyy') : null },
-                    { label: 'Responsável',  value: selectedVehicle.responsiblePerson },
+                    { label: 'RENAVAM',      value: detailVehicle.renavam },
+                    { label: 'Nº CRV',       value: detailVehicle.crvNumber },
+                    { label: 'Chassi',       value: detailVehicle.chassisNumber },
+                    { label: 'Categoria',    value: detailVehicle.category },
+                    { label: 'Vigência Doc.',value: detailVehicle.documentExpiry ? format(parseISO(detailVehicle.documentExpiry), 'dd/MM/yyyy') : null },
+                    { label: 'Responsável',  value: detailVehicle.responsiblePerson },
                   ].filter(i => i.value).map(item => (
                     <div key={item.label} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-xs">
                       <span className="text-brand-text-secondary">{item.label}</span>

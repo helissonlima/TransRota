@@ -1,15 +1,21 @@
 import {
   IsDateString, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional,
-  IsString, IsUUID, Matches, Max, Min,
+  IsString, IsUUID, Matches, Max, Min, IsBoolean, ValidateIf,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { VehicleType, FuelType } from '@transrota/shared';
 
 export class CreateVehicleDto {
-  @ApiProperty({ example: 'ABC-1234' })
+  @ApiProperty({ example: 'ABC-1234', required: false })
+  @ValidateIf((o) => !o.withoutPlate)
   @IsString()
   @Matches(/^[A-Z]{3}-?\d{4}$|^[A-Z]{3}\d[A-Z]\d{2}$/, { message: 'Placa inválida' })
-  plate: string;
+  plate?: string;
+
+  @ApiProperty({ required: false, default: false, description: 'Quando true, o sistema gera identificador interno para máquina sem placa' })
+  @IsOptional()
+  @IsBoolean()
+  withoutPlate?: boolean;
 
   @ApiProperty({ example: 'Sprinter' })
   @IsString()

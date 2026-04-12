@@ -13,9 +13,8 @@ import {
   User,
   Calendar,
   TrendingUp,
-  CheckCircle2,
-  XCircle,
-  ChevronDown,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO, startOfMonth, endOfMonth } from 'date-fns';
@@ -33,8 +32,12 @@ type DailyKmStatus = 'OK' | 'NOK';
 interface DailyKmRecord {
   id: string;
   date: string;
+  vehicleId?: string;
+  driverId?: string;
   initialKm: number;
   finalKm: number;
+  personalInitialKm?: number;
+  personalFinalKm?: number;
   workKm: number;
   personalKm: number;
   totalKm: number;
@@ -95,6 +98,8 @@ export default function DailyKmPage() {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<'records' | 'summary'>('records');
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<DailyKmRecord | null>(null);
+  const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState(() => format(startOfMonth(new Date()), 'yyyy-MM-dd'));
   const [dateTo, setDateTo] = useState(() => format(endOfMonth(new Date()), 'yyyy-MM-dd'));
   const summaryDate = parseISO(dateFrom);
@@ -135,6 +140,30 @@ export default function DailyKmPage() {
     onError: () => toast.error('Erro ao criar registro.'),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: RecordFormData }) => api.patch(`/daily-km/${id}`, data),
+    onSuccess: () => {
+      toast.success('Registro atualizado com sucesso!');
+      qc.invalidateQueries({ queryKey: ['daily-km'] });
+      qc.invalidateQueries({ queryKey: ['daily-km-summary'] });
+      setModalOpen(false);
+      setEditingRecordId(null);
+      reset();
+    },
+    onError: () => toast.error('Erro ao atualizar registro.'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/daily-km/${id}`),
+    onSuccess: () => {
+      toast.success('Registro removido com sucesso!');
+      qc.invalidateQueries({ queryKey: ['daily-km'] });
+      qc.invalidateQueries({ queryKey: ['daily-km-summary'] });
+      setSelectedRecord(null);
+    },
+    onError: () => toast.error('Erro ao remover registro.'),
+  });
+
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<RecordFormData>({
     resolver: zodResolver(recordSchema),
     defaultValues: {
@@ -156,6 +185,14 @@ export default function DailyKmPage() {
   const calculatedTotalKm = Math.max(0, watchFinalKm - watchInitialKm);
   const calculatedWorkKm = Math.max(0, calculatedTotalKm - calculatedPersonalKm);
 
+  const dashboardStats = {
+    totalRegistros: records.length,
+    totalWork: records.reduce((acc, r) => acc + (r.workKm || 0), 0),
+    totalPersonal: records.reduce((acc, r) => acc + (r.personalKm || 0), 0),
+    totalKm: records.reduce((acc, r) => acc + (r.totalKm || 0), 0),
+    nok: records.filter((r) => r.status === 'NOK').length,
+  };
+
   return (
     <div className="min-h-screen">
       <Header
@@ -164,8 +201,23 @@ export default function DailyKmPage() {
       />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          {[
+            { label: 'Registros', value: dashboardStats.totalRegistros, tone: 'text-slate-700' },
+            { label: 'KM Trabalho', value: dashboardStats.totalWork.toLocaleString('pt-BR'), tone: 'text-primary-700' },
+            { label: 'KM Pessoal', value: dashboardStats.totalPersonal.toLocaleString('pt-BR'), tone: 'text-brand-text-secondary' },
+            { label: 'KM Total', value: dashboardStats.totalKm.toLocaleString('pt-BR'), tone: 'text-brand-text-primary' },
+            { label: 'NOK', value: dashboardStats.nok, tone: 'text-danger-600' },
+          ].map((item) => (
+            <div key={item.label} className="bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
+              <p className="text-xs text-brand-text-secondary uppercase tracking-wide">{item.label}</p>
+              <p className={cn('text-2xl font-black mt-1', item.tone)}>{item.value}</p>
+            </div>
+          ))}
+        </div>
+
         {/* Tabs */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-3 flex-wrap bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
           <div className="flex items-center gap-1 bg-white border border-brand-border rounded-xl p-1 w-fit">
             {TABS.map((tab) => (
               <button
@@ -183,9 +235,69 @@ export default function DailyKmPage() {
             ))}
           </div>
 
-          <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
-            Novo Registro
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {selectedRecord && (
+              <span className="hidden md:inline-flex text-xs font-medium text-brand-text-secondary bg-slate-100 px-2 py-1 rounded-md">
+                Selecionado: {selectedRecord.vehicle.plate}
+              </span>
+            )}
+            <Button
+              size="sm"
+              leftIcon={<Plus className="w-4 h-4" />}
+              onClick={() => {
+                setEditingRecordId(null);
+                reset({
+                  date: format(new Date(), 'yyyy-MM-dd'),
+                  status: 'OK',
+                  initialKm: 0,
+                  finalKm: 0,
+                  personalInitialKm: 0,
+                  personalFinalKm: 0,
+                });
+                setModalOpen(true);
+              }}
+            >
+              Novo Registro
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              leftIcon={<Pencil className="w-4 h-4" />}
+              disabled={!selectedRecord}
+              onClick={() => {
+                if (!selectedRecord) return;
+                setEditingRecordId(selectedRecord.id);
+                reset({
+                  date: selectedRecord.date?.slice(0, 10),
+                  vehicleId: selectedRecord.vehicleId ?? selectedRecord.vehicle.id,
+                  driverId: selectedRecord.driverId ?? selectedRecord.driver.id,
+                  initialKm: selectedRecord.initialKm,
+                  finalKm: selectedRecord.finalKm,
+                  personalInitialKm: selectedRecord.personalInitialKm ?? 0,
+                  personalFinalKm: selectedRecord.personalFinalKm ?? 0,
+                  status: selectedRecord.status,
+                  notes: selectedRecord.notes,
+                });
+                setModalOpen(true);
+              }}
+            >
+              Editar
+            </Button>
+            <Button
+              size="sm"
+              variant="danger"
+              leftIcon={<Trash2 className="w-4 h-4" />}
+              disabled={!selectedRecord || deleteMutation.isPending}
+              onClick={() => {
+                if (!selectedRecord) return;
+                if (confirm(`Deseja excluir o registro de ${selectedRecord.vehicle.plate}?`)) {
+                  deleteMutation.mutate(selectedRecord.id);
+                }
+              }}
+            >
+              Excluir
+            </Button>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
@@ -199,7 +311,7 @@ export default function DailyKmPage() {
               className="space-y-4"
             >
               {/* Date filter */}
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3 bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-brand-text-secondary" />
                   <span className="text-sm text-brand-text-secondary">Período:</span>
@@ -263,7 +375,8 @@ export default function DailyKmPage() {
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2, delay: i * 0.03 }}
-                            className="hover:bg-slate-50/60 transition-colors"
+                            className={cn('hover:bg-slate-50/60 transition-colors cursor-pointer', selectedRecord?.id === record.id && 'bg-primary-50/40')}
+                            onClick={() => setSelectedRecord(record)}
                           >
                             <td className="px-4 py-3 text-brand-text-secondary text-xs whitespace-nowrap">
                               {format(parseISO(record.date), 'dd/MM/yyyy', { locale: ptBR })}
@@ -374,21 +487,27 @@ export default function DailyKmPage() {
       {/* Create Record Modal */}
       <Modal
         open={modalOpen}
-        onClose={() => { setModalOpen(false); reset(); }}
-        title="Novo Registro de KM"
-        description="Preencha os dados do trajeto do dia."
+        onClose={() => { setModalOpen(false); setEditingRecordId(null); reset(); }}
+        title={editingRecordId ? 'Editar Registro de KM' : 'Novo Registro de KM'}
+        description={editingRecordId ? 'Atualize os dados do trajeto.' : 'Preencha os dados do trajeto do dia.'}
         size="xl"
         footer={
           <>
-            <Button variant="secondary" onClick={() => { setModalOpen(false); reset(); }}>Cancelar</Button>
+            <Button variant="secondary" onClick={() => { setModalOpen(false); setEditingRecordId(null); reset(); }}>Cancelar</Button>
             <Button
-              loading={createMutation.isPending}
+              loading={createMutation.isPending || updateMutation.isPending}
               onClick={handleSubmit(
-                (d) => createMutation.mutate(d),
+                (d) => {
+                  if (editingRecordId) {
+                    updateMutation.mutate({ id: editingRecordId, data: d });
+                    return;
+                  }
+                  createMutation.mutate(d);
+                },
                 () => toast.error('Preencha todos os campos obrigatórios'),
               )}
             >
-              Salvar Registro
+              {editingRecordId ? 'Salvar Alterações' : 'Salvar Registro'}
             </Button>
           </>
         }

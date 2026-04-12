@@ -16,6 +16,10 @@ import { DailyKmModule } from './daily-km/daily-km.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { TaxesModule } from './taxes/taxes.module';
 import { EquipmentModule } from './equipment/equipment.module';
+import { BillingModule } from './billing/billing.module';
+import { CommissionsModule } from './commissions/commissions.module';
+import { FinancialModule } from './financial/financial.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -35,6 +39,10 @@ import { EquipmentModule } from './equipment/equipment.module';
     BookingsModule,
     TaxesModule,
     EquipmentModule,
+    BillingModule,
+    CommissionsModule,
+    FinancialModule,
+    ProductsModule,
   ],
 })
 export class AppModule {
@@ -47,6 +55,7 @@ export class AppModule {
         { path: 'companies', method: RequestMethod.GET },
         { path: 'health', method: RequestMethod.GET },
         { path: 'admin/auth/login', method: RequestMethod.POST },
+        { path: 'webhooks/(.*)', method: RequestMethod.ALL },
       )
       .forRoutes('*');
   }

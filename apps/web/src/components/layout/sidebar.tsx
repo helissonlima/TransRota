@@ -19,28 +19,34 @@ import {
   CalendarDays,
   Receipt,
   Cpu,
+  Wallet,
 } from 'lucide-react';
 import { logout } from '@/lib/auth';
 import { cn } from '@/lib/cn';
+import { useFeatures } from '@/lib/features-context';
+import { Package } from 'lucide-react';
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ElementType;
   badge?: number;
+  feature?: string; // chave do feature flag (undefined = sempre visível)
 }
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Frota', href: '/fleet', icon: Truck },
-  { label: 'Motoristas', href: '/drivers', icon: Users },
-  { label: 'Rotas', href: '/routes', icon: MapPin },
-  { label: 'Checklists', href: '/checklists', icon: ClipboardList },
-  { label: 'KM Diário', href: '/daily-km', icon: Route },
-  { label: 'Agendamento', href: '/bookings', icon: CalendarDays },
-  { label: 'Financeiro', href: '/fiscal', icon: Receipt },
-  { label: 'Equipamentos', href: '/equipment', icon: Cpu },
-  { label: 'Relatórios', href: '/reports', icon: BarChart2 },
+  { label: 'Frota', href: '/fleet', icon: Truck, feature: 'fleet' },
+  { label: 'Motoristas', href: '/drivers', icon: Users, feature: 'drivers' },
+  { label: 'Rotas', href: '/routes', icon: MapPin, feature: 'routes' },
+  { label: 'Checklists', href: '/checklists', icon: ClipboardList, feature: 'checklists' },
+  { label: 'KM Diário', href: '/daily-km', icon: Route, feature: 'daily_km' },
+  { label: 'Agendamento', href: '/bookings', icon: CalendarDays, feature: 'bookings' },
+  { label: 'Financeiro', href: '/financial', icon: Wallet, feature: 'financial' },
+  { label: 'Fiscal / Taxas', href: '/fiscal', icon: Receipt, feature: 'fiscal' },
+  { label: 'Equipamentos', href: '/equipment', icon: Cpu, feature: 'equipment' },
+  { label: 'Produtos', href: '/products', icon: Package, feature: 'products' },
+  { label: 'Relatórios', href: '/reports', icon: BarChart2, feature: 'reports' },
   { label: 'Configurações', href: '/settings', icon: Settings },
 ];
 
@@ -52,9 +58,12 @@ interface SidebarProps {
 export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const [internalCollapsed, setInternalCollapsed] = useState(false);
+  const { hasFeature } = useFeatures();
 
   const collapsed = externalCollapsed ?? internalCollapsed;
   const toggle = onToggle ?? (() => setInternalCollapsed((c) => !c));
+
+  const visibleItems = navItems.filter(item => !item.feature || hasFeature(item.feature));
 
   const [userName, setUserName] = useState('Usuário');
   useEffect(() => {
@@ -70,7 +79,7 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
   return (
     <motion.aside
       className={cn(
-        'relative flex flex-col min-h-screen bg-sidebar shadow-sidebar z-20',
+        'relative flex flex-col h-screen bg-sidebar shadow-sidebar z-20',
         'transition-none',
       )}
       animate={{ width: collapsed ? 68 : 260 }}
@@ -126,7 +135,7 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 space-y-0.5 scrollbar-dark overflow-y-auto">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href || pathname.startsWith(item.href + '/');
 
@@ -145,7 +154,7 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
                 {/* Active indicator */}
                 {active && (
                   <motion.div
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5/6 bg-primary-400 rounded-r-full shadow-glow-sm"
+                    className="absolute left-1 top-1.5 bottom-1.5 w-0.5 bg-primary-400 rounded-r-full shadow-glow-sm"
                     layoutId="sidebar-active"
                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                   />

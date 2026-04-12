@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Settings, CreditCard, Check, List, Hash, Save, Database, Download, Loader2 } from 'lucide-react';
+import { Settings, CreditCard, Check, List, Hash, Save, Database, Download, Loader2, Wallet, Building2 } from 'lucide-react';
 import adminApi, { downloadFullBackup } from '@/lib/admin-api';
 import { cn } from '@/lib/cn';
+import { toast } from 'sonner';
 
 const LOGIN_DISPLAY_KEY = 'tr_admin_login_display'; // 'list' | 'uuid'
 
@@ -21,9 +22,39 @@ interface Plan {
   isActive: boolean;
 }
 
+type PaymentProvider = 'ASAAS' | 'SICOOB' | 'NONE';
+type PaymentEnvironment = 'SANDBOX' | 'PRODUCTION';
+
+interface PaymentSettings {
+  provider: PaymentProvider;
+  environment: PaymentEnvironment;
+  asaasApiKey?: string | null;
+  asaasWalletId?: string | null;
+  asaasWebhookToken?: string | null;
+  sicoobClientId?: string | null;
+  sicoobClientSecret?: string | null;
+  sicoobCertificateBase64?: string | null;
+  sicoobPixKey?: string | null;
+  isActive: boolean;
+}
+
+const EMPTY_PAYMENT_FORM: PaymentSettings = {
+  provider: 'ASAAS',
+  environment: 'SANDBOX',
+  asaasApiKey: '',
+  asaasWalletId: '',
+  asaasWebhookToken: '',
+  sicoobClientId: '',
+  sicoobClientSecret: '',
+  sicoobCertificateBase64: '',
+  sicoobPixKey: '',
+  isActive: true,
+};
+
 export default function AdminSettingsPage() {
   const [loginDisplay, setLoginDisplay] = useState<'list' | 'uuid'>('list');
   const [saved, setSaved] = useState(false);
+  const [paymentForm, setPaymentForm] = useState<PaymentSettings>(EMPTY_PAYMENT_FORM);
 
   const backupMutation = useMutation({
     mutationFn: async () => downloadFullBackup(),
@@ -47,6 +78,49 @@ export default function AdminSettingsPage() {
       return data;
     },
   });
+
+  const paymentSettingsQuery = useQuery<PaymentSettings>({
+    queryKey: ['admin', 'settings', 'payment'],
+    queryFn: async () => {
+      const { data } = await adminApi.get('/admin/settings/payment');
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (!paymentSettingsQuery.data) return;
+    setPaymentForm({
+      provider: paymentSettingsQuery.data.provider,
+      environment: paymentSettingsQuery.data.environment,
+      asaasApiKey: paymentSettingsQuery.data.asaasApiKey ?? '',
+      asaasWalletId: paymentSettingsQuery.data.asaasWalletId ?? '',
+      asaasWebhookToken: paymentSettingsQuery.data.asaasWebhookToken ?? '',
+      sicoobClientId: paymentSettingsQuery.data.sicoobClientId ?? '',
+      sicoobClientSecret: paymentSettingsQuery.data.sicoobClientSecret ?? '',
+      sicoobCertificateBase64: paymentSettingsQuery.data.sicoobCertificateBase64 ?? '',
+      sicoobPixKey: paymentSettingsQuery.data.sicoobPixKey ?? '',
+      isActive: paymentSettingsQuery.data.isActive,
+    });
+  }, [paymentSettingsQuery.data]);
+
+  const updatePaymentSettings = useMutation({
+    mutationFn: async () => {
+      const { data } = await adminApi.patch('/admin/settings/payment', paymentForm);
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Configurações de pagamento salvas');
+      paymentSettingsQuery.refetch();
+    },
+    onError: (e: any) => {
+      const msg = e?.response?.data?.message;
+      toast.error(Array.isArray(msg) ? msg.join(', ') : (msg ?? 'Erro ao salvar configurações de pagamento'));
+    },
+  });
+
+  const updatePaymentField = <K extends keyof PaymentSettings>(key: K, value: PaymentSettings[K]) => {
+    setPaymentForm((prev) => ({ ...prev, [key]: value }));
+  };
 
   const planColor: Record<string, string> = {
     STARTER: 'border-blue-500/30 bg-blue-500/5',
@@ -119,6 +193,166 @@ export default function AdminSettingsPage() {
               <Save className="w-3.5 h-3.5" /> Configuração salva
             </p>
           )}
+        </div>
+      </div>
+
+      {/* Plans section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <Wallet className="w-4 h-4 text-[#64748b]" />
+          <h2 className="text-white font-semibold">Sistema de Pagamento</h2>
+        </div>
+
+        <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-5">
+          <p className="text-[#94a3b8] text-sm">Escolha o gateway de pagamento e preencha as credenciais de integração.</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <button
+              onClick={() => updatePaymentField('provider', 'ASAAS')}
+              className={cn(
+                'flex items-center gap-2 p-3 rounded-xl border text-sm transition-colors',
+                paymentForm.provider === 'ASAAS'
+                  ? 'border-primary-500 bg-primary-500/10 text-white'
+                  : 'border-[#1e2d4a] text-[#94a3b8] hover:text-white hover:border-[#2e3d5a]',
+              )}
+            >
+              <CreditCard className="w-4 h-4" /> Asaas
+            </button>
+
+            <button
+              onClick={() => updatePaymentField('provider', 'SICOOB')}
+              className={cn(
+                'flex items-center gap-2 p-3 rounded-xl border text-sm transition-colors',
+                paymentForm.provider === 'SICOOB'
+                  ? 'border-primary-500 bg-primary-500/10 text-white'
+                  : 'border-[#1e2d4a] text-[#94a3b8] hover:text-white hover:border-[#2e3d5a]',
+              )}
+            >
+              <Building2 className="w-4 h-4" /> Sicoob
+            </button>
+
+            <button
+              onClick={() => updatePaymentField('provider', 'NONE')}
+              className={cn(
+                'flex items-center gap-2 p-3 rounded-xl border text-sm transition-colors',
+                paymentForm.provider === 'NONE'
+                  ? 'border-primary-500 bg-primary-500/10 text-white'
+                  : 'border-[#1e2d4a] text-[#94a3b8] hover:text-white hover:border-[#2e3d5a]',
+              )}
+            >
+              <Settings className="w-4 h-4" /> Manual (sem gateway)
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label className="space-y-1">
+              <span className="text-[#94a3b8] text-xs font-semibold">Ambiente</span>
+              <select
+                value={paymentForm.environment}
+                onChange={(e) => updatePaymentField('environment', e.target.value as PaymentEnvironment)}
+                className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+              >
+                <option value="SANDBOX">Sandbox</option>
+                <option value="PRODUCTION">Produção</option>
+              </select>
+            </label>
+
+            <label className="space-y-1 flex items-end">
+              <button
+                type="button"
+                onClick={() => updatePaymentField('isActive', !paymentForm.isActive)}
+                className={cn(
+                  'w-full px-3 py-2.5 rounded-lg border text-sm transition-colors',
+                  paymentForm.isActive
+                    ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
+                    : 'text-[#94a3b8] border-[#1e2d4a] bg-[#0b1120]',
+                )}
+              >
+                {paymentForm.isActive ? 'Gateway ativo' : 'Gateway inativo'}
+              </button>
+            </label>
+          </div>
+
+          {paymentForm.provider === 'ASAAS' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="space-y-1 md:col-span-2">
+                <span className="text-[#94a3b8] text-xs font-semibold">API Key Asaas</span>
+                <input
+                  value={paymentForm.asaasApiKey ?? ''}
+                  onChange={(e) => updatePaymentField('asaasApiKey', e.target.value)}
+                  placeholder="$aact_..."
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-[#94a3b8] text-xs font-semibold">Wallet ID</span>
+                <input
+                  value={paymentForm.asaasWalletId ?? ''}
+                  onChange={(e) => updatePaymentField('asaasWalletId', e.target.value)}
+                  placeholder="wallet_123"
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-[#94a3b8] text-xs font-semibold">Webhook Token</span>
+                <input
+                  value={paymentForm.asaasWebhookToken ?? ''}
+                  onChange={(e) => updatePaymentField('asaasWebhookToken', e.target.value)}
+                  placeholder="token_webhook"
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+                />
+              </label>
+            </div>
+          )}
+
+          {paymentForm.provider === 'SICOOB' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="space-y-1">
+                <span className="text-[#94a3b8] text-xs font-semibold">Client ID</span>
+                <input
+                  value={paymentForm.sicoobClientId ?? ''}
+                  onChange={(e) => updatePaymentField('sicoobClientId', e.target.value)}
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-[#94a3b8] text-xs font-semibold">Client Secret</span>
+                <input
+                  value={paymentForm.sicoobClientSecret ?? ''}
+                  onChange={(e) => updatePaymentField('sicoobClientSecret', e.target.value)}
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+                />
+              </label>
+              <label className="space-y-1 md:col-span-2">
+                <span className="text-[#94a3b8] text-xs font-semibold">Certificado Base64</span>
+                <textarea
+                  value={paymentForm.sicoobCertificateBase64 ?? ''}
+                  onChange={(e) => updatePaymentField('sicoobCertificateBase64', e.target.value)}
+                  rows={4}
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+                />
+              </label>
+              <label className="space-y-1 md:col-span-2">
+                <span className="text-[#94a3b8] text-xs font-semibold">Chave PIX</span>
+                <input
+                  value={paymentForm.sicoobPixKey ?? ''}
+                  onChange={(e) => updatePaymentField('sicoobPixKey', e.target.value)}
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+                />
+              </label>
+            </div>
+          )}
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => updatePaymentSettings.mutate()}
+              disabled={updatePaymentSettings.isPending || paymentSettingsQuery.isLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {updatePaymentSettings.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {updatePaymentSettings.isPending ? 'Salvando...' : 'Salvar gateway'}
+            </button>
+          </div>
         </div>
       </div>
 

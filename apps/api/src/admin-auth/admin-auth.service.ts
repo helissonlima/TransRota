@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
@@ -9,6 +9,9 @@ import { promisify } from 'node:util';
 import { MasterPrismaService } from '../core/prisma/master-prisma.service';
 import { TenantPrismaFactory } from '../core/prisma/tenant-prisma.factory';
 import { UserRole } from '@transrota/shared';
+import { CreatePlanDto, UpdatePlanDto } from './dto/plan.dto';
+import { UpdateCompanyDto } from './dto/update-company.dto';
+import { UpdatePaymentSettingsDto } from './dto/payment-settings.dto';
 
 const execFileAsync = promisify(execFile);
 
@@ -37,6 +40,27 @@ export class AdminAuthService {
     });
   }
 
+  // ── Company Features (módulos habilitados) ────────────────────────────────
+
+  async getCompanyFeatures(id: string) {
+    const company = await this.masterPrisma.company.findUnique({
+      where: { id },
+      select: { id: true, name: true, features: true },
+    });
+    if (!company) throw new NotFoundException('Empresa não encontrada');
+    return company;
+  }
+
+  async setCompanyFeatures(id: string, features: string[]) {
+    const company = await this.masterPrisma.company.findUnique({ where: { id } });
+    if (!company) throw new NotFoundException('Empresa não encontrada');
+    return this.masterPrisma.company.update({
+      where: { id },
+      data: { features },
+      select: { id: true, name: true, features: true },
+    });
+  }
+
   async listAdmins() {
     return this.masterPrisma.superAdmin.findMany({
       select: { id: true, name: true, email: true, isActive: true, lastLoginAt: true, createdAt: true },
@@ -46,6 +70,183 @@ export class AdminAuthService {
 
   async listPlans() {
     return this.masterPrisma.plan.findMany({ orderBy: { priceMonthly: 'asc' } });
+  }
+
+  // ── Plan CRUD ─────────────────────────────────────────────────────────────
+
+  async createPlan(dto: CreatePlanDto) {
+    return this.masterPrisma.plan.create({
+      data: {
+        name: dto.name,
+        type: dto.type as any,
+        maxVehicles: dto.maxVehicles,
+        maxDrivers: dto.maxDrivers,
+        maxUsers: dto.maxUsers,
+        maxBranches: dto.maxBranches,
+        storageGb: dto.storageGb,
+        priceMonthly: dto.priceMonthly,
+      },
+    });
+  }
+
+  async updatePlan(id: string, dto: UpdatePlanDto) {
+    const plan = await this.masterPrisma.plan.findUnique({ where: { id } });
+    if (!plan) throw new NotFoundException('Plano não encontrado');
+    return this.masterPrisma.plan.update({
+      where: { id },
+      data: dto as any,
+    });
+  }
+
+  async deletePlan(id: string) {
+    const plan = await this.masterPrisma.plan.findUnique({
+      where: { id },
+      include: { _count: { select: { companies: true } } },
+    });
+    if (!plan) throw new NotFoundException('Plano não encontrado');
+    if (plan._count.companies > 0) {
+      // Não deleta, desativa
+      return this.masterPrisma.plan.update({
+        where: { id },
+        data: { isActive: false },
+      });
+    }
+    return this.masterPrisma.plan.delete({ where: { id } });
+  }
+
+  // ── Company Update ────────────────────────────────────────────────────────
+
+  async updateCompany(id: string, dto: UpdateCompanyDto) {
+    const company = await this.masterPrisma.company.findUnique({ where: { id } });
+    if (!company) throw new NotFoundException('Empresa não encontrada');
+    return this.masterPrisma.company.update({
+      where: { id },
+      data: dto as any,
+      include: { plan: true },
+    });
+  }
+
+  async deleteCompanyPermanently(id: string) {
+    const company = await this.masterPrisma.company.findUnique({
+      where: { id },
+      include: {
+        billingCustomer: {
+          select: { id: true },
+        },
+      },
+    });
+
+    if (!company) throw new NotFoundException('Empresa não encontrada');
+
+    // Remove dados do tenant primeiro. Se falhar aqui, nada do master é apagado.
+    try {
+      await this.masterPrisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${company.schemaName}" CASCADE`);
+    } catch {
+      throw new InternalServerErrorException('Não foi possível remover os dados do tenant desta empresa');
+    }
+
+    await this.masterPrisma.$transaction(async (tx) => {
+      if (company.billingCustomer?.id) {
+        await tx.invoice.deleteMany({ where: { billingCustomerId: company.billingCustomer.id } });
+        await tx.billingSubscription.deleteMany({ where: { billingCustomerId: company.billingCustomer.id } });
+        await tx.billingCustomer.delete({ where: { id: company.billingCustomer.id } });
+      }
+
+      await tx.adminNotification.deleteMany({ where: { companyId: id } });
+      await tx.masterAuditLog.deleteMany({ where: { companyId: id } });
+      await tx.subscription.deleteMany({ where: { companyId: id } });
+      await tx.company.delete({ where: { id } });
+    });
+
+    return { message: 'Empresa removida permanentemente' };
+  }
+
+  // ── Notifications ─────────────────────────────────────────────────────────
+
+  async listNotifications(limit = 50) {
+    return this.masterPrisma.adminNotification.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: Number(limit) || 50,
+      include: {
+        company: { select: { name: true } },
+      },
+    });
+  }
+
+  async markNotificationRead(id: string) {
+    return this.masterPrisma.adminNotification.update({
+      where: { id },
+      data: { isRead: true },
+    });
+  }
+
+  async markAllNotificationsRead() {
+    await this.masterPrisma.adminNotification.updateMany({
+      where: { isRead: false },
+      data: { isRead: true },
+    });
+    return { message: 'Todas as notificações marcadas como lidas' };
+  }
+
+  async getUnreadCount() {
+    const count = await this.masterPrisma.adminNotification.count({
+      where: { isRead: false },
+    });
+    return { count };
+  }
+
+  // ── Payment Settings ───────────────────────────────────────────────────────
+
+  async getPaymentSettings() {
+    const settings = await this.masterPrisma.paymentGatewaySettings.findUnique({
+      where: { singletonKey: 'default' },
+    });
+
+    if (settings) return settings;
+
+    return {
+      provider: 'ASAAS',
+      environment: 'SANDBOX',
+      asaasApiKey: '',
+      asaasWalletId: '',
+      asaasWebhookToken: '',
+      sicoobClientId: '',
+      sicoobClientSecret: '',
+      sicoobCertificateBase64: '',
+      sicoobPixKey: '',
+      isActive: true,
+    };
+  }
+
+  async updatePaymentSettings(dto: UpdatePaymentSettingsDto) {
+    return this.masterPrisma.paymentGatewaySettings.upsert({
+      where: { singletonKey: 'default' },
+      create: {
+        singletonKey: 'default',
+        provider: dto.provider as any,
+        environment: dto.environment as any,
+        asaasApiKey: dto.asaasApiKey?.trim() || null,
+        asaasWalletId: dto.asaasWalletId?.trim() || null,
+        asaasWebhookToken: dto.asaasWebhookToken?.trim() || null,
+        sicoobClientId: dto.sicoobClientId?.trim() || null,
+        sicoobClientSecret: dto.sicoobClientSecret?.trim() || null,
+        sicoobCertificateBase64: dto.sicoobCertificateBase64?.trim() || null,
+        sicoobPixKey: dto.sicoobPixKey?.trim() || null,
+        isActive: dto.isActive ?? true,
+      },
+      update: {
+        provider: dto.provider as any,
+        environment: dto.environment as any,
+        asaasApiKey: dto.asaasApiKey?.trim() || null,
+        asaasWalletId: dto.asaasWalletId?.trim() || null,
+        asaasWebhookToken: dto.asaasWebhookToken?.trim() || null,
+        sicoobClientId: dto.sicoobClientId?.trim() || null,
+        sicoobClientSecret: dto.sicoobClientSecret?.trim() || null,
+        sicoobCertificateBase64: dto.sicoobCertificateBase64?.trim() || null,
+        sicoobPixKey: dto.sicoobPixKey?.trim() || null,
+        isActive: dto.isActive ?? true,
+      },
+    });
   }
 
   async getCompany(id: string) {

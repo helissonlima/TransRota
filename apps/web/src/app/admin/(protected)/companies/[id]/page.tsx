@@ -8,7 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   ArrowLeft, Building2, Users, UserPlus, X, Circle,
-  Shield, Clock, Trash2, Eye, EyeOff,
+  Shield, Clock, Trash2, Eye, EyeOff, Pencil, Save,
+  DollarSign,
 } from 'lucide-react';
 import adminApi from '@/lib/admin-api';
 import { cn } from '@/lib/cn';
@@ -21,9 +22,17 @@ interface Company {
   phone: string | null;
   isActive: boolean;
   schemaName: string;
+  planId: string;
   trialEndsAt: string | null;
   createdAt: string;
-  plan: { name: string; type: string; maxUsers: number; maxVehicles: number; maxDrivers: number };
+  plan: { id: string; name: string; type: string; maxUsers: number; maxVehicles: number; maxDrivers: number };
+}
+
+interface Plan {
+  id: string;
+  name: string;
+  type: string;
+  priceMonthly: string;
 }
 
 interface TenantUser {
@@ -67,6 +76,9 @@ export default function CompanyDetailPage() {
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState('');
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', planId: '' });
+  const [billingModal, setBillingModal] = useState(false);
 
   const { data: company, isLoading: loadingCompany } = useQuery<Company>({
     queryKey: ['admin', 'companies', id],
@@ -100,6 +112,31 @@ export default function CompanyDetailPage() {
   const deactivateUser = useMutation({
     mutationFn: (userId: string) => adminApi.delete(`/admin/companies/${id}/users/${userId}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'companies', id, 'users'] }),
+  });
+
+  const { data: plans = [] } = useQuery<Plan[]>({
+    queryKey: ['admin', 'plans'],
+    queryFn: async () => {
+      const { data } = await adminApi.get('/admin/plans');
+      return data;
+    },
+  });
+
+  const updateCompany = useMutation({
+    mutationFn: (dto: { name?: string; email?: string; phone?: string; planId?: string }) =>
+      adminApi.patch(`/admin/companies/${id}`, dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'companies', id] });
+      setEditMode(false);
+    },
+  });
+
+  const setupBilling = useMutation({
+    mutationFn: () => adminApi.post('/admin/billing/customers', { companyId: id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'companies', id] });
+      setBillingModal(false);
+    },
   });
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<UserForm>({
@@ -172,6 +209,147 @@ export default function CompanyDetailPage() {
             </p>
           </div>
         ))}
+      </div>
+
+      {/* Edit company / Billing */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Edit form */}
+        <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-white font-semibold text-sm flex items-center gap-2">
+              <Pencil className="w-4 h-4 text-[#64748b]" />
+              Dados da Empresa
+            </h2>
+            {!editMode ? (
+              <button
+                onClick={() => {
+                  setEditForm({
+                    name: company.name,
+                    email: company.email,
+                    phone: company.phone ?? '',
+                    planId: company.planId,
+                  });
+                  setEditMode(true);
+                }}
+                className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
+              >
+                Editar
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setEditMode(false)}
+                  className="text-xs text-[#64748b] hover:text-white transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => updateCompany.mutate(editForm)}
+                  disabled={updateCompany.isPending}
+                  className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors"
+                >
+                  <Save className="w-3 h-3" />
+                  Salvar
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[#64748b] text-xs mb-1 block">Nome</label>
+              {editMode ? (
+                <input
+                  className="w-full bg-[#0f1a2e] border border-[#1e2d4a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                />
+              ) : (
+                <p className="text-white text-sm">{company.name}</p>
+              )}
+            </div>
+            <div>
+              <label className="text-[#64748b] text-xs mb-1 block">E-mail</label>
+              {editMode ? (
+                <input
+                  type="email"
+                  className="w-full bg-[#0f1a2e] border border-[#1e2d4a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                />
+              ) : (
+                <p className="text-white text-sm">{company.email}</p>
+              )}
+            </div>
+            <div>
+              <label className="text-[#64748b] text-xs mb-1 block">Telefone</label>
+              {editMode ? (
+                <input
+                  className="w-full bg-[#0f1a2e] border border-[#1e2d4a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
+                />
+              ) : (
+                <p className="text-white text-sm">{company.phone ?? '—'}</p>
+              )}
+            </div>
+            <div>
+              <label className="text-[#64748b] text-xs mb-1 block">Plano</label>
+              {editMode ? (
+                <select
+                  className="w-full bg-[#0f1a2e] border border-[#1e2d4a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+                  value={editForm.planId}
+                  onChange={(e) => setEditForm((f) => ({ ...f, planId: e.target.value }))}
+                >
+                  {plans.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} — R$ {Number(p.priceMonthly).toFixed(2)}/mês
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className={cn('text-sm font-medium', planColor[company.plan.type])}>
+                  {company.plan.name}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Billing card */}
+        <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5">
+          <h2 className="text-white font-semibold text-sm flex items-center gap-2 mb-4">
+            <DollarSign className="w-4 h-4 text-[#64748b]" />
+            Billing
+          </h2>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-[#64748b]">CNPJ</span>
+              <span className="text-white font-mono text-xs">{company.cnpj}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-[#64748b]">Trial até</span>
+              <span className="text-white text-xs">
+                {company.trialEndsAt
+                  ? new Date(company.trialEndsAt).toLocaleDateString('pt-BR')
+                  : '—'}
+              </span>
+            </div>
+            <button
+              onClick={() => setupBilling.mutate()}
+              disabled={setupBilling.isPending}
+              className="w-full mt-2 flex items-center justify-center gap-2 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-600/30 text-emerald-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              {setupBilling.isPending ? (
+                <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <DollarSign className="w-4 h-4" />
+                  Configurar Billing (Asaas)
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Users section */}

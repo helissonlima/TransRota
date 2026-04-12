@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: 'TransRota — Gestão de Frota e Rotas',
   description: 'SaaS multi-tenant para gestão completa de frota, motoristas e entregas',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.svg',
   },
 };
 

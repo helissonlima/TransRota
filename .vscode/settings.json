@@ -2,6 +2,7 @@
     "chat.tools.terminal.autoApprove": {
         "cp": true,
         "docker compose": true,
-        "npx nest": true
+        "npx nest": true,
+        "npx prisma": true
     }
 }

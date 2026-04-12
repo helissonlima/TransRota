@@ -18,6 +18,8 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCheck,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO, isPast, isAfter, addDays } from 'date-fns';
@@ -106,6 +108,8 @@ export default function FiscalPage() {
   const [filter, setFilter] = useState<PaymentStatus | ''>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [payConfirmId, setPayConfirmId] = useState<string | null>(null);
+  const [selectedTax, setSelectedTax] = useState<TaxRecord | null>(null);
+  const [editingTaxId, setEditingTaxId] = useState<string | null>(null);
 
   const { data: taxes = [], isLoading } = useQuery<TaxRecord[]>({
     queryKey: ['taxes', filter],
@@ -128,6 +132,28 @@ export default function FiscalPage() {
       reset();
     },
     onError: () => toast.error('Erro ao criar lançamento.'),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: TaxFormData }) => api.patch(`/taxes/${id}`, data),
+    onSuccess: () => {
+      toast.success('Lançamento atualizado com sucesso!');
+      qc.invalidateQueries({ queryKey: ['taxes'] });
+      setModalOpen(false);
+      setEditingTaxId(null);
+      reset();
+    },
+    onError: () => toast.error('Erro ao atualizar lançamento.'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/taxes/${id}`),
+    onSuccess: () => {
+      toast.success('Lançamento excluído com sucesso!');
+      qc.invalidateQueries({ queryKey: ['taxes'] });
+      setSelectedTax(null);
+    },
+    onError: () => toast.error('Erro ao excluir lançamento.'),
   });
 
   const payMutation = useMutation({
@@ -167,6 +193,9 @@ export default function FiscalPage() {
   );
 
   const overdueItems = taxes.filter((t) => t.paymentStatus === 'OVERDUE');
+  const selectedTaxResolved = selectedTax
+    ? (taxes.find((t) => t.id === selectedTax.id) ?? selectedTax)
+    : null;
 
   return (
     <div className="min-h-screen">
@@ -252,22 +281,85 @@ export default function FiscalPage() {
           )}
         </AnimatePresence>
 
-        {/* Filter tabs */}
-        <div className="flex items-center gap-1 bg-white border border-brand-border rounded-xl p-1 w-fit">
-          {FILTER_TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key as PaymentStatus | '')}
-              className={cn(
-                'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                filter === tab.key
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
-              )}
+        {/* Toolbar */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-1 bg-white border border-brand-border rounded-xl p-1 w-fit">
+            {FILTER_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key as PaymentStatus | '')}
+                className={cn(
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                  filter === tab.key
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {selectedTaxResolved && (
+              <span className="hidden md:inline-flex text-xs font-medium text-brand-text-secondary bg-slate-100 px-2 py-1 rounded-md">
+                Selecionado: {selectedTaxResolved.vehicle.plate}
+              </span>
+            )}
+            <Button
+              size="sm"
+              leftIcon={<Plus className="w-4 h-4" />}
+              onClick={() => {
+                setEditingTaxId(null);
+                reset({
+                  type: 'IPVA',
+                  year: new Date().getFullYear(),
+                  vehicleId: '',
+                  dueDate: '',
+                  value: undefined as any,
+                  notes: '',
+                });
+                setModalOpen(true);
+              }}
             >
-              {tab.label}
-            </button>
-          ))}
+              Novo Lançamento
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              leftIcon={<Pencil className="w-4 h-4" />}
+              disabled={!selectedTaxResolved}
+              onClick={() => {
+                if (!selectedTaxResolved) return;
+                setEditingTaxId(selectedTaxResolved.id);
+                reset({
+                  vehicleId: selectedTaxResolved.vehicle.id,
+                  type: selectedTaxResolved.type,
+                  year: selectedTaxResolved.year,
+                  dueDate: selectedTaxResolved.dueDate?.slice(0, 10),
+                  value: selectedTaxResolved.value,
+                  notes: selectedTaxResolved.notes,
+                });
+                setModalOpen(true);
+              }}
+            >
+              Editar
+            </Button>
+            <Button
+              size="sm"
+              variant="danger"
+              leftIcon={<Trash2 className="w-4 h-4" />}
+              disabled={!selectedTaxResolved || deleteMutation.isPending}
+              onClick={() => {
+                if (!selectedTaxResolved) return;
+                if (confirm(`Deseja excluir o lançamento ${TYPE_CONFIG[selectedTaxResolved.type].label} do veículo ${selectedTaxResolved.vehicle.plate}?`)) {
+                  deleteMutation.mutate(selectedTaxResolved.id);
+                }
+              }}
+            >
+              Excluir
+            </Button>
+          </div>
         </div>
 
         {/* Table */}
@@ -314,9 +406,11 @@ export default function FiscalPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: i * 0.03 }}
                         className={cn(
-                          'hover:bg-slate-50/60 transition-colors',
+                          'hover:bg-slate-50/60 transition-colors cursor-pointer',
                           tax.paymentStatus === 'OVERDUE' && 'bg-danger-50/30',
+                          selectedTaxResolved?.id === tax.id && 'bg-primary-50/40',
                         )}
+                        onClick={() => setSelectedTax(tax)}
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
@@ -376,21 +470,27 @@ export default function FiscalPage() {
       {/* New Tax Modal */}
       <Modal
         open={modalOpen}
-        onClose={() => { setModalOpen(false); reset(); }}
-        title="Novo Lançamento Fiscal"
-        description="Registre um imposto, licenciamento ou multa."
+        onClose={() => { setModalOpen(false); setEditingTaxId(null); reset(); }}
+        title={editingTaxId ? 'Editar Lançamento Fiscal' : 'Novo Lançamento Fiscal'}
+        description={editingTaxId ? 'Atualize os dados do lançamento selecionado.' : 'Registre um imposto, licenciamento ou multa.'}
         size="md"
         footer={
           <>
-            <Button variant="secondary" onClick={() => { setModalOpen(false); reset(); }}>Cancelar</Button>
+            <Button variant="secondary" onClick={() => { setModalOpen(false); setEditingTaxId(null); reset(); }}>Cancelar</Button>
             <Button
-              loading={createMutation.isPending}
+              loading={createMutation.isPending || updateMutation.isPending}
               onClick={handleSubmit(
-                (d) => createMutation.mutate(d),
+                (d) => {
+                  if (editingTaxId) {
+                    updateMutation.mutate({ id: editingTaxId, data: d });
+                    return;
+                  }
+                  createMutation.mutate(d);
+                },
                 () => toast.error('Preencha todos os campos obrigatórios'),
               )}
             >
-              Salvar
+              {editingTaxId ? 'Salvar Alterações' : 'Salvar'}
             </Button>
           </>
         }
