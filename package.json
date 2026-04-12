@@ -7,17 +7,22 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev:all",
-    "dev:all": "concurrently -n api,web -c cyan,magenta \"npm run dev:api\" \"npm run dev:web\"",
-    "dev:api": "npm run dev --workspace @transrota/api",
-    "dev:web": "npm run dev --workspace @transrota/web",
-    "build": "npm run build --workspace @transrota/shared && npm run build --workspace @transrota/api && npm run build --workspace @transrota/web",
-    "lint": "npm run lint --workspace @transrota/api && npm run lint --workspace @transrota/web",
+    "setup": "node setup.js",
+    "predev": "node -e \"const fs=require('fs'); if(!fs.existsSync('node_modules')||!fs.existsSync('apps/api/node_modules')||!fs.existsSync('apps/web/node_modules')){console.log('\\n📦 Dependências faltando — executando pnpm install...\\n'); require('child_process').execSync('pnpm install', {stdio:'inherit'})}\"",
+    "prebuild": "node -e \"const fs=require('fs'); if(!fs.existsSync('node_modules')||!fs.existsSync('apps/api/node_modules')||!fs.existsSync('apps/web/node_modules')){console.log('\\n📦 Dependências faltando — executando pnpm install...\\n'); require('child_process').execSync('pnpm install', {stdio:'inherit'})}\"",
+    "infra": "docker compose -f docker/docker-compose.dev.yml up -d",
+    "infra:down": "docker compose -f docker/docker-compose.dev.yml down",
+    "dev": "pnpm run infra && concurrently -n api,web -c cyan,magenta \"pnpm --filter @transrota/api run dev\" \"pnpm --filter @transrota/web run dev\"",
+    "dev:api": "pnpm --filter @transrota/api run dev",
+    "dev:web": "pnpm --filter @transrota/web run dev",
+    "build": "pnpm --filter @transrota/shared run build && pnpm --filter @transrota/api run build && pnpm --filter @transrota/web run build",
+    "start": "concurrently -n api,web -c cyan,magenta \"pnpm --filter @transrota/api run start\" \"pnpm --filter @transrota/web run start\"",
+    "lint": "pnpm --filter @transrota/api run lint && pnpm --filter @transrota/web run lint",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "prettier": "^3.3.3",
+    "prettier": "^3.8.2",
     "typescript": "^5.5.4"
   },
   "engines": {

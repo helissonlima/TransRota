@@ -350,7 +350,7 @@ export default function FiscalPage() {
                   type: selectedTaxResolved.type,
                   year: selectedTaxResolved.year,
                   dueDate: selectedTaxResolved.dueDate?.slice(0, 10),
-                  value: selectedTaxResolved.value,
+                  value: Number(selectedTaxResolved.value),
                   notes: selectedTaxResolved.notes,
                 });
                 setModalOpen(true);
@@ -452,7 +452,7 @@ export default function FiscalPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right font-semibold text-brand-text-primary">
-                          {formatCurrency(tax.value)}
+                          {formatCurrency(Number(tax.value))}
                         </td>
                         <td className="px-4 py-3 text-center">
                           <Badge variant={statusConfig.variant} dot>{statusConfig.label}</Badge>
@@ -519,7 +519,7 @@ export default function FiscalPage() {
                       type: selectedTaxResolved.type,
                       year: selectedTaxResolved.year,
                       dueDate: selectedTaxResolved.dueDate?.slice(0, 10),
-                      value: selectedTaxResolved.value,
+                      value: Number(selectedTaxResolved.value),
                       notes: selectedTaxResolved.notes,
                     });
                     setDetailOpen(false);
@@ -584,7 +584,7 @@ export default function FiscalPage() {
               </div>
               <div className="bg-slate-50 rounded-xl p-3">
                 <div className="text-xs text-brand-text-secondary mb-1">Valor</div>
-                <div className="text-sm font-semibold text-brand-text-primary">{formatCurrency(selectedTaxResolved.value)}</div>
+                <div className="text-sm font-semibold text-brand-text-primary">{formatCurrency(Number(selectedTaxResolved.value))}</div>
               </div>
               {selectedTaxResolved.paidAt && (
                 <div className="bg-success-50 rounded-xl p-3 border border-success-200 col-span-2">

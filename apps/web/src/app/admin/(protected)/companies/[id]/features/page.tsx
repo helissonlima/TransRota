@@ -31,7 +31,7 @@ const ALL_FEATURES: FeatureDef[] = [
   { key: 'reports',    label: 'Relatórios',               description: 'Relatórios operacionais, financeiros e de desempenho da frota',           icon: BarChart2,    iconColor: 'text-purple-400', category: 'Gestão'      },
 ];
 
-const CATEGORIES = [...new Set(ALL_FEATURES.map(f => f.category))];
+const CATEGORIES = Array.from(new Set(ALL_FEATURES.map(f => f.category)));
 
 interface CompanyFeatures { id: string; name: string; features: string[] }
 

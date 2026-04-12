@@ -334,8 +334,8 @@ function OverviewTab({ month }: { month: string }) {
                 <XAxis dataKey="month" tickFormatter={fmtMonth} tick={{ fontSize: 11 }} />
                 <YAxis tickFormatter={v => `R$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
                 <Tooltip
-                  formatter={(v: number, name: string) => [fmtCurrency(v), name === 'receitas' ? 'Receitas' : 'Despesas']}
-                  labelFormatter={fmtMonth}
+                  formatter={(v, name) => [fmtCurrency(Number(v)), name === 'receitas' ? 'Receitas' : 'Despesas']}
+                  labelFormatter={(label) => fmtMonth(String(label))}
                 />
                 <Area type="monotone" dataKey="receitas" stroke="#22c55e" strokeWidth={2} fill="url(#gradRec)" />
                 <Area type="monotone" dataKey="despesas" stroke="#ef4444" strokeWidth={2} fill="url(#gradDes)" />
@@ -367,7 +367,7 @@ function OverviewTab({ month }: { month: string }) {
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v: number) => fmtCurrency(v)} />
+                  <Tooltip formatter={(v) => fmtCurrency(Number(v))} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-1.5 mt-2">
@@ -1156,7 +1156,7 @@ function CashFlowTab() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                 <YAxis tickFormatter={v => `R$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
-                <Tooltip formatter={(v: number, name: string) => [fmtCurrency(v), name === 'receitas' ? 'Receitas' : 'Despesas']} />
+                <Tooltip formatter={(v, name) => [fmtCurrency(Number(v)), name === 'receitas' ? 'Receitas' : 'Despesas']} />
                 <Legend formatter={v => v === 'receitas' ? 'Receitas' : 'Despesas'} />
                 <Bar dataKey="receitas" fill="#22c55e" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="despesas" fill="#ef4444" radius={[4, 4, 0, 0]} />

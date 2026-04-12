@@ -286,7 +286,7 @@ export default function ReportsPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                         <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} />
                         <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} width={60} tickFormatter={v => (v/1000).toFixed(0)+'k'} />
-                        <Tooltip formatter={(v: number) => [formatKm(v)]} />
+                        <Tooltip formatter={(v) => [formatKm(Number(v))]} />
                         <Legend wrapperStyle={{ fontSize: 12 }} />
                         <Bar dataKey="trabalho" name="Trabalho" fill="#6366f1" radius={[4,4,0,0]} />
                         <Bar dataKey="pessoal"  name="Pessoal"  fill="#e0e7ff" radius={[4,4,0,0]} />
@@ -323,7 +323,7 @@ export default function ReportsPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
                         <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => (v/1000).toFixed(0)+'k'} />
                         <YAxis dataKey="plate" type="category" tick={{ fontSize: 11, fill: '#64748b' }} width={80} />
-                        <Tooltip formatter={(v: number) => [formatKm(v)]} />
+                        <Tooltip formatter={(v) => [formatKm(Number(v))]} />
                         <Bar dataKey="km" fill="#6366f1" radius={[0,4,4,0]} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -376,7 +376,7 @@ export default function ReportsPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                         <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} />
                         <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} width={70} tickFormatter={v => 'R$'+(v/1000).toFixed(0)+'k'} />
-                        <Tooltip formatter={(v: number) => [formatCurrency(v)]} />
+                        <Tooltip formatter={(v) => [formatCurrency(Number(v))]} />
                         <Area type="monotone" dataKey="custo" name="Custo" stroke="#6366f1" fill="url(#colorFuel)" strokeWidth={2} dot={{ r: 3 }} />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -389,10 +389,10 @@ export default function ReportsPage() {
                     </h3>
                     <ResponsiveContainer width="100%" height={160}>
                       <PieChart>
-                        <Pie data={fuelByType} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, percent }) => `${(percent*100).toFixed(0)}%`} labelLine={false}>
+                        <Pie data={fuelByType} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, percent }) => `${((percent ?? 0)*100).toFixed(0)}%`} labelLine={false}>
                           {fuelByType.map((_, i) => <Cell key={i} fill={BRAND_COLORS[i % BRAND_COLORS.length]} />)}
                         </Pie>
-                        <Tooltip formatter={(v: number) => [formatCurrency(v)]} />
+                        <Tooltip formatter={(v) => [formatCurrency(Number(v))]} />
                         <Legend wrapperStyle={{ fontSize: 11 }} />
                       </PieChart>
                     </ResponsiveContainer>
@@ -459,7 +459,7 @@ export default function ReportsPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                         <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} />
                         <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} width={70} tickFormatter={v => 'R$'+(v/1000).toFixed(0)+'k'} />
-                        <Tooltip formatter={(v: number) => [formatCurrency(v)]} />
+                        <Tooltip formatter={(v) => [formatCurrency(Number(v))]} />
                         <Legend wrapperStyle={{ fontSize: 12 }} />
                         <Bar dataKey="preventiva" name="Preventiva" fill="#22c55e" radius={[4,4,0,0]} />
                         <Bar dataKey="corretiva"  name="Corretiva"  fill="#ef4444" radius={[4,4,0,0]} />

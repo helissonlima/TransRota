@@ -76,7 +76,7 @@ const equipmentSchema = z.object({
   name: z.string().min(2, 'Nome obrigatório'),
   type: z.enum(['DRONE', 'GERADOR', 'EMPILHADEIRA', 'OUTRO']),
   identifier: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 });
 
 const logSchema = z.object({
@@ -90,10 +90,10 @@ const logSchema = z.object({
 type EquipmentFormData = z.infer<typeof equipmentSchema>;
 type LogFormData = z.infer<typeof logSchema>;
 
-const TYPE_CONFIG_MAP: Record<string, { label: string; variant: 'purple' | 'orange' | 'gray' | 'blue' | 'emerald'; bg: string; text: string; icon: string }> = {
+const TYPE_CONFIG_MAP: Record<string, { label: string; variant: 'purple' | 'orange' | 'gray' | 'info' | 'success'; bg: string; text: string; icon: string }> = {
   DRONE:        { label: 'Drone',        variant: 'purple',  bg: 'bg-purple-50',  text: 'text-purple-700',  icon: '🚁' },
   GERADOR:      { label: 'Gerador',      variant: 'orange',  bg: 'bg-orange-50',  text: 'text-orange-700',  icon: '⚡' },
-  EMPILHADEIRA: { label: 'Empilhadeira', variant: 'blue',    bg: 'bg-blue-50',    text: 'text-blue-700',    icon: '🏗️' },
+  EMPILHADEIRA: { label: 'Empilhadeira', variant: 'info',    bg: 'bg-blue-50',    text: 'text-blue-700',    icon: '🏗️' },
   OUTRO:        { label: 'Outro',        variant: 'gray',    bg: 'bg-slate-100',  text: 'text-slate-600',   icon: '📦' },
 };
 

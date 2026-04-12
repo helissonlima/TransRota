@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +20,8 @@ import {
   Receipt,
   Cpu,
   Wallet,
+  UserPen,
+  ChevronUp,
 } from 'lucide-react';
 import { logout } from '@/lib/auth';
 import { cn } from '@/lib/cn';
@@ -92,9 +94,24 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
   const toggle = onToggle ?? (() => setInternalCollapsed((c) => !c));
 
   const [userName, setUserName] = useState('Usuário');
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setUserName(localStorage.getItem('userName') ?? 'Usuário');
   }, []);
+
+  // Fecha o dropdown ao clicar fora
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const initials = userName
     .split(' ')
     .map((n) => n[0])
@@ -243,7 +260,7 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
       </nav>
 
       {/* User section */}
-      <div className={cn('px-2 pb-4 pt-2 border-t border-white/5')}>
+      <div className={cn('px-2 pb-4 pt-2 border-t border-white/5')} ref={userMenuRef}>
         {/* Logout */}
         <button
           onClick={logout}
@@ -270,34 +287,80 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
           </AnimatePresence>
         </button>
 
-        {/* User avatar */}
-        <AnimatePresence>
-          {!collapsed && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="mt-3 px-3 py-2.5 rounded-xl bg-white/5 flex items-center gap-3 overflow-hidden"
+        {/* User avatar — clicável para dropdown */}
+        <div className="relative mt-3">
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.button
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setUserMenuOpen((o) => !o)}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 flex items-center gap-3 overflow-hidden transition-colors text-left"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  {initials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-semibold text-white truncate">{userName}</div>
+                  <div className="text-2xs text-sidebar-text truncate">Administrador</div>
+                </div>
+                <ChevronUp
+                  className={cn(
+                    'w-3.5 h-3.5 text-sidebar-text flex-shrink-0 transition-transform duration-200',
+                    !userMenuOpen && 'rotate-180',
+                  )}
+                />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {collapsed && (
+            <button
+              onClick={() => setUserMenuOpen((o) => !o)}
+              className="flex justify-center w-full"
+              title={userName}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold hover:ring-2 hover:ring-primary-400 transition-all">
                 {initials}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold text-white truncate">{userName}</div>
-                <div className="text-2xs text-sidebar-text truncate">Administrador</div>
-              </div>
-            </motion.div>
+            </button>
           )}
-        </AnimatePresence>
 
-        {collapsed && (
-          <div className="mt-3 flex justify-center">
-            <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center text-white text-xs font-bold">
-              {initials}
-            </div>
-          </div>
-        )}
+          {/* Dropdown menu */}
+          <AnimatePresence>
+            {userMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                transition={{ duration: 0.15 }}
+                className={cn(
+                  'absolute bottom-full mb-2 bg-white rounded-xl shadow-modal border border-brand-border overflow-hidden z-50',
+                  collapsed ? 'left-10 w-48' : 'left-0 right-0',
+                )}
+              >
+                <Link
+                  href="/profile"
+                  onClick={() => setUserMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-3 text-sm text-brand-text-primary hover:bg-slate-50 transition-colors"
+                >
+                  <UserPen className="w-4 h-4 text-primary-500" />
+                  Editar Perfil
+                </Link>
+                <div className="border-t border-brand-border" />
+                <button
+                  onClick={() => { setUserMenuOpen(false); logout(); }}
+                  className="flex items-center gap-2.5 px-4 py-3 text-sm text-danger-600 hover:bg-danger-50 transition-colors w-full text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sair
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </motion.aside>
   );

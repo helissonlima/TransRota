@@ -35,7 +35,7 @@ import {
   CartesianGrid,
   Legend,
 } from 'recharts';
-import { format, formatDistanceToNow, subDays, startOfMonth } from 'date-fns';
+import { addDays, format, formatDistanceToNow, subDays, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import api from '@/lib/api';
 import { Header } from '@/components/layout/header';
@@ -384,7 +384,7 @@ export default function DashboardPage() {
         const criticalDamage = /el[eé]tric|freio|motor|chicote|suspens[aã]o/i.test(text);
         return {
           id: `avaria-${c.id}`,
-          priority: criticalDamage ? 'CRITICO' : 'ALTO',
+          priority: (criticalDamage ? 'CRITICO' : 'ALTO') as AlertPriority,
           category: 'AVARIA' as const,
           title: `${c.vehicle.plate} — ${c.checklist.name}`,
           description: c.externalDamage || c.internalDamage || 'Pendência de checklist com problema',
@@ -393,7 +393,7 @@ export default function DashboardPage() {
       }),
       ...oilDueSoon.map((o) => ({
         id: `oleo-${o.vehicleId}`,
-        priority: o.status === 'OVERDUE' ? 'CRITICO' : 'ALTO',
+        priority: (o.status === 'OVERDUE' ? 'CRITICO' : 'ALTO') as AlertPriority,
         category: 'OLEO' as const,
         title: `${o.vehicle?.plate ?? 'Veículo'} — Troca de óleo`,
         description: o.status === 'OVERDUE' ? 'Troca de óleo atrasada' : 'Troca de óleo próxima do vencimento',
