@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Settings, CreditCard, Check, List, Hash, Save, Database, Download, Loader2, Wallet, Building2 } from 'lucide-react';
-import adminApi, { downloadFullBackup } from '@/lib/admin-api';
+import { Settings, CreditCard, Check, List, Hash, Save, Database, Download, Upload, Loader2, Wallet, Building2 } from 'lucide-react';
+import adminApi, { downloadFullBackup, uploadFullRestore } from '@/lib/admin-api';
 import { cn } from '@/lib/cn';
 import { toast } from 'sonner';
 
@@ -55,9 +55,17 @@ export default function AdminSettingsPage() {
   const [loginDisplay, setLoginDisplay] = useState<'list' | 'uuid'>('list');
   const [saved, setSaved] = useState(false);
   const [paymentForm, setPaymentForm] = useState<PaymentSettings>(EMPTY_PAYMENT_FORM);
+  const restoreInputRef = useRef<HTMLInputElement>(null);
 
   const backupMutation = useMutation({
     mutationFn: async () => downloadFullBackup(),
+    onError: () => toast.error('Não foi possível gerar o backup. Tente novamente.'),
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: (file: File) => uploadFullRestore(file),
+    onSuccess: (data) => toast.success(`${data.message} (${data.tenantsRestored} tenant(s) restaurado(s))`),
+    onError: (err: any) => toast.error(err?.response?.data?.message ?? 'Erro ao restaurar o backup.'),
   });
 
   useEffect(() => {
@@ -421,20 +429,48 @@ export default function AdminSettingsPage() {
 
         <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5">
           <p className="text-[#94a3b8] text-sm mb-4">
-            Gere um dump SQL completo do banco master e schemas de tenants.
+            Gere um backup completo (ZIP com JSON) do banco master e de todos os schemas de tenants.
           </p>
 
-          <button
-            onClick={() => backupMutation.mutate()}
-            disabled={backupMutation.isPending}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {backupMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            {backupMutation.isPending ? 'Gerando backup...' : 'Baixar backup completo'}
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => backupMutation.mutate()}
+              disabled={backupMutation.isPending || restoreMutation.isPending}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {backupMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {backupMutation.isPending ? 'Gerando backup...' : 'Baixar backup completo'}
+            </button>
+
+            <button
+              onClick={() => restoreInputRef.current?.click()}
+              disabled={restoreMutation.isPending || backupMutation.isPending}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {restoreMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {restoreMutation.isPending ? 'Restaurando...' : 'Restaurar backup completo'}
+            </button>
+
+            <input
+              ref={restoreInputRef}
+              type="file"
+              accept=".zip"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) restoreMutation.mutate(file);
+                e.target.value = '';
+              }}
+            />
+          </div>
 
           {backupMutation.isError && (
             <p className="text-red-400 text-xs mt-3">Não foi possível gerar o backup. Tente novamente.</p>
+          )}
+          {restoreMutation.isError && (
+            <p className="text-red-400 text-xs mt-3">
+              {(restoreMutation.error as any)?.response?.data?.message ?? 'Erro ao restaurar o backup.'}
+            </p>
           )}
         </div>
       </div>

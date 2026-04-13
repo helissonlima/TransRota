@@ -196,7 +196,16 @@ export default function DashboardPage() {
           ).catch(() => [])
         )
       );
-      return results.flat();
+      // Deduplica por vehicleId: mantém o mais crítico (OVERDUE > DUE_SOON)
+      const flat = results.flat() as OilAlert[];
+      const seen = new Map<string, OilAlert>();
+      for (const rec of flat) {
+        const existing = seen.get(rec.vehicleId);
+        if (!existing || rec.status === 'OVERDUE') {
+          seen.set(rec.vehicleId, rec);
+        }
+      }
+      return Array.from(seen.values());
     },
   });
 

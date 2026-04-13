@@ -24,7 +24,7 @@ import { SuperAdminGuard } from './guards/super-admin.guard';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.getOrThrow('JWT_SECRET'),
-        signOptions: { expiresIn: '15m' },
+        signOptions: { expiresIn: '8h' },
       }),
     }),
   ],

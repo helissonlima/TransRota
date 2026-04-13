@@ -23,6 +23,7 @@
     "@nestjs/throttler": "^6.2.1",
     "@prisma/client": "^5.19.1",
     "@transrota/shared": "file:../../packages/shared",
+    "adm-zip": "^0.5.17",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
@@ -40,8 +41,10 @@
   "devDependencies": {
     "@nestjs/cli": "^10.4.5",
     "@nestjs/testing": "^10.4.1",
+    "@types/adm-zip": "^0.5.8",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.1.0",
     "@types/node": "^25.6.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",

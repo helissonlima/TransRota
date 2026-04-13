@@ -1,5 +1,5 @@
 import {
-  Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards,
+  Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards, HttpCode, HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { FinancialService } from './financial.service';
@@ -116,5 +116,15 @@ export class FinancialController {
   @ApiOperation({ summary: 'Desativar centro de custo' })
   deleteCostCenter(@TenantPrisma() prisma: TenantPrismaService, @Param('id') id: string) {
     return this.financial.deleteCostCenter(prisma, id);
+  }
+
+  // ── Importação de dados operacionais ──────────────────────────────────────
+
+  @Post('import')
+  @HttpCode(HttpStatus.OK)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @ApiOperation({ summary: 'Importar lançamentos de abastecimentos, manutenções e taxas' })
+  importFromOperations(@TenantPrisma() prisma: TenantPrismaService) {
+    return this.financial.importFromOperations(prisma);
   }
 }

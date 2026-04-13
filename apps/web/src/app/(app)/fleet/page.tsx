@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Truck, AlertTriangle, Fuel, Wrench, Eye,
   ChevronRight, X, Droplets, ChevronDown, ChevronUp,
-  FileText, Settings2, Pencil, Trash2,
+  FileText, Settings2, Pencil, Trash2, User,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO, differenceInDays } from 'date-fns';
@@ -439,6 +439,7 @@ export default function FleetPage() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [selectedOil, setSelectedOil] = useState<OilChangeRecord | null>(null);
   const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
+  const [detailOil, setDetailOil] = useState<OilChangeRecord | null>(null);
   const [heavyMachinesEnabled, setHeavyMachinesEnabled] = useState(false);
 
   useEffect(() => {
@@ -669,8 +670,7 @@ export default function FleetPage() {
                   return;
                 }
                 if (section === 'oil' && selectedOil) {
-                  oForm.setValue('vehicleId', selectedOil.vehicleId);
-                  setOilModal(true);
+                  setDetailOil(selectedOil);
                 }
               }}
             >
@@ -843,6 +843,7 @@ export default function FleetPage() {
                         onClick={() => {
                           setSelectedVehicle(null);
                           setSelectedOil(rec);
+                          setDetailOil(rec);
                         }}
                       >
                         <OilChangeCard
@@ -1192,6 +1193,82 @@ export default function FleetPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {/* ════ OIL DETAIL MODAL ════ */}
+      {detailOil && (
+        <Modal
+          open={!!detailOil}
+          onClose={() => setDetailOil(null)}
+          title={`Troca de Óleo — ${detailOil.vehicle?.plate ?? '—'}`}
+          description={`${detailOil.vehicle?.brand ?? ''} ${detailOil.vehicle?.model ?? ''}`.trim() || undefined}
+          size="md"
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  oForm.setValue('vehicleId', detailOil.vehicleId);
+                  setOilModal(true);
+                  setDetailOil(null);
+                }}
+              >
+                Registrar Nova Troca
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => setDetailOil(null)}>Fechar</Button>
+            </div>
+          }
+        >
+          <div className="space-y-4">
+            {/* Status banner */}
+            {(() => {
+              const cfg = OIL_STATUS_CONFIG[detailOil.status];
+              return (
+                <div className={cn('flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold', cfg.bg, cfg.border, cfg.color)}>
+                  <Droplets className="w-4 h-4 flex-shrink-0" />
+                  {cfg.label}
+                </div>
+              );
+            })()}
+
+            {/* Info grid */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {[
+                { label: 'Placa',          value: detailOil.vehicle?.plate,                          mono: true  },
+                { label: 'Veículo',        value: `${detailOil.vehicle?.brand ?? ''} ${detailOil.vehicle?.model ?? ''}`.trim() || null },
+                { label: 'Última Troca',   value: detailOil.changeDate ? format(parseISO(detailOil.changeDate), 'dd/MM/yyyy') : null },
+                { label: 'KM da Troca',    value: detailOil.changeKm != null ? `${detailOil.changeKm.toLocaleString('pt-BR')} km` : null },
+                { label: 'KM Atual',       value: detailOil.currentKm != null ? `${detailOil.currentKm.toLocaleString('pt-BR')} km` : null },
+                { label: 'Próxima Troca',  value: detailOil.nextChangeKm != null ? `${detailOil.nextChangeKm.toLocaleString('pt-BR')} km` : null, danger: detailOil.status === 'OVERDUE' },
+                { label: 'KM Percorrido',  value: detailOil.kmDriven != null ? `${detailOil.kmDriven.toLocaleString('pt-BR')} km` : null },
+                { label: 'Tipo de Óleo',   value: detailOil.oilType },
+              ].filter(i => i.value).map(item => (
+                <div key={item.label} className="bg-slate-50 rounded-lg px-3 py-2.5">
+                  <p className="text-brand-text-secondary mb-0.5">{item.label}</p>
+                  <p className={cn('font-semibold text-brand-text-primary', item.mono && 'font-plate', item.danger && 'text-danger-600')}>
+                    {item.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {detailOil.responsibleName && (
+              <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 text-sm border border-brand-border/60">
+                <User className="w-4 h-4 text-brand-text-secondary flex-shrink-0" />
+                <span className="text-brand-text-secondary">Responsável:</span>
+                <span className="font-semibold text-brand-text-primary">{detailOil.responsibleName}</span>
+              </div>
+            )}
+
+            {detailOil.notes && (
+              <div className="bg-slate-50 rounded-xl px-4 py-3">
+                <p className="text-xs text-brand-text-secondary mb-1">Observações</p>
+                <p className="text-sm text-brand-text-primary">{detailOil.notes}</p>
               </div>
             )}
           </div>

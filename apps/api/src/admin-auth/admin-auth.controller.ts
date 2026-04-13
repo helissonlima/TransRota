@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Patch, Post, Put, Param, HttpCode, HttpStatus, UseGuards, Res, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Patch, Post, Put, Param, HttpCode, HttpStatus, UseGuards, Res, Query, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { unlink } from 'node:fs/promises';
 import { AdminAuthService } from './admin-auth.service';
@@ -20,6 +21,13 @@ export class AdminAuthController {
   @ApiOperation({ summary: 'Login do Super Admin (sem x-tenant-id)' })
   login(@Body() dto: AdminLoginDto) {
     return this.adminAuthService.login(dto.email, dto.password);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Renovar access token do Super Admin com refresh token' })
+  refresh(@Body() body: { adminId: string; refreshToken: string }) {
+    return this.adminAuthService.refreshAdmin(body.adminId, body.refreshToken);
   }
 }
 
@@ -182,13 +190,45 @@ export class AdminOperationsController {
   constructor(private readonly adminAuthService: AdminAuthService) {}
 
   @Get('backup/full')
-  @ApiOperation({ summary: 'Gerar e baixar backup completo do banco' })
+  @ApiOperation({ summary: 'Gerar e baixar backup completo do banco (ZIP)' })
   async downloadFullBackup(@Res() res: Response) {
     const { fileName, filePath } = await this.adminAuthService.createFullBackup();
-
+    res.setHeader('Content-Type', 'application/zip');
     res.download(filePath, fileName, async () => {
       await unlink(filePath).catch(() => undefined);
     });
+  }
+
+  @Post('restore/full')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Restaurar banco completo a partir de um ZIP de backup' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
+  @UseInterceptors(FileInterceptor('file'))
+  async restoreFullBackup(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('Arquivo ZIP não enviado');
+    return this.adminAuthService.restoreFullBackup(file.buffer);
+  }
+
+  @Get('backup/company/:id')
+  @ApiOperation({ summary: 'Gerar e baixar backup completo de uma empresa (ZIP)' })
+  async downloadCompanyBackup(@Param('id') id: string, @Res() res: Response) {
+    const { fileName, filePath } = await this.adminAuthService.createCompanyBackup(id);
+    res.setHeader('Content-Type', 'application/zip');
+    res.download(filePath, fileName, async () => {
+      await unlink(filePath).catch(() => undefined);
+    });
+  }
+
+  @Post('restore/company')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Restaurar empresa a partir de um ZIP de backup' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
+  @UseInterceptors(FileInterceptor('file'))
+  async restoreCompanyBackup(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('Arquivo ZIP não enviado');
+    return this.adminAuthService.restoreCompanyBackup(file.buffer);
   }
 }
 

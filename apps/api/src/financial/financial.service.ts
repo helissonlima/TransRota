@@ -142,6 +142,114 @@ export class FinancialService {
     return this.cc(prisma).update({ where: { id }, data: { isActive: false } });
   }
 
+  // ── Importação de dados operacionais ──────────────────────────────────────
+
+  async importFromOperations(prisma: TenantPrismaService): Promise<{
+    imported: number;
+    skipped: number;
+    breakdown: { fuel: number; maintenance: number; taxes: number };
+  }> {
+    const p = prisma as any;
+
+    // IDs já importados para evitar duplicatas (documentNumber usado como chave de idempotência)
+    const existingDocs = await this.entry(prisma).findMany({
+      where: { documentNumber: { startsWith: 'IMPORT-' } },
+      select: { documentNumber: true },
+    });
+    const existingSet = new Set<string>(existingDocs.map((e: any) => e.documentNumber));
+
+    const toCreate: object[] = [];
+
+    // ── 1. Abastecimentos → PAYABLE / FUEL ──────────────────────────────────
+    const fuelRecords = await p.fuelRecord.findMany({
+      include: { vehicle: { select: { id: true, plate: true } } },
+    });
+    for (const r of fuelRecords) {
+      const docNum = `IMPORT-FUEL-${r.id}`;
+      if (existingSet.has(docNum)) continue;
+      toCreate.push({
+        type: 'PAYABLE',
+        category: 'FUEL',
+        description: `Abastecimento — ${r.vehicle?.plate ?? 'veículo'} (${r.fuelType ?? ''}) ${r.liters ? `${Number(r.liters).toFixed(1)}L` : ''}`.trim(),
+        amount: Number(r.totalCost),
+        dueDate: r.performedAt,
+        paymentDate: r.performedAt,
+        status: 'PAID',
+        paymentMethod: 'CASH',
+        documentNumber: docNum,
+        vehicleId: r.vehicleId,
+        driverId: r.driverId ?? undefined,
+        notes: r.station ? `Posto: ${r.station}` : undefined,
+      });
+    }
+
+    // ── 2. Manutenções → PAYABLE / MAINTENANCE ──────────────────────────────
+    const maintenanceRecords = await p.maintenanceRecord.findMany({
+      include: { vehicle: { select: { id: true, plate: true } } },
+    });
+    for (const r of maintenanceRecords) {
+      const docNum = `IMPORT-MAINT-${r.id}`;
+      if (existingSet.has(docNum)) continue;
+      toCreate.push({
+        type: 'PAYABLE',
+        category: 'MAINTENANCE',
+        description: `Manutenção — ${r.vehicle?.plate ?? 'veículo'}: ${r.description ?? r.type}`.trim(),
+        amount: Number(r.cost),
+        dueDate: r.performedAt,
+        paymentDate: r.performedAt,
+        status: 'PAID',
+        paymentMethod: 'BANK_TRANSFER',
+        documentNumber: docNum,
+        vehicleId: r.vehicleId,
+        notes: r.workshopName ? `Oficina: ${r.workshopName}` : undefined,
+      });
+    }
+
+    // ── 3. Taxas veiculares → PAYABLE / TAX ─────────────────────────────────
+    const vehicleTaxes = await p.vehicleTax.findMany({
+      include: { vehicle: { select: { id: true, plate: true } } },
+    });
+    for (const r of vehicleTaxes) {
+      const docNum = `IMPORT-TAX-${r.id}`;
+      if (existingSet.has(docNum)) continue;
+      const isPaid = r.paymentStatus === 'PAID' || r.paymentStatus === 'PARTIAL';
+      toCreate.push({
+        type: 'PAYABLE',
+        category: 'TAX',
+        description: `${r.type} ${r.year} — ${r.vehicle?.plate ?? 'veículo'}`,
+        amount: Number(r.value),
+        dueDate: r.dueDate,
+        paymentDate: isPaid && r.paidAt ? r.paidAt : undefined,
+        status: r.paymentStatus === 'PAID' ? 'PAID'
+              : r.paymentStatus === 'PARTIAL' ? 'PARTIAL'
+              : new Date(r.dueDate) < new Date() ? 'OVERDUE' : 'PENDING',
+        paymentMethod: isPaid ? 'BANK_TRANSFER' : undefined,
+        documentNumber: docNum,
+        vehicleId: r.vehicleId,
+        notes: r.notes ?? undefined,
+      });
+    }
+
+    if (toCreate.length === 0) {
+      return { imported: 0, skipped: existingSet.size, breakdown: { fuel: 0, maintenance: 0, taxes: 0 } };
+    }
+
+    const BATCH = 100;
+    for (let i = 0; i < toCreate.length; i += BATCH) {
+      await this.entry(prisma).createMany({ data: toCreate.slice(i, i + BATCH) });
+    }
+
+    const fuelCount = toCreate.filter((e: any) => e.category === 'FUEL').length;
+    const maintCount = toCreate.filter((e: any) => e.category === 'MAINTENANCE').length;
+    const taxCount = toCreate.filter((e: any) => e.category === 'TAX').length;
+
+    return {
+      imported: toCreate.length,
+      skipped: existingSet.size,
+      breakdown: { fuel: fuelCount, maintenance: maintCount, taxes: taxCount },
+    };
+  }
+
   // ── Dashboard / Resumo ─────────────────────────────────────────────────────
 
   async getDashboard(prisma: TenantPrismaService, month?: string) {

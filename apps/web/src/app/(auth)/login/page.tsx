@@ -24,7 +24,7 @@ import { cn } from '@/lib/cn';
 interface Company { id: string; name: string; }
 
 const loginSchema = z.object({
-  tenantId: z.string().uuid('ID da empresa inválido (formato UUID)'),
+  tenantId: z.string().min(1, 'Selecione ou informe a empresa'),
   email: z.string().email('E-mail inválido'),
   password: z.string().min(1, 'Senha obrigatória'),
 });

@@ -215,14 +215,39 @@ const selectCls = cn(inputCls, 'appearance-none cursor-pointer');
 // ─── Overview Tab ─────────────────────────────────────────────────────────────
 
 function OverviewTab({ month }: { month: string }) {
+  const qc = useQueryClient();
+
   const { data, isLoading } = useQuery({
     queryKey: ['financial-dashboard', month],
     queryFn: () => api.get(`/financial/dashboard?month=${month}`).then(r => r.data),
   });
 
+  const importMutation = useMutation({
+    mutationFn: () => api.post('/financial/import'),
+    onSuccess: (res) => {
+      const { imported, skipped, breakdown } = res.data as {
+        imported: number; skipped: number;
+        breakdown: { fuel: number; maintenance: number; taxes: number };
+      };
+      if (imported === 0) {
+        toast.info('Nenhum registro novo para importar — tudo já está sincronizado.');
+      } else {
+        toast.success(
+          `${imported} lançamentos importados! ` +
+          `Combustível: ${breakdown.fuel} · Manutenção: ${breakdown.maintenance} · Taxas: ${breakdown.taxes}` +
+          (skipped > 0 ? ` (${skipped} já existiam)` : ''),
+        );
+      }
+      qc.invalidateQueries({ queryKey: ['financial-dashboard'] });
+      qc.invalidateQueries({ queryKey: ['financial-entries'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.message ?? 'Erro ao importar dados'),
+  });
+
   const summary: DashboardSummary = data?.summary ?? {};
   const cashFlow: CashFlowPoint[] = data?.cashFlow ?? [];
   const expenseByCategory: ExpenseCategory[] = data?.expenseByCategory ?? [];
+  const isEmpty = !isLoading && (summary.totalPayables ?? 0) === 0 && (summary.totalReceivables ?? 0) === 0;
 
   if (isLoading) {
     return (
@@ -238,6 +263,47 @@ function OverviewTab({ month }: { month: string }) {
 
   return (
     <div className="space-y-6">
+      {/* Banner de importação */}
+      {isEmpty ? (
+        <div className="bg-gradient-to-r from-primary-50 to-indigo-50 border border-primary-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-primary-100 flex items-center justify-center flex-shrink-0">
+            <Download className="w-6 h-6 text-primary-600" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-brand-text-primary">Módulo financeiro sem dados</p>
+            <p className="text-sm text-brand-text-secondary mt-0.5">
+              O sistema encontrou <strong>561 abastecimentos</strong>, <strong>91 manutenções</strong> e <strong>28 taxas veiculares</strong> registrados nos módulos operacionais.
+              Importe-os como lançamentos financeiros para popular os gráficos e relatórios.
+            </p>
+          </div>
+          <Button
+            onClick={() => importMutation.mutate()}
+            disabled={importMutation.isPending}
+            className="flex-shrink-0"
+          >
+            {importMutation.isPending ? (
+              <><RefreshCw className="w-4 h-4 animate-spin mr-2" />Importando...</>
+            ) : (
+              <><Download className="w-4 h-4 mr-2" />Importar dados operacionais</>
+            )}
+          </Button>
+        </div>
+      ) : (
+        <div className="flex justify-end">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => importMutation.mutate()}
+            disabled={importMutation.isPending}
+          >
+            {importMutation.isPending ? (
+              <><RefreshCw className="w-3.5 h-3.5 animate-spin mr-1.5" />Sincronizando...</>
+            ) : (
+              <><RefreshCw className="w-3.5 h-3.5 mr-1.5" />Sincronizar dados operacionais</>
+            )}
+          </Button>
+        </div>
+      )}
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
@@ -395,6 +461,7 @@ function EntriesTab({ type }: { type: 'PAYABLE' | 'RECEIVABLE' }) {
   const qc = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<FinancialEntry | null>(null);
+  const [viewEntry, setViewEntry] = useState<FinancialEntry | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
 
   const { data: entries = [], isLoading } = useQuery<FinancialEntry[]>({
@@ -587,7 +654,11 @@ function EntriesTab({ type }: { type: 'PAYABLE' | 'RECEIVABLE' }) {
                 const statusKey = overdue ? 'OVERDUE' : entry.status;
                 const cfg = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG['PENDING'];
                 return (
-                  <tr key={entry.id} className="bg-white hover:bg-slate-50/70 transition-colors">
+                  <tr
+                    key={entry.id}
+                    className="bg-white hover:bg-slate-50/70 transition-colors cursor-pointer"
+                    onClick={() => setViewEntry(entry)}
+                  >
                     <td className="px-4 py-3">
                       <p className="font-medium text-brand-text-primary truncate max-w-[200px]">{entry.description}</p>
                       {entry.documentNumber && (
@@ -622,7 +693,7 @@ function EntriesTab({ type }: { type: 'PAYABLE' | 'RECEIVABLE' }) {
                       <Badge variant={cfg.variant}>{cfg.label}</Badge>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-1">
+                      <div className="flex items-center justify-center gap-1" onClick={e => e.stopPropagation()}>
                         <button
                           onClick={() => openEdit(entry)}
                           className="p-1.5 rounded-lg text-brand-text-tertiary hover:bg-slate-100 hover:text-primary-600 transition-colors"
@@ -733,6 +804,87 @@ function EntriesTab({ type }: { type: 'PAYABLE' | 'RECEIVABLE' }) {
           </FormField>
         </form>
       </Modal>
+
+      {/* Detail Modal (read-only) */}
+      {viewEntry && (
+        <Modal
+          open={!!viewEntry}
+          onClose={() => setViewEntry(null)}
+          title={viewEntry.description}
+          description={`${isPayable ? 'Despesa' : 'Receita'} · ${CATEGORY_LABELS[viewEntry.category] ?? viewEntry.category}`}
+          size="lg"
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<Pencil className="w-3.5 h-3.5" />}
+                onClick={() => { setViewEntry(null); openEdit(viewEntry); }}
+              >
+                Editar
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => setViewEntry(null)}>Fechar</Button>
+            </div>
+          }
+        >
+          <div className="space-y-4">
+            {/* Status + amount hero */}
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-brand-border">
+              <div>
+                <p className="text-xs text-brand-text-secondary mb-1">Valor</p>
+                <p className={cn('text-2xl font-bold', isPayable ? 'text-danger-600' : 'text-emerald-600')}>
+                  {fmtCurrency(Number(viewEntry.amount))}
+                </p>
+              </div>
+              <Badge variant={(STATUS_CONFIG[viewEntry.status === 'PENDING' && isPast(parseISO(viewEntry.dueDate)) ? 'OVERDUE' : viewEntry.status]?.variant) ?? 'gray'}>
+                {STATUS_CONFIG[viewEntry.status === 'PENDING' && isPast(parseISO(viewEntry.dueDate)) ? 'OVERDUE' : viewEntry.status]?.label ?? viewEntry.status}
+              </Badge>
+            </div>
+
+            {/* Datas */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-50 rounded-xl p-3">
+                <p className="text-xs text-brand-text-secondary mb-1">Vencimento</p>
+                <p className="text-sm font-semibold text-brand-text-primary">
+                  {format(parseISO(viewEntry.dueDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                </p>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <p className="text-xs text-brand-text-secondary mb-1">{isPayable ? 'Pagamento' : 'Recebimento'}</p>
+                <p className="text-sm font-semibold text-brand-text-primary">
+                  {viewEntry.paymentDate
+                    ? format(parseISO(viewEntry.paymentDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                    : <span className="text-brand-text-secondary italic font-normal">Não realizado</span>}
+                </p>
+              </div>
+            </div>
+
+            {/* Campos extras */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {[
+                { label: 'Categoria',   value: CATEGORY_LABELS[viewEntry.category] ?? viewEntry.category },
+                { label: 'Forma de Pgto', value: viewEntry.paymentMethod ? PAYMENT_METHOD_LABELS[viewEntry.paymentMethod] : null },
+                { label: 'Nº Documento', value: viewEntry.documentNumber },
+                { label: 'Centro de Custo', value: viewEntry.costCenter?.name },
+                { label: 'Veículo', value: viewEntry.vehicle ? `${viewEntry.vehicle.plate} — ${viewEntry.vehicle.model}` : null },
+                { label: 'Motorista', value: viewEntry.driver?.name },
+              ].filter(i => i.value).map(item => (
+                <div key={item.label} className="flex items-start justify-between bg-slate-50 rounded-lg px-3 py-2.5">
+                  <span className="text-brand-text-secondary">{item.label}</span>
+                  <span className="font-semibold text-brand-text-primary text-right max-w-[140px] truncate">{item.value}</span>
+                </div>
+              ))}
+            </div>
+
+            {viewEntry.notes && (
+              <div className="bg-slate-50 rounded-xl px-4 py-3">
+                <p className="text-xs text-brand-text-secondary mb-1">Observações</p>
+                <p className="text-sm text-brand-text-primary">{viewEntry.notes}</p>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

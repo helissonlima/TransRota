@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,6 +21,7 @@ import {
   Navigation,
   Pencil,
   Trash2,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
@@ -107,13 +108,25 @@ const STATUS_CONFIG: Record<RouteStatus, {
 
 const KANBAN_COLUMNS: RouteStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
+const stopSchema = z.object({
+  clientName: z.string().min(1, 'Nome do cliente obrigatório'),
+  address: z.string().min(1, 'Endereço obrigatório'),
+  city: z.string().min(1, 'Cidade obrigatória'),
+  state: z.string().length(2, 'UF obrigatória (2 letras)'),
+  clientDocument: z.string().optional(),
+  zipCode: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 const routeSchema = z.object({
   name: z.string().min(3, 'Nome obrigatório'),
   scheduledDate: z.string().min(1, 'Data obrigatória'),
   vehicleId: z.string().uuid('Veículo obrigatório'),
   driverId: z.string().uuid('Motorista obrigatório'),
+  stops: z.array(stopSchema).optional(),
 });
 
+type StopFormData = z.infer<typeof stopSchema>;
 type RouteFormData = z.infer<typeof routeSchema>;
 
 function RouteCard({ route, onClick, selected }: { route: Route; onClick: () => void; selected?: boolean }) {
@@ -307,8 +320,14 @@ export default function RoutesPage() {
     onError: (error: any) => toast.error(error?.response?.data?.message ?? 'Erro ao cancelar rota.'),
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<RouteFormData>({
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<RouteFormData>({
     resolver: zodResolver(routeSchema),
+    defaultValues: { stops: [] },
+  });
+
+  const { fields: stopFields, append: appendStop, remove: removeStop } = useFieldArray({
+    control,
+    name: 'stops',
   });
 
   const filteredRoutes = routes.filter(
@@ -445,8 +464,8 @@ export default function RoutesPage() {
         open={modalOpen}
         onClose={() => { setModalOpen(false); reset(); }}
         title="Nova Rota"
-        description="Configure os dados da nova rota."
-        size="md"
+        description="Configure os dados da nova rota e adicione as paradas de entrega."
+        size="lg"
         footer={
           <>
             <Button variant="secondary" onClick={() => { setModalOpen(false); reset(); }}>Cancelar</Button>
@@ -457,37 +476,158 @@ export default function RoutesPage() {
         }
       >
         <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Nome da Rota *</label>
-            <input {...register('name')} placeholder="Ex: Zona Sul — Entrega" className={cn('input-base', errors.name && 'border-danger-400')} />
-            {errors.name && <p className="text-danger-500 text-xs mt-1">{errors.name.message}</p>}
+          {/* ── Dados da rota ────────────────────────────────────────── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Nome da Rota *</label>
+              <input {...register('name')} placeholder="Ex: Zona Sul — Entrega" className={cn('input-base', errors.name && 'border-danger-400')} />
+              {errors.name && <p className="text-danger-500 text-xs mt-1">{errors.name.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Data Agendada *</label>
+              <input {...register('scheduledDate')} type="datetime-local" className={cn('input-base', errors.scheduledDate && 'border-danger-400')} />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Veículo *</label>
+              <select {...register('vehicleId')} className={cn('input-base', errors.vehicleId && 'border-danger-400')}>
+                <option value="">Selecionar veículo...</option>
+                {vehicles.map((v) => (
+                  <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>
+                ))}
+              </select>
+              {errors.vehicleId && <p className="text-danger-500 text-xs mt-1">{errors.vehicleId.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Motorista *</label>
+              <select {...register('driverId')} className={cn('input-base', errors.driverId && 'border-danger-400')}>
+                <option value="">Selecionar motorista...</option>
+                {drivers.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+              {errors.driverId && <p className="text-danger-500 text-xs mt-1">{errors.driverId.message}</p>}
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Data Agendada *</label>
-            <input {...register('scheduledDate')} type="datetime-local" className={cn('input-base', errors.scheduledDate && 'border-danger-400')} />
-          </div>
+          {/* ── Paradas ──────────────────────────────────────────────── */}
+          <div className="border-t border-brand-border pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h4 className="text-sm font-semibold text-brand-text-primary flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary-500" />
+                  Paradas de Entrega
+                  {stopFields.length > 0 && (
+                    <span className="text-xs font-bold bg-primary-50 text-primary-600 px-1.5 py-0.5 rounded-full">
+                      {stopFields.length}
+                    </span>
+                  )}
+                </h4>
+                <p className="text-xs text-brand-text-secondary mt-0.5">Adicione os locais de entrega com cliente e endereço.</p>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                leftIcon={<Plus className="w-3.5 h-3.5" />}
+                onClick={() => appendStop({ clientName: '', address: '', city: '', state: '', clientDocument: '', zipCode: '', notes: '' })}
+              >
+                Adicionar Parada
+              </Button>
+            </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Veículo *</label>
-            <select {...register('vehicleId')} className={cn('input-base', errors.vehicleId && 'border-danger-400')}>
-              <option value="">Selecionar veículo...</option>
-              {vehicles.map((v) => (
-                <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>
+            {stopFields.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-6 border-2 border-dashed border-brand-border rounded-xl text-brand-text-secondary text-xs gap-1 opacity-60">
+                <MapPin className="w-5 h-5 opacity-50" />
+                <span>Nenhuma parada. A rota pode ser criada sem paradas.</span>
+              </div>
+            )}
+
+            <div className="space-y-3 max-h-72 overflow-y-auto scrollbar-thin pr-1">
+              {stopFields.map((field, index) => (
+                <div key={field.id} className="bg-slate-50 border border-brand-border rounded-xl p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-brand-text-secondary flex items-center gap-1.5">
+                      <span className="w-5 h-5 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-[10px] font-black">
+                        {index + 1}
+                      </span>
+                      Parada {index + 1}
+                    </span>
+                    <button type="button" onClick={() => removeStop(index)} className="text-brand-text-secondary hover:text-danger-500 transition-colors">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="sm:col-span-2">
+                      <input
+                        {...register(`stops.${index}.clientName`)}
+                        placeholder="Nome do cliente *"
+                        className={cn('input-base text-sm', errors.stops?.[index]?.clientName && 'border-danger-400')}
+                      />
+                      {errors.stops?.[index]?.clientName && (
+                        <p className="text-danger-500 text-xs mt-0.5">{errors.stops[index]!.clientName!.message}</p>
+                      )}
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <input
+                        {...register(`stops.${index}.address`)}
+                        placeholder="Endereço completo (rua, número, bairro) *"
+                        className={cn('input-base text-sm', errors.stops?.[index]?.address && 'border-danger-400')}
+                      />
+                      {errors.stops?.[index]?.address && (
+                        <p className="text-danger-500 text-xs mt-0.5">{errors.stops[index]!.address!.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <input
+                        {...register(`stops.${index}.city`)}
+                        placeholder="Cidade *"
+                        className={cn('input-base text-sm', errors.stops?.[index]?.city && 'border-danger-400')}
+                      />
+                      {errors.stops?.[index]?.city && (
+                        <p className="text-danger-500 text-xs mt-0.5">{errors.stops[index]!.city!.message}</p>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        {...register(`stops.${index}.state`)}
+                        placeholder="UF *"
+                        maxLength={2}
+                        style={{ textTransform: 'uppercase' }}
+                        className={cn('input-base text-sm', errors.stops?.[index]?.state && 'border-danger-400')}
+                      />
+                      <input
+                        {...register(`stops.${index}.zipCode`)}
+                        placeholder="CEP"
+                        className="input-base text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <input
+                        {...register(`stops.${index}.clientDocument`)}
+                        placeholder="CPF/CNPJ (opcional)"
+                        className="input-base text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <input
+                        {...register(`stops.${index}.notes`)}
+                        placeholder="Observações (opcional)"
+                        className="input-base text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
               ))}
-            </select>
-            {errors.vehicleId && <p className="text-danger-500 text-xs mt-1">{errors.vehicleId.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Motorista *</label>
-            <select {...register('driverId')} className={cn('input-base', errors.driverId && 'border-danger-400')}>
-              <option value="">Selecionar motorista...</option>
-              {drivers.map((d) => (
-                <option key={d.id} value={d.id}>{d.name}</option>
-              ))}
-            </select>
-            {errors.driverId && <p className="text-danger-500 text-xs mt-1">{errors.driverId.message}</p>}
+            </div>
           </div>
         </form>
       </Modal>

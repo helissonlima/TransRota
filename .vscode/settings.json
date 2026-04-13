@@ -8,6 +8,7 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "pnpm": true
+        "pnpm": true,
+        "docker exec": true
     }
 }
