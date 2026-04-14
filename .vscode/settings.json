@@ -1,14 +1,16 @@
 {
-    "chat.tools.terminal.autoApprove": {
-        "cp": true,
-        "docker compose": true,
-        "npx nest": true,
-        "npx prisma": true,
-        "/^cd '/Users/helisson/Desktop/Projetos/TransRota' && npm run$/": {
-            "approve": true,
-            "matchCommandLine": true
-        },
-        "pnpm": true,
-        "docker exec": true
-    }
+  "chat.tools.terminal.autoApprove": {
+    "cp": true,
+    "docker compose": true,
+    "npx nest": true,
+    "npx prisma": true,
+    "/^cd '/Users/helisson/Desktop/Projetos/TransRota' && npm run$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "pnpm": true,
+    "docker exec": true,
+    "lsof": true,
+    "docker run": true
+  }
 }

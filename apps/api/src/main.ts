@@ -1,21 +1,30 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
-import helmet from 'helmet';
-import { AppModule } from './app.module';
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { ConfigService } from "@nestjs/config";
+import helmet from "helmet";
+import { Logger } from "nestjs-pino";
+import * as Sentry from "@sentry/node";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN || "",
+    integrations: [nodeProfilingIntegration()],
+    tracesSampleRate: 1.0,
+    profilesSampleRate: 1.0,
+  });
+
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
   const config = app.get(ConfigService);
 
   // Segurança
   app.use(helmet());
-  const rawOrigins = config.get<string>('CORS_ORIGINS', '*');
+  const rawOrigins = config.get<string>("CORS_ORIGINS", "*");
   const origins: string | string[] | boolean =
-    rawOrigins === '*'
-      ? true
-      : rawOrigins.split(',').map((o) => o.trim());
+    rawOrigins === "*" ? true : rawOrigins.split(",").map((o) => o.trim());
 
   app.enableCors({
     origin: origins,
@@ -23,7 +32,7 @@ async function bootstrap() {
   });
 
   // Prefixo global
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix("api/v1");
 
   // Validação automática de DTOs
   app.useGlobalPipes(
@@ -37,17 +46,20 @@ async function bootstrap() {
 
   // Swagger
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('TransRota API')
-    .setDescription('SaaS de Gestão de Frota e Rotas')
-    .setVersion('1.0')
+    .setTitle("TransRota API")
+    .setDescription("SaaS de Gestão de Frota e Rotas")
+    .setVersion("1.0")
     .addBearerAuth()
-    .addApiKey({ type: 'apiKey', name: 'X-Tenant-ID', in: 'header' }, 'X-Tenant-ID')
+    .addApiKey(
+      { type: "apiKey", name: "X-Tenant-ID", in: "header" },
+      "X-Tenant-ID",
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup("api/docs", app, document);
 
-  const port = config.get<number>('PORT', 3001);
+  const port = config.get<number>("PORT", 3001);
   await app.listen(port);
   console.log(`TransRota API running on port ${port}`);
 }
