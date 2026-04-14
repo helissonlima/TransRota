@@ -1,0 +1,569 @@
+[
+  {
+    "id": "4bc4fb26-f087-4573-ac5b-2752b80d3956",
+    "executionId": "1cd55ec7-2479-4bd6-9cc7-5bc4e653286c",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.391Z"
+  },
+  {
+    "id": "71c7a214-0a03-4181-8827-a7168537b27c",
+    "executionId": "6c17016b-2d4e-40cd-95cc-a78170e6581e",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.393Z"
+  },
+  {
+    "id": "34b924b1-91c4-460c-b7b6-d12613da083c",
+    "executionId": "0335e9fb-9c7b-4204-9e7e-a64e11274229",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.394Z"
+  },
+  {
+    "id": "9fbb11b3-5589-4a56-8bf3-be2ff08ea295",
+    "executionId": "1d5013b6-4ea1-410d-b25b-1821ba67f6aa",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.395Z"
+  },
+  {
+    "id": "0579dede-22b0-4306-80e5-5c81b69c026d",
+    "executionId": "ddfafe61-546c-495a-b6ac-25181956ee9b",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.396Z"
+  },
+  {
+    "id": "9aeaf66b-243f-4190-a474-69ecc7e5f5db",
+    "executionId": "a5f684f1-eb51-40e4-b4ed-299904f72df7",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.397Z"
+  },
+  {
+    "id": "c7caaec9-8d4d-46eb-8fb5-f3122100724e",
+    "executionId": "71bfc291-f718-4f60-894d-ab6dd148375c",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.398Z"
+  },
+  {
+    "id": "b01e863d-efff-470f-91f5-47f376622ea0",
+    "executionId": "793b7bff-d97f-4fa1-85d2-0a1861f4eda0",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.399Z"
+  },
+  {
+    "id": "097c70ec-3a03-4008-b26c-47289b29d5f3",
+    "executionId": "6996803f-8c52-4621-9f5f-5c67789ff2e8",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.399Z"
+  },
+  {
+    "id": "5b4cf074-ac67-48d0-ba77-e5914990aaa4",
+    "executionId": "3bd94cef-56f2-4b5d-84b0-3e276f6a4d11",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.400Z"
+  },
+  {
+    "id": "e0893eab-2e86-455b-bb13-213ed80f39b5",
+    "executionId": "a0f34cfa-9f0c-46d1-906b-58086610f0fe",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.401Z"
+  },
+  {
+    "id": "23daefdf-735b-49bd-a12d-fe13fc9e6867",
+    "executionId": "832ac44e-f448-43dc-a003-b99e5d278c8d",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.402Z"
+  },
+  {
+    "id": "eb94e214-07f9-4bf2-bf3f-936fb052293e",
+    "executionId": "81c98409-7cc0-4ee0-b9a1-0fca1a4c9188",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.403Z"
+  },
+  {
+    "id": "7b5cd688-ca39-4c11-b9e3-91285cef5946",
+    "executionId": "39702b87-7a9d-4a34-907e-3aca29db0244",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.403Z"
+  },
+  {
+    "id": "2b901fb7-1fd4-444f-94e3-c70f0fcb6a68",
+    "executionId": "5fc08c67-6e4c-4b2f-ab17-154bfe310a2b",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.404Z"
+  },
+  {
+    "id": "be0975d3-8e11-49b8-92ea-9d85cda4bece",
+    "executionId": "4bba45ca-0b85-4756-bec1-f5106134e4c3",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.405Z"
+  },
+  {
+    "id": "4bbcbafa-8ec2-4207-9b06-37adb48826ea",
+    "executionId": "4a5f029a-ba89-4c8a-9b57-24dd6eafb79b",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.406Z"
+  },
+  {
+    "id": "26556657-0227-4631-b153-e9bb8eb59381",
+    "executionId": "36299d6a-d5bd-42e7-9ea3-4a3cbbfc5da1",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.407Z"
+  },
+  {
+    "id": "89239013-7ad4-4fd3-80e5-d0c3963eb2b0",
+    "executionId": "30479b75-7926-4889-901c-54f9f6101c1f",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.407Z"
+  },
+  {
+    "id": "3268b33e-757f-4d8d-bef8-b1075ba40e2c",
+    "executionId": "49cbf65f-75c3-4f12-a2b4-2a0628f8fe56",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.408Z"
+  },
+  {
+    "id": "361457f8-ee28-45f9-999d-30b8e6a9d28b",
+    "executionId": "62fb5c02-0f6e-42d2-a9b2-ed684b849ae2",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.409Z"
+  },
+  {
+    "id": "632a097a-6fab-42b6-a880-5faa4a46eb27",
+    "executionId": "a8d0c994-9d8e-41cc-9320-874850e1cb35",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.410Z"
+  },
+  {
+    "id": "87139d02-d779-4d86-bc32-14e71e2c11e3",
+    "executionId": "86a9520e-8bc8-44eb-a97e-45c7378104e5",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.410Z"
+  },
+  {
+    "id": "6143867e-76ba-477d-ade2-a6e44cdff748",
+    "executionId": "b47e89bd-8143-49cf-8b72-af1efe2c2a9d",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.411Z"
+  },
+  {
+    "id": "95e69969-0de8-4343-809c-cab6a6c6791f",
+    "executionId": "abb1f842-b223-4fd7-aec8-b75832736209",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.412Z"
+  },
+  {
+    "id": "d10f79e6-e68f-4d1b-bc50-ebc52e94d3ce",
+    "executionId": "364de115-ad06-45bc-9ff8-18e1a84d4e9d",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.413Z"
+  },
+  {
+    "id": "717ec863-b333-4c1c-bded-9db554765bad",
+    "executionId": "ce41be2e-ff44-48dd-94e7-846fee81192e",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.413Z"
+  },
+  {
+    "id": "ea4cb846-0a6a-4e7a-9b45-b3b69ba91a9e",
+    "executionId": "29777ba5-52d2-4c71-807e-bd9eb298eb76",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.414Z"
+  },
+  {
+    "id": "48a081d4-d822-475c-8df9-be7f7ed96c8e",
+    "executionId": "1196be71-b89b-4100-a000-fdd51ceb2d56",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.415Z"
+  },
+  {
+    "id": "0c6cbfa9-0954-4f00-bb93-ff0999fbebf5",
+    "executionId": "124c2f4e-65aa-4a8b-948d-6428ea6a3ab2",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.416Z"
+  },
+  {
+    "id": "ca1d2db2-95ac-47ba-8b0a-c0d89ad2bc8a",
+    "executionId": "21b72b0c-5140-42e3-8ce3-b8035bc8d369",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.416Z"
+  },
+  {
+    "id": "e405b5ff-0a5f-42d3-80ed-4872f8b73697",
+    "executionId": "1b981b10-e347-49b9-bc03-a3d635a76d15",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.417Z"
+  },
+  {
+    "id": "213550b3-d07f-49d9-afef-3cb722acf8c5",
+    "executionId": "be9d080b-e5d4-4e1c-9810-7b41717c6489",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.418Z"
+  },
+  {
+    "id": "f13a7a2c-b65f-409d-8828-c5afc4502ab1",
+    "executionId": "a772ec27-db9b-41f7-a7ef-0398501d702d",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.419Z"
+  },
+  {
+    "id": "457b9c18-9c85-4aff-9524-af97b7c017da",
+    "executionId": "8bc4d93c-2e6a-4638-9eca-813cf1cf3606",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.420Z"
+  },
+  {
+    "id": "00b1772d-73eb-4457-bdab-498caae00573",
+    "executionId": "4d27952e-742f-4868-8698-9ee45c2f06ae",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.420Z"
+  },
+  {
+    "id": "ef58db30-9165-4c58-bac8-5a6028081f3a",
+    "executionId": "04a3a046-9983-45a2-a268-c10955663cd8",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.421Z"
+  },
+  {
+    "id": "31491789-7af3-44e1-b621-049d43cf0803",
+    "executionId": "df046879-cfbc-4b4d-b05d-aee9f0810d63",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.422Z"
+  },
+  {
+    "id": "319f801e-dc84-45f6-8100-0d0d83680a42",
+    "executionId": "ae785eff-f480-4069-8c60-230cf90ddab6",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": "AVALIAÇÃO DO DESGASTE",
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.422Z"
+  },
+  {
+    "id": "d6385e58-b8c6-4fbc-99fe-7fec635a3d2e",
+    "executionId": "86531d97-49ba-42e7-b706-86cd1d858002",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.423Z"
+  },
+  {
+    "id": "30be0871-40ac-4a3e-9fb7-b1f4569e76f4",
+    "executionId": "b0d6f71a-b4c9-424b-87ff-e93abd3f46db",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.424Z"
+  },
+  {
+    "id": "51e87c23-4ae1-4622-a573-7bf4fc44c851",
+    "executionId": "f8f8d7d0-9e58-4a23-9e1b-740703f4a22f",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.425Z"
+  },
+  {
+    "id": "2cc3f04b-0c28-4c22-8685-0b9235e0ec40",
+    "executionId": "dfa902ac-dd0e-4775-9690-e0311f35eb2c",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.425Z"
+  },
+  {
+    "id": "cffdf94a-0a19-41ee-9c7a-41f68f9fa3b6",
+    "executionId": "129ee8d4-ea91-477b-b914-8928ed351657",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.426Z"
+  },
+  {
+    "id": "84088fd1-8391-41c3-a475-4e16f44f6efd",
+    "executionId": "8e32cfe3-d57f-45ea-8bcb-e2d89608b82e",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.427Z"
+  },
+  {
+    "id": "beddbfa4-69cf-4746-855f-4f3cc0cb3093",
+    "executionId": "913e82db-1b38-4d21-8afa-e016b4d5a489",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.428Z"
+  },
+  {
+    "id": "b1c065e9-6d35-45fb-924c-76b9a95cdab9",
+    "executionId": "ca8a8721-5d21-4fe9-bce5-d1f2e1ec2de5",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.428Z"
+  },
+  {
+    "id": "3d10b4f1-f3be-4864-9640-d848d86cc5b1",
+    "executionId": "34ddc349-cc98-4a27-914f-787ac7c99242",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.429Z"
+  },
+  {
+    "id": "2f76942a-d874-40fb-9279-28399751d7c8",
+    "executionId": "ae278ac9-be1a-49fa-8802-9a5de3651d2a",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.430Z"
+  },
+  {
+    "id": "6f4ba680-599d-42db-8890-ad34983e2eb1",
+    "executionId": "7b3580ec-9e21-49c0-a919-4bd094c0aca4",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.431Z"
+  },
+  {
+    "id": "84999f7e-fe29-455e-b281-1350eb309aee",
+    "executionId": "2ae9645d-cde3-4028-b650-60874b61ccc4",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.432Z"
+  },
+  {
+    "id": "6c52454a-7f18-43e4-94f4-f1d17d02b3ee",
+    "executionId": "ef19b587-7198-457e-a99d-e5732f9d9f93",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.432Z"
+  },
+  {
+    "id": "49073b56-1781-47df-80eb-52aedbd81a89",
+    "executionId": "05497ce9-2a9e-408b-b55f-e37e7541695c",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.433Z"
+  },
+  {
+    "id": "a57ef87b-b069-426a-8ff9-d1735ebd3c01",
+    "executionId": "b1c06c27-46ad-4686-b172-f7d8c324d9f1",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.434Z"
+  },
+  {
+    "id": "3127cbbb-533c-44c9-a308-8f4cc377fc68",
+    "executionId": "109e3fe6-cb5d-4736-ae16-f02c130070fc",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.435Z"
+  },
+  {
+    "id": "38af6444-2c80-4bf9-b0b6-c20e49f0e1e3",
+    "executionId": "3ef41d67-0b4d-4ba9-b653-6fa5532fa318",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.435Z"
+  },
+  {
+    "id": "171eba05-09f9-4daf-9a5a-65e335ca3136",
+    "executionId": "4cd4f1b5-2e62-4476-a5be-a78527375c01",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.436Z"
+  },
+  {
+    "id": "1a232713-0488-4a2f-8544-cd4267508024",
+    "executionId": "4b0d490d-0d53-421f-826c-92ba963aa232",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.437Z"
+  },
+  {
+    "id": "51e16d77-f603-4a8f-b1d0-cb1d3135aa37",
+    "executionId": "15b08b35-4cee-424f-8484-fa801d53132b",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.438Z"
+  },
+  {
+    "id": "790fb2c1-a11f-439f-966f-f0b60056f38d",
+    "executionId": "0bc2eb16-45c1-432b-9ec1-6e557158f61e",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.439Z"
+  },
+  {
+    "id": "28130b66-0ee7-40a2-92fe-30a354bfc6d7",
+    "executionId": "6f29a3ff-d46f-46be-9a18-d690f9c9b254",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "NOK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.439Z"
+  },
+  {
+    "id": "9ab76a8f-3d39-4ea1-82a5-a6aa5ffba28c",
+    "executionId": "4e324852-1a15-455b-839c-d50111d0c876",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.440Z"
+  },
+  {
+    "id": "a82d3eb0-ae59-42ae-9a3e-b672dead7b58",
+    "executionId": "06b33425-1b21-4bcb-886e-8e36ca2bc059",
+    "itemId": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "status": "OK",
+    "notes": null,
+    "photoUrl": null,
+    "createdAt": "2026-04-12T14:13:41.441Z"
+  }
+]

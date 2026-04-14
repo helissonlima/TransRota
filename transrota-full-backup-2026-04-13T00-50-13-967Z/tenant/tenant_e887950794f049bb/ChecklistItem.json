@@ -1,0 +1,72 @@
+[
+  {
+    "id": "3221184d-4035-4e4f-862b-b822a9f6e3db",
+    "checklistId": "9360bc8a-bc85-48ae-8d94-4c97924f5328",
+    "description": "Elétrica e Iluminação",
+    "isRequired": true,
+    "order": 1,
+    "allowPhoto": true,
+    "allowNotes": true,
+    "createdAt": "2026-04-12T14:13:41.388Z"
+  },
+  {
+    "id": "fefae08e-568f-4bcd-a3e6-68f90fd74f6d",
+    "checklistId": "9360bc8a-bc85-48ae-8d94-4c97924f5328",
+    "description": "Itens de Segurança",
+    "isRequired": true,
+    "order": 2,
+    "allowPhoto": true,
+    "allowNotes": true,
+    "createdAt": "2026-04-12T14:13:41.388Z"
+  },
+  {
+    "id": "766024ef-53c4-4c1f-9e99-f77e682a77ea",
+    "checklistId": "9360bc8a-bc85-48ae-8d94-4c97924f5328",
+    "description": "Manutenção e Inspeção",
+    "isRequired": true,
+    "order": 3,
+    "allowPhoto": true,
+    "allowNotes": true,
+    "createdAt": "2026-04-12T14:13:41.388Z"
+  },
+  {
+    "id": "9ce5033c-6e95-4d7f-afcd-8537b0f37958",
+    "checklistId": "9360bc8a-bc85-48ae-8d94-4c97924f5328",
+    "description": "Componentes Internos",
+    "isRequired": false,
+    "order": 4,
+    "allowPhoto": true,
+    "allowNotes": true,
+    "createdAt": "2026-04-12T14:13:41.388Z"
+  },
+  {
+    "id": "5b313d77-1293-4880-9513-0865b53330e6",
+    "checklistId": "9360bc8a-bc85-48ae-8d94-4c97924f5328",
+    "description": "Documentação",
+    "isRequired": true,
+    "order": 5,
+    "allowPhoto": true,
+    "allowNotes": true,
+    "createdAt": "2026-04-12T14:13:41.388Z"
+  },
+  {
+    "id": "e618002b-5720-4112-b447-2eca0697eb8a",
+    "checklistId": "9360bc8a-bc85-48ae-8d94-4c97924f5328",
+    "description": "Avarias Externas",
+    "isRequired": false,
+    "order": 6,
+    "allowPhoto": true,
+    "allowNotes": true,
+    "createdAt": "2026-04-12T14:13:41.388Z"
+  },
+  {
+    "id": "227a6243-2140-421a-b844-5a33ca39c73d",
+    "checklistId": "9360bc8a-bc85-48ae-8d94-4c97924f5328",
+    "description": "Avarias Internas",
+    "isRequired": false,
+    "order": 7,
+    "allowPhoto": true,
+    "allowNotes": true,
+    "createdAt": "2026-04-12T14:13:41.388Z"
+  }
+]

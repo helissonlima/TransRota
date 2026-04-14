@@ -53,7 +53,7 @@ services:
     environment:
       PORT: 3001
       DATABASE_MASTER_URL: postgresql://postgres:postgres@postgres:5432/transrota_master?schema=public
-      DATABASE_BASE_URL: postgresql://postgres:postgres@postgres:5432/transrota
+      DATABASE_BASE_URL: postgresql://postgres:postgres@postgres:5432/transrota_master
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-refresh-in-production}
       REDIS_URL: redis://redis:6379

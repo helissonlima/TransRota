@@ -11,6 +11,7 @@
     "pnpm": true,
     "docker exec": true,
     "lsof": true,
-    "docker run": true
+    "docker run": true,
+    "ss": true
   }
 }

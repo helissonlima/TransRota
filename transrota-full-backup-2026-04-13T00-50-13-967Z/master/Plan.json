@@ -1,0 +1,15 @@
+[
+  {
+    "id": "plan-default",
+    "name": "Padrão",
+    "type": "PROFESSIONAL",
+    "maxVehicles": 999,
+    "maxDrivers": 999,
+    "maxUsers": 999,
+    "maxBranches": 99,
+    "storageGb": 100,
+    "priceMonthly": "0",
+    "isActive": true,
+    "createdAt": "2026-04-13T00:15:06.491Z"
+  }
+]

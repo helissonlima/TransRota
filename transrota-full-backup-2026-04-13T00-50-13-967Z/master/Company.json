@@ -1,0 +1,16 @@
+[
+  {
+    "id": "e887950794f049bb",
+    "name": "EFRATAGRO AGRONEGOCIOS LTDA",
+    "cnpj": "12345678000100",
+    "email": "admin@rota.com",
+    "phone": "",
+    "schemaName": "tenant_e887950794f049bb",
+    "planId": "plan-default",
+    "isActive": true,
+    "trialEndsAt": null,
+    "features": [],
+    "createdAt": "2026-04-13T00:15:06.491Z",
+    "updatedAt": "2026-04-13T00:15:06.491Z"
+  }
+]

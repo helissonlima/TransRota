@@ -549,9 +549,7 @@ export class AdminAuthService {
 
   // ─── Restauração completa ─────────────────────────────────────────────────
 
-  async restoreFullBackup(
-    buffer: Buffer,
-  ): Promise<{
+  async restoreFullBackup(buffer: Buffer): Promise<{
     message: string;
     tenantsRestored: number;
     companiesRestored: number;
@@ -602,19 +600,22 @@ export class AdminAuthService {
     }
 
     const BATCH = 200;
+    const masterTablesSql = manifest.masterTables
+      .map((tableName) => `"public"."${tableName}"`)
+      .join(", ");
 
     // ── 1. Restaura schema master (public) com FK checks desligados ──────────
     await this.masterPrisma.$transaction(
       async (tx) => {
         await tx.$executeRawUnsafe(`SET session_replication_role = 'replica'`);
+        if (masterTablesSql) {
+          await tx.$executeRawUnsafe(`TRUNCATE ${masterTablesSql} CASCADE`);
+        }
         for (const tableName of manifest.masterTables) {
           const entry = zip.getEntry(`master/${tableName}.json`);
           if (!entry) continue;
           const rows: unknown[] = JSON.parse(entry.getData().toString("utf8"));
           if (!rows.length) continue;
-          await tx.$executeRawUnsafe(
-            `TRUNCATE "public"."${tableName}" CASCADE`,
-          );
           for (let i = 0; i < rows.length; i += BATCH) {
             const batch = rows.slice(i, i + BATCH);
             await tx.$executeRawUnsafe(

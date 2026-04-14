@@ -1,11 +1,15 @@
-import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
-import { execFileSync } from 'child_process';
-import * as path from 'path';
-import { MasterPrismaService } from '../core/prisma/master-prisma.service';
-import { TenantPrismaFactory } from '../core/prisma/tenant-prisma.factory';
-import { CreateCompanyDto } from './dto/create-company.dto';
-import * as bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  Injectable,
+  ConflictException,
+  BadRequestException,
+} from "@nestjs/common";
+import { execFileSync } from "child_process";
+import * as path from "path";
+import { MasterPrismaService } from "../core/prisma/master-prisma.service";
+import { TenantPrismaFactory } from "../core/prisma/tenant-prisma.factory";
+import { CreateCompanyDto } from "./dto/create-company.dto";
+import * as bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
 
 @Injectable()
 export class TenantService {
@@ -24,20 +28,22 @@ export class TenantService {
       where: {
         OR: [
           { cnpj: normalizedCnpj },
-          { email: { equals: normalizedEmail, mode: 'insensitive' } },
+          { email: { equals: normalizedEmail, mode: "insensitive" } },
         ],
       },
     });
     if (existing) {
-      throw new ConflictException('Empresa já cadastrada com este CNPJ ou e-mail');
+      throw new ConflictException(
+        "Empresa já cadastrada com este CNPJ ou e-mail",
+      );
     }
 
     const plan = await this.masterPrisma.plan.findFirst({
-      where: { type: 'STARTER', isActive: true },
+      where: { type: "STARTER", isActive: true },
     });
-    if (!plan) throw new BadRequestException('Plano padrão não encontrado');
+    if (!plan) throw new BadRequestException("Plano padrão não encontrado");
 
-    const schemaName = `tenant_${uuidv4().replace(/-/g, '').slice(0, 16)}`;
+    const schemaName = `tenant_${uuidv4().replace(/-/g, "").slice(0, 16)}`;
 
     let companyId: string | undefined;
     try {
@@ -66,8 +72,8 @@ export class TenantService {
       const defaultBranch = await (tenantPrisma as any).branch.create({
         data: {
           name: dto.name,
-          city: 'Não informado',
-          state: 'XX',
+          city: "Não informado",
+          state: "XX",
         },
       });
 
@@ -76,24 +82,30 @@ export class TenantService {
           name: dto.adminName,
           email: normalizedAdminEmail,
           passwordHash,
-          role: 'ADMIN',
+          role: "ADMIN",
           branchId: defaultBranch.id,
         },
       });
 
       await this.masterPrisma.adminNotification.create({
         data: {
-          type: 'NEW_COMPANY',
-          title: 'Nova empresa cadastrada',
+          type: "NEW_COMPANY",
+          title: "Nova empresa cadastrada",
           message: `${dto.name} iniciou o período de trial.`,
           companyId: company.id,
         },
       });
 
-      return { companyId: company.id, schemaName, trialEndsAt: company.trialEndsAt };
+      return {
+        companyId: company.id,
+        schemaName,
+        trialEndsAt: company.trialEndsAt,
+      };
     } catch (error) {
       if (companyId) {
-        await this.masterPrisma.company.delete({ where: { id: companyId } }).catch(() => undefined);
+        await this.masterPrisma.company
+          .delete({ where: { id: companyId } })
+          .catch(() => undefined);
       }
       await this.dropTenantSchema(schemaName).catch(() => undefined);
       throw error;
@@ -108,42 +120,56 @@ export class TenantService {
 
     // Executa sincronização Prisma para o novo schema.
     const baseUrl = this.resolveDatabaseBaseUrl();
-    const tenantUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}schema=${schemaName}`;
-    const schemaPath = path.resolve(__dirname, '../../prisma/tenant.prisma');
-    const cwd = path.resolve(__dirname, '../..');
+    const tenantUrl = `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}schema=${schemaName}`;
+    const schemaPath = path.resolve(__dirname, "../../prisma/tenant.prisma");
+    const cwd = path.resolve(__dirname, "../..");
 
-    execFileSync('npx', ['prisma', 'db', 'push', '--schema', schemaPath, '--skip-generate'], {
-      cwd,
-      env: { ...process.env, DATABASE_TENANT_URL: tenantUrl },
-      stdio: 'pipe',
-    });
+    execFileSync(
+      "npx",
+      ["prisma", "db", "push", "--schema", schemaPath, "--skip-generate"],
+      {
+        cwd,
+        env: { ...process.env, DATABASE_TENANT_URL: tenantUrl },
+        stdio: "pipe",
+      },
+    );
   }
 
   private async dropTenantSchema(schemaName: string) {
-    await this.masterPrisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
+    await this.masterPrisma.$executeRawUnsafe(
+      `DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`,
+    );
   }
 
   private resolveDatabaseBaseUrl() {
-    if (process.env.DATABASE_BASE_URL) return process.env.DATABASE_BASE_URL;
     const masterUrl = process.env.DATABASE_MASTER_URL;
-    if (!masterUrl) {
-      throw new BadRequestException('DATABASE_BASE_URL ou DATABASE_MASTER_URL não configurada');
+    if (masterUrl) {
+      return masterUrl.split("?")[0];
     }
-    return masterUrl.split('?')[0];
+    if (process.env.DATABASE_BASE_URL) return process.env.DATABASE_BASE_URL;
+    if (!masterUrl) {
+      throw new BadRequestException(
+        "DATABASE_BASE_URL ou DATABASE_MASTER_URL não configurada",
+      );
+    }
+    return masterUrl.split("?")[0];
   }
 
   private normalizeCnpj(value: string) {
-    const digits = value.replace(/\D/g, '');
+    const digits = value.replace(/\D/g, "");
     if (digits.length !== 14) {
-      throw new BadRequestException('CNPJ inválido');
+      throw new BadRequestException("CNPJ inválido");
     }
-    return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    return digits.replace(
+      /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+      "$1.$2.$3/$4-$5",
+    );
   }
 
   async listCompanies() {
     return this.masterPrisma.company.findMany({
       include: { plan: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "3c01da05-5530-4461-86d9-6570ae1965da",
+    "name": "Helisson",
+    "email": "helisson@outlook.com",
+    "passwordHash": "$2b$12$3ZvmzDqbp24/QmfHDlmT4.GBEpmkbUsosO9ZwftIAsYl09HXuc5nK",
+    "isActive": true,
+    "refreshTokenHash": "$2b$10$8Ij/wIuEz1.a1oDMScfo/.ASpdgxoWSz81ZM29LEq2TZGHXmzR4Xa",
+    "lastLoginAt": "2026-04-13T00:35:55.105Z",
+    "createdAt": "2026-04-13T00:13:24.477Z",
+    "updatedAt": "2026-04-13T00:35:55.106Z"
+  }
+]

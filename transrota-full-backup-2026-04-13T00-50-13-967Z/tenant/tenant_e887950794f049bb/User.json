@@ -1,0 +1,15 @@
+[
+  {
+    "id": "c951b4b3-77ce-415d-9ce1-8074a6140ddf",
+    "name": "admin",
+    "email": "admin@rota.com",
+    "passwordHash": "$2a$12$0VT/j49MNYXaG9RnkxdN8OT4/FpQeQq/dAt1sRm/mqW29KN/CPEfW",
+    "role": "ADMIN",
+    "branchId": "2a486933-9745-428c-bb6d-f6a37eba255b",
+    "isActive": true,
+    "lastLoginAt": "2026-04-13T00:34:00.458Z",
+    "refreshTokenHash": "$2b$10$KVtYxLKGEdC75732AaTCoOnl3a751dOg9D5VJJ9AHYEEyQg6R2Ypi",
+    "createdAt": "2026-04-12T00:48:04.721Z",
+    "updatedAt": "2026-04-13T00:34:00.458Z"
+  }
+]

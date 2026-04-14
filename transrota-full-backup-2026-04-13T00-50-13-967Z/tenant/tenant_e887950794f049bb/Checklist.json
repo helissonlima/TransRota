@@ -1,0 +1,10 @@
+[
+  {
+    "id": "9360bc8a-bc85-48ae-8d94-4c97924f5328",
+    "name": "Inspeção Veicular AGROFERT",
+    "type": "PRE_TRIP",
+    "branchId": "2a486933-9745-428c-bb6d-f6a37eba255b",
+    "isActive": true,
+    "createdAt": "2026-04-12T14:13:41.388Z"
+  }
+]

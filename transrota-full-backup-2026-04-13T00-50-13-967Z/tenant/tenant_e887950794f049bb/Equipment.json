@@ -1,0 +1,46 @@
+[
+  {
+    "id": "14b9a508-4584-4fc8-8ba4-93d6cf680e04",
+    "tag": 7,
+    "name": "Empilhadeira",
+    "type": "EMPILHADEIRA",
+    "identifier": "EMPILHADEIRA",
+    "isActive": true,
+    "branchId": "2a486933-9745-428c-bb6d-f6a37eba255b",
+    "createdAt": "2026-04-12T14:13:23.087Z",
+    "updatedAt": "2026-04-12T14:13:23.087Z"
+  },
+  {
+    "id": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "tag": 32,
+    "name": "Gerador Drone",
+    "type": "GERADOR",
+    "identifier": "GERADOR",
+    "isActive": true,
+    "branchId": "2a486933-9745-428c-bb6d-f6a37eba255b",
+    "createdAt": "2026-04-12T14:13:23.094Z",
+    "updatedAt": "2026-04-12T14:13:23.094Z"
+  },
+  {
+    "id": "d3cdf577-8dc4-42cc-a7d9-0da1eca2faa1",
+    "tag": 20,
+    "name": "Galão Combustível",
+    "type": "OUTRO",
+    "identifier": "GALÃO",
+    "isActive": true,
+    "branchId": "2a486933-9745-428c-bb6d-f6a37eba255b",
+    "createdAt": "2026-04-12T14:13:23.096Z",
+    "updatedAt": "2026-04-12T14:13:23.096Z"
+  },
+  {
+    "id": "73157228-c430-4182-a773-0979cb32291d",
+    "tag": 33,
+    "name": "Toyota Hilux Drone",
+    "type": "DRONE",
+    "identifier": "GFP-9J45",
+    "isActive": true,
+    "branchId": "2a486933-9745-428c-bb6d-f6a37eba255b",
+    "createdAt": "2026-04-12T14:13:23.097Z",
+    "updatedAt": "2026-04-12T14:13:23.097Z"
+  }
+]

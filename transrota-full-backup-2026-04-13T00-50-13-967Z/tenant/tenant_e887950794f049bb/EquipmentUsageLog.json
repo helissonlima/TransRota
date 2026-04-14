@@ -1,0 +1,211 @@
+[
+  {
+    "id": "93f4c77d-f786-464d-a20f-2f3749a25335",
+    "equipmentId": "14b9a508-4584-4fc8-8ba4-93d6cf680e04",
+    "date": "2025-06-14T00:00:00.000Z",
+    "initialKm": 1470,
+    "finalKm": 1470,
+    "totalKm": 0,
+    "totalCost": null,
+    "notes": "Troca de óleo.",
+    "createdAt": "2026-04-12T14:13:23.183Z"
+  },
+  {
+    "id": "5e20ce7b-2ec9-4e86-b751-a13b25368424",
+    "equipmentId": "14b9a508-4584-4fc8-8ba4-93d6cf680e04",
+    "date": "2025-06-14T00:00:00.000Z",
+    "initialKm": 1470,
+    "finalKm": 1470,
+    "totalKm": 0,
+    "totalCost": null,
+    "notes": "Troca de óleo.",
+    "createdAt": "2026-04-12T14:13:41.174Z"
+  },
+  {
+    "id": "492e0bae-6b5c-4023-9b12-8770b6bcd55d",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-02T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "6194",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.383Z"
+  },
+  {
+    "id": "d6a068f6-2100-4b50-b9a6-765a82eebde1",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-04T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "8105",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.383Z"
+  },
+  {
+    "id": "5d0bfa3c-6345-4e07-b0c3-9033fff59d08",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-06T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "5505",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.383Z"
+  },
+  {
+    "id": "56845a6f-04aa-4768-b075-7216d3542fc9",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-07T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "6949",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.384Z"
+  },
+  {
+    "id": "ada5dd8a-fad0-48bb-a5d4-60167d044672",
+    "equipmentId": "73157228-c430-4182-a773-0979cb32291d",
+    "date": "2025-08-07T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "39854",
+    "notes": "DISEL PARA HILUX DRONE",
+    "createdAt": "2026-04-12T14:13:41.384Z"
+  },
+  {
+    "id": "76d11867-bd18-4a8e-8b47-9bee75a3b7bf",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-13T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "947",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.384Z"
+  },
+  {
+    "id": "21324b3c-9124-4749-9601-79fbb5bc6660",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-15T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "769",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.385Z"
+  },
+  {
+    "id": "afd357a7-e544-49b1-ba77-dab405ecaa0b",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-18T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "862",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.385Z"
+  },
+  {
+    "id": "bca5d077-43c3-4fd9-b55d-6d120be62e88",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-19T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "4574",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.385Z"
+  },
+  {
+    "id": "4bea198e-9666-4eae-b6f1-94c4eb16ac43",
+    "equipmentId": "73157228-c430-4182-a773-0979cb32291d",
+    "date": "2025-08-19T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "34367",
+    "notes": "DISEL PARA HILUX DRONE",
+    "createdAt": "2026-04-12T14:13:41.385Z"
+  },
+  {
+    "id": "ef113f8d-5cfb-4d12-9527-5cb6f88ed2e3",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-20T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "8408",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.386Z"
+  },
+  {
+    "id": "9254afc5-ba08-4edd-bfc0-05de176a36b6",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-22T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "10354",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.386Z"
+  },
+  {
+    "id": "62cbbe2c-f40f-4d91-9dff-f3aa0c9e6ecf",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-25T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "6705",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.386Z"
+  },
+  {
+    "id": "c2dddc08-0c85-4227-8d88-5ba2408052e9",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-08-27T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "9128",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.387Z"
+  },
+  {
+    "id": "f02a96a9-901d-4de9-a914-705a35f4f6fd",
+    "equipmentId": "73157228-c430-4182-a773-0979cb32291d",
+    "date": "2025-08-28T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "3006",
+    "notes": "DISEL PARA HILUX DRONE",
+    "createdAt": "2026-04-12T14:13:41.387Z"
+  },
+  {
+    "id": "aa6208f9-a004-4fc3-b49f-af006b03b355",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-10-06T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "1262",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.387Z"
+  },
+  {
+    "id": "3ee8276b-d6d2-41d8-82f4-c99698098f89",
+    "equipmentId": "59bfb79b-6c95-452e-9dfc-32c90935ee7a",
+    "date": "2025-10-08T00:00:00.000Z",
+    "initialKm": 0,
+    "finalKm": 0,
+    "totalKm": 0,
+    "totalCost": "6258",
+    "notes": "GERADOR",
+    "createdAt": "2026-04-12T14:13:41.387Z"
+  }
+]
