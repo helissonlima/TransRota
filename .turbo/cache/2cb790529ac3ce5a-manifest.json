@@ -1,0 +1,125 @@
+{
+  "files": {
+    "packages/shared/dist/types/route.d.ts": {
+      "size": 1860,
+      "mtime_nanos": 1776170106155506861,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/route.js": {
+      "size": 1307,
+      "mtime_nanos": 1776170106151485592,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/index.d.ts": {
+      "size": 193,
+      "mtime_nanos": 1776170106168486210,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/.turbo/turbo-build.log": {
+      "size": 114,
+      "mtime_nanos": 1776170106215487916,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/driver.d.ts": {
+      "size": 765,
+      "mtime_nanos": 1776170106146485411,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/vehicle.d.ts": {
+      "size": 1856,
+      "mtime_nanos": 1776170106141485229,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/checklist.d.ts": {
+      "size": 1119,
+      "mtime_nanos": 1776170106163486028,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "packages/shared/dist/types/driver.js": {
+      "size": 833,
+      "mtime_nanos": 1776170106144485338,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/vehicle.js": {
+      "size": 2371,
+      "mtime_nanos": 1776170106137607309,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/index.js": {
+      "size": 1058,
+      "mtime_nanos": 1776170106167486173,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/checklist.js": {
+      "size": 948,
+      "mtime_nanos": 1776170106157485810,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/user.d.ts": {
+      "size": 597,
+      "mtime_nanos": 1776170106125484648,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/tenant.d.ts": {
+      "size": 458,
+      "mtime_nanos": 1776170106118310853,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types/user.js": {
+      "size": 417,
+      "mtime_nanos": 1776170106122484539,
+      "mode": 436,
+      "is_dir": false
+    },
+    "packages/shared/dist/types": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "packages/shared/dist/types/tenant.js": {
+      "size": 320,
+      "mtime_nanos": 1776170106107373871,
+      "mode": 436,
+      "is_dir": false
+    }
+  },
+  "order": [
+    "packages/shared/.turbo/turbo-build.log",
+    "packages/shared/dist",
+    "packages/shared/dist/index.d.ts",
+    "packages/shared/dist/index.js",
+    "packages/shared/dist/types",
+    "packages/shared/dist/types/checklist.d.ts",
+    "packages/shared/dist/types/checklist.js",
+    "packages/shared/dist/types/driver.d.ts",
+    "packages/shared/dist/types/driver.js",
+    "packages/shared/dist/types/route.d.ts",
+    "packages/shared/dist/types/route.js",
+    "packages/shared/dist/types/tenant.d.ts",
+    "packages/shared/dist/types/tenant.js",
+    "packages/shared/dist/types/user.d.ts",
+    "packages/shared/dist/types/user.js",
+    "packages/shared/dist/types/vehicle.d.ts",
+    "packages/shared/dist/types/vehicle.js"
+  ]
+}
