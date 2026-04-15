@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Truck,
   Users,
@@ -22,11 +22,12 @@ import {
   Wallet,
   UserPen,
   ChevronUp,
-} from 'lucide-react';
-import { logout } from '@/lib/auth';
-import { cn } from '@/lib/cn';
-import { useFeatures } from '@/lib/features-context';
-import { Package } from 'lucide-react';
+} from "lucide-react";
+import { logout } from "@/lib/auth";
+import { cn } from "@/lib/cn";
+import { useFeatures } from "@/lib/features-context";
+import { useBrandSettings } from "@/lib/branding";
+import { Package } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -38,45 +39,86 @@ interface NavItem {
 
 const navGroups: { label?: string; items: NavItem[] }[] = [
   {
+    items: [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }],
+  },
+  {
+    label: "Operações",
     items: [
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: "Frota", href: "/fleet", icon: Truck, feature: "fleet" },
+      {
+        label: "Motoristas",
+        href: "/drivers",
+        icon: Users,
+        feature: "drivers",
+      },
+      { label: "Rotas", href: "/routes", icon: MapPin, feature: "routes" },
+      {
+        label: "Checklists",
+        href: "/checklists",
+        icon: ClipboardList,
+        feature: "checklists",
+      },
+      {
+        label: "KM Diário",
+        href: "/daily-km",
+        icon: Route,
+        feature: "daily_km",
+      },
+      {
+        label: "Agendamento",
+        href: "/bookings",
+        icon: CalendarDays,
+        feature: "bookings",
+      },
     ],
   },
   {
-    label: 'Operações',
+    label: "Financeiro",
     items: [
-      { label: 'Frota', href: '/fleet', icon: Truck, feature: 'fleet' },
-      { label: 'Motoristas', href: '/drivers', icon: Users, feature: 'drivers' },
-      { label: 'Rotas', href: '/routes', icon: MapPin, feature: 'routes' },
-      { label: 'Checklists', href: '/checklists', icon: ClipboardList, feature: 'checklists' },
-      { label: 'KM Diário', href: '/daily-km', icon: Route, feature: 'daily_km' },
-      { label: 'Agendamento', href: '/bookings', icon: CalendarDays, feature: 'bookings' },
+      {
+        label: "Financeiro",
+        href: "/financial",
+        icon: Wallet,
+        feature: "financial",
+      },
+      {
+        label: "Fiscal / Taxas",
+        href: "/fiscal",
+        icon: Receipt,
+        feature: "fiscal",
+      },
     ],
   },
   {
-    label: 'Financeiro',
+    label: "Estoque",
     items: [
-      { label: 'Financeiro', href: '/financial', icon: Wallet, feature: 'financial' },
-      { label: 'Fiscal / Taxas', href: '/fiscal', icon: Receipt, feature: 'fiscal' },
+      {
+        label: "Produtos",
+        href: "/products",
+        icon: Package,
+        feature: "products",
+      },
+      {
+        label: "Equipamentos",
+        href: "/equipment",
+        icon: Cpu,
+        feature: "equipment",
+      },
     ],
   },
   {
-    label: 'Estoque',
+    label: "Análise",
     items: [
-      { label: 'Produtos', href: '/products', icon: Package, feature: 'products' },
-      { label: 'Equipamentos', href: '/equipment', icon: Cpu, feature: 'equipment' },
+      {
+        label: "Relatórios",
+        href: "/reports",
+        icon: BarChart2,
+        feature: "reports",
+      },
     ],
   },
   {
-    label: 'Análise',
-    items: [
-      { label: 'Relatórios', href: '/reports', icon: BarChart2, feature: 'reports' },
-    ],
-  },
-  {
-    items: [
-      { label: 'Configurações', href: '/settings', icon: Settings },
-    ],
+    items: [{ label: "Configurações", href: "/settings", icon: Settings }],
   },
 ];
 
@@ -85,87 +127,108 @@ interface SidebarProps {
   onToggle?: () => void;
 }
 
-export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps) {
+export function Sidebar({
+  collapsed: externalCollapsed,
+  onToggle,
+}: SidebarProps) {
   const pathname = usePathname();
   const [internalCollapsed, setInternalCollapsed] = useState(false);
   const { hasFeature } = useFeatures();
+  const [tenantId, setTenantId] = useState("");
+  const brand = useBrandSettings(tenantId);
 
   const collapsed = externalCollapsed ?? internalCollapsed;
   const toggle = onToggle ?? (() => setInternalCollapsed((c) => !c));
 
-  const [userName, setUserName] = useState('Usuário');
+  const [userName, setUserName] = useState("Usuário");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setUserName(localStorage.getItem('userName') ?? 'Usuário');
+    setUserName(localStorage.getItem("userName") ?? "Usuário");
+    setTenantId(localStorage.getItem("tenantId") ?? "");
   }, []);
 
   // Fecha o dropdown ao clicar fora
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
         setUserMenuOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const initials = userName
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .slice(0, 2)
     .toUpperCase();
 
   return (
     <motion.aside
       className={cn(
-        'relative flex flex-col h-screen bg-sidebar shadow-sidebar z-20',
-        'transition-none',
+        "relative flex flex-col h-screen bg-sidebar shadow-sidebar z-20",
+        "transition-none",
       )}
       animate={{ width: collapsed ? 68 : 260 }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      transition={{ type: "spring", damping: 30, stiffness: 300 }}
       style={{ flexShrink: 0 }}
     >
       {/* Toggle button */}
       <button
         onClick={toggle}
         className={cn(
-          'absolute -right-3 top-20 z-30 w-6 h-6 rounded-full',
-          'bg-primary-600 text-white shadow-glow-sm',
-          'flex items-center justify-center',
-          'hover:bg-primary-700 transition-colors',
-          'border-2 border-sidebar',
+          "absolute -right-3 top-20 z-30 w-6 h-6 rounded-full",
+          "bg-primary-600 text-white shadow-glow-sm",
+          "flex items-center justify-center",
+          "hover:bg-primary-700 transition-colors",
+          "border-2 border-sidebar",
         )}
-        aria-label={collapsed ? 'Expandir sidebar' : 'Recolher sidebar'}
+        aria-label={collapsed ? "Expandir sidebar" : "Recolher sidebar"}
       >
-        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+        {collapsed ? (
+          <ChevronRight className="w-3 h-3" />
+        ) : (
+          <ChevronLeft className="w-3 h-3" />
+        )}
       </button>
 
       {/* Logo */}
       <div
         className={cn(
-          'flex items-center gap-3 px-4 border-b border-white/5',
-          collapsed ? 'justify-center py-4' : 'py-5',
+          "flex items-center gap-3 px-4 border-b border-white/5",
+          collapsed ? "justify-center py-4" : "py-5",
         )}
       >
-        <div className="relative flex-shrink-0 w-9 h-9 bg-gradient-brand rounded-xl flex items-center justify-center shadow-glow-sm">
-          <Truck className="w-5 h-5 text-white" />
-        </div>
+        {brand.logoDataUrl ? (
+          <img
+            src={brand.logoDataUrl}
+            alt="Logo da empresa"
+            className="relative flex-shrink-0 w-9 h-9 rounded-xl object-cover shadow-glow-sm"
+          />
+        ) : (
+          <div className="relative flex-shrink-0 w-9 h-9 bg-gradient-brand rounded-xl flex items-center justify-center shadow-glow-sm">
+            <Truck className="w-5 h-5 text-white" />
+          </div>
+        )}
         <AnimatePresence>
           {!collapsed && (
             <motion.div
               initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
+              animate={{ opacity: 1, width: "auto" }}
               exit={{ opacity: 0, width: 0 }}
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
               <div className="flex flex-col leading-tight">
                 <span className="text-white font-bold text-base tracking-tight whitespace-nowrap">
-                  TransRota
+                  {brand.name}
                 </span>
                 <span className="text-sidebar-text text-2xs whitespace-nowrap">
                   Gestão de Frota
@@ -179,11 +242,13 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 scrollbar-dark overflow-y-auto">
         {navGroups.map((group, groupIdx) => {
-          const visibleGroupItems = group.items.filter(item => !item.feature || hasFeature(item.feature));
+          const visibleGroupItems = group.items.filter(
+            (item) => !item.feature || hasFeature(item.feature),
+          );
           if (visibleGroupItems.length === 0) return null;
 
           return (
-            <div key={groupIdx} className={groupIdx > 0 ? 'mt-3' : ''}>
+            <div key={groupIdx} className={groupIdx > 0 ? "mt-3" : ""}>
               {/* Category label */}
               {group.label && !collapsed && (
                 <div className="px-3 pb-1.5">
@@ -195,17 +260,21 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
               <div className="space-y-0.5">
                 {visibleGroupItems.map((item) => {
                   const Icon = item.icon;
-                  const active = pathname === item.href || pathname.startsWith(item.href + '/');
+                  const active =
+                    pathname === item.href ||
+                    pathname.startsWith(item.href + "/");
 
                   return (
                     <Link key={item.href} href={item.href} className="block">
                       <div
                         className={cn(
-                          'relative flex items-center gap-3 rounded-xl transition-all duration-200',
-                          collapsed ? 'justify-center px-0 py-3' : 'px-3 py-2.5',
+                          "relative flex items-center gap-3 rounded-xl transition-all duration-200",
+                          collapsed
+                            ? "justify-center px-0 py-3"
+                            : "px-3 py-2.5",
                           active
-                            ? 'bg-primary-600/20 sidebar-glow'
-                            : 'hover:bg-sidebar-hover text-sidebar-text hover:text-white',
+                            ? "bg-primary-600/20 sidebar-glow"
+                            : "hover:bg-sidebar-hover text-sidebar-text hover:text-white",
                         )}
                         title={collapsed ? item.label : undefined}
                       >
@@ -214,15 +283,19 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
                           <motion.div
                             className="absolute left-1 top-1.5 bottom-1.5 w-0.5 bg-primary-400 rounded-r-full shadow-glow-sm"
                             layoutId="sidebar-active"
-                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            transition={{
+                              type: "spring",
+                              damping: 25,
+                              stiffness: 300,
+                            }}
                           />
                         )}
 
                         <Icon
                           className={cn(
-                            'w-5 h-5 flex-shrink-0 transition-colors',
-                            active ? 'text-primary-400' : 'text-sidebar-text',
-                            collapsed && 'mx-auto',
+                            "w-5 h-5 flex-shrink-0 transition-colors",
+                            active ? "text-primary-400" : "text-sidebar-text",
+                            collapsed && "mx-auto",
                           )}
                         />
 
@@ -230,12 +303,12 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
                           {!collapsed && (
                             <motion.span
                               initial={{ opacity: 0, width: 0 }}
-                              animate={{ opacity: 1, width: 'auto' }}
+                              animate={{ opacity: 1, width: "auto" }}
                               exit={{ opacity: 0, width: 0 }}
                               transition={{ duration: 0.15 }}
                               className={cn(
-                                'text-sm font-medium whitespace-nowrap overflow-hidden flex-1',
-                                active ? 'text-white' : 'text-sidebar-text',
+                                "text-sm font-medium whitespace-nowrap overflow-hidden flex-1",
+                                active ? "text-white" : "text-sidebar-text",
                               )}
                             >
                               {item.label}
@@ -244,11 +317,13 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
                         </AnimatePresence>
 
                         {/* Badge */}
-                        {!collapsed && item.badge !== undefined && item.badge > 0 && (
-                          <span className="flex-shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-accent-500 text-white text-[0.6rem] font-bold flex items-center justify-center">
-                            {item.badge > 99 ? '99+' : item.badge}
-                          </span>
-                        )}
+                        {!collapsed &&
+                          item.badge !== undefined &&
+                          item.badge > 0 && (
+                            <span className="flex-shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-accent-500 text-white text-[0.6rem] font-bold flex items-center justify-center">
+                              {item.badge > 99 ? "99+" : item.badge}
+                            </span>
+                          )}
                       </div>
                     </Link>
                   );
@@ -260,23 +335,26 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
       </nav>
 
       {/* User section */}
-      <div className={cn('px-2 pb-4 pt-2 border-t border-white/5')} ref={userMenuRef}>
+      <div
+        className={cn("px-2 pb-4 pt-2 border-t border-white/5")}
+        ref={userMenuRef}
+      >
         {/* Logout */}
         <button
           onClick={logout}
           className={cn(
-            'flex items-center gap-3 rounded-xl transition-all duration-200 w-full',
-            'text-sidebar-text hover:bg-sidebar-hover hover:text-white',
-            collapsed ? 'justify-center px-0 py-3' : 'px-3 py-2.5',
+            "flex items-center gap-3 rounded-xl transition-all duration-200 w-full",
+            "text-sidebar-text hover:bg-sidebar-hover hover:text-white",
+            collapsed ? "justify-center px-0 py-3" : "px-3 py-2.5",
           )}
-          title={collapsed ? 'Sair' : undefined}
+          title={collapsed ? "Sair" : undefined}
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />
           <AnimatePresence>
             {!collapsed && (
               <motion.span
                 initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
+                animate={{ opacity: 1, width: "auto" }}
                 exit={{ opacity: 0, width: 0 }}
                 transition={{ duration: 0.15 }}
                 className="text-sm font-medium whitespace-nowrap overflow-hidden"
@@ -293,7 +371,7 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
             {!collapsed && (
               <motion.button
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
                 onClick={() => setUserMenuOpen((o) => !o)}
@@ -303,13 +381,17 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
                   {initials}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-white truncate">{userName}</div>
-                  <div className="text-2xs text-sidebar-text truncate">Administrador</div>
+                  <div className="text-xs font-semibold text-white truncate">
+                    {userName}
+                  </div>
+                  <div className="text-2xs text-sidebar-text truncate">
+                    Administrador
+                  </div>
                 </div>
                 <ChevronUp
                   className={cn(
-                    'w-3.5 h-3.5 text-sidebar-text flex-shrink-0 transition-transform duration-200',
-                    !userMenuOpen && 'rotate-180',
+                    "w-3.5 h-3.5 text-sidebar-text flex-shrink-0 transition-transform duration-200",
+                    !userMenuOpen && "rotate-180",
                   )}
                 />
               </motion.button>
@@ -337,8 +419,8 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
                 exit={{ opacity: 0, y: 6, scale: 0.97 }}
                 transition={{ duration: 0.15 }}
                 className={cn(
-                  'absolute bottom-full mb-2 bg-white rounded-xl shadow-modal border border-brand-border overflow-hidden z-50',
-                  collapsed ? 'left-10 w-48' : 'left-0 right-0',
+                  "absolute bottom-full mb-2 bg-white rounded-xl shadow-modal border border-brand-border overflow-hidden z-50",
+                  collapsed ? "left-10 w-48" : "left-0 right-0",
                 )}
               >
                 <Link
@@ -351,7 +433,10 @@ export function Sidebar({ collapsed: externalCollapsed, onToggle }: SidebarProps
                 </Link>
                 <div className="border-t border-brand-border" />
                 <button
-                  onClick={() => { setUserMenuOpen(false); logout(); }}
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    logout();
+                  }}
                   className="flex items-center gap-2.5 px-4 py-3 text-sm text-danger-600 hover:bg-danger-50 transition-colors w-full text-left"
                 >
                   <LogOut className="w-4 h-4" />

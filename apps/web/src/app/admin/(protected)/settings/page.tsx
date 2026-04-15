@@ -15,12 +15,15 @@ import {
   Loader2,
   Wallet,
   Building2,
+  ImagePlus,
+  X,
 } from "lucide-react";
 import adminApi, {
   downloadFullBackup,
   uploadFullRestore,
 } from "@/lib/admin-api";
 import { cn } from "@/lib/cn";
+import { getBrandSettings, saveBrandSettings } from "@/lib/branding";
 import { toast } from "sonner";
 
 const LOGIN_DISPLAY_KEY = "tr_admin_login_display"; // 'list' | 'uuid'
@@ -71,6 +74,8 @@ export default function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const [loginDisplay, setLoginDisplay] = useState<"list" | "uuid">("list");
   const [saved, setSaved] = useState(false);
+  const [brandName, setBrandName] = useState("TransRota");
+  const [brandLogoDataUrl, setBrandLogoDataUrl] = useState<string | null>(null);
   const [paymentForm, setPaymentForm] =
     useState<PaymentSettings>(EMPTY_PAYMENT_FORM);
   const restoreInputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +115,10 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     const stored = localStorage.getItem(LOGIN_DISPLAY_KEY);
     if (stored === "uuid" || stored === "list") setLoginDisplay(stored);
+
+    const branding = getBrandSettings(null);
+    setBrandName(branding.name);
+    setBrandLogoDataUrl(branding.logoDataUrl);
   }, []);
 
   const saveLoginDisplay = (value: "list" | "uuid") => {
@@ -118,6 +127,41 @@ export default function AdminSettingsPage() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
+
+  const saveBranding = () => {
+    const normalizedName = brandName.trim();
+    if (!normalizedName) {
+      toast.error("Informe um nome para o sistema.");
+      return;
+    }
+
+    saveBrandSettings(null, {
+      name: normalizedName,
+      logoDataUrl: brandLogoDataUrl,
+    });
+    setBrandName(normalizedName);
+    toast.success("Identidade visual global atualizada.");
+  };
+
+  const onBrandLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem válido.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setBrandLogoDataUrl(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  };
+
   const { data: plans = [], isLoading } = useQuery<Plan[]>({
     queryKey: ["admin", "plans"],
     queryFn: async () => {
@@ -264,6 +308,88 @@ export default function AdminSettingsPage() {
               <Save className="w-3.5 h-3.5" /> Configuração salva
             </p>
           )}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <ImagePlus className="w-4 h-4 text-[#64748b]" />
+          <h2 className="text-white font-semibold">Identidade Visual Global</h2>
+        </div>
+        <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-4">
+          <p className="text-[#94a3b8] text-sm">
+            Defina o nome e o logo padrão exibidos no login e nos menus.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start">
+            <div className="space-y-4">
+              <label className="space-y-1 block">
+                <span className="text-[#94a3b8] text-xs font-semibold">
+                  Nome do sistema
+                </span>
+                <input
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value)}
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-primary-500"
+                  maxLength={60}
+                />
+              </label>
+
+              <div className="flex flex-wrap gap-2">
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#1e2d4a] text-sm text-[#e2e8f0] hover:border-[#334155] cursor-pointer transition-colors">
+                  <ImagePlus className="w-4 h-4 text-primary-400" />
+                  Enviar logo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={onBrandLogoChange}
+                  />
+                </label>
+
+                {brandLogoDataUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setBrandLogoDataUrl(null)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-900/50 text-red-300 hover:bg-red-900/20 text-sm transition-colors"
+                  >
+                    <X className="w-4 h-4" /> Remover logo
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={saveBranding}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-colors"
+              >
+                <Save className="w-4 h-4" /> Salvar identidade visual
+              </button>
+            </div>
+
+            <div className="w-full md:w-[220px] rounded-xl border border-[#1e2d4a] bg-[#0f172a] p-4">
+              <p className="text-[#64748b] text-[11px] uppercase tracking-wide mb-3">
+                Pré-visualização
+              </p>
+              <div className="flex items-center gap-3">
+                {brandLogoDataUrl ? (
+                  <img
+                    src={brandLogoDataUrl}
+                    alt="Logo da empresa"
+                    className="w-10 h-10 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-primary-600" />
+                )}
+                <div>
+                  <p className="text-white text-sm font-semibold leading-tight">
+                    {brandName.trim() || "TransRota"}
+                  </p>
+                  <p className="text-[#64748b] text-xs">Super Admin</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
