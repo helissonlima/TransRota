@@ -12,6 +12,8 @@
     "docker exec": true,
     "lsof": true,
     "docker run": true,
-    "ss": true
+    "ss": true,
+    "systemctl": true,
+    "true": true
   }
 }

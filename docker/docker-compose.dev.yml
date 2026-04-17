@@ -19,6 +19,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
@@ -32,6 +33,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    restart: unless-stopped
 
   minio:
     image: minio/minio:latest
@@ -45,6 +47,7 @@ services:
       - '9001:9001'
     volumes:
       - minio_data:/data
+    restart: unless-stopped
 
 volumes:
   postgres_data:
