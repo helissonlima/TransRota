@@ -7,7 +7,8 @@ test("has title or expected heading", async ({ page }) => {
 });
 
 test("login module renders", async ({ page }) => {
-  await page.goto("/admin/auth/login");
-  // Adapte aguardando um input de e-mail por exemplo
-  // await expect(page.getByPlaceholder(/email|usuário/i)).toBeVisible();
+  await page.goto("/admin/login");
+  await expect(
+    page.getByRole("heading", { name: /painel administrativo/i }),
+  ).toBeVisible();
 });
