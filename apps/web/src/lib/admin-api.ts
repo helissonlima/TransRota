@@ -1,5 +1,6 @@
 import axios from "axios";
 import JSZip from "jszip";
+import { clearAdminSessionStorage } from "./session-storage";
 
 const adminApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -42,9 +43,7 @@ adminApi.interceptors.response.use(
         original.headers.Authorization = `Bearer ${data.accessToken}`;
         return adminApi(original);
       } catch {
-        localStorage.removeItem("adminAccessToken");
-        localStorage.removeItem("adminRefreshToken");
-        localStorage.removeItem("adminUser");
+        clearAdminSessionStorage();
         window.location.href = "/admin/login";
       }
     }
@@ -64,16 +63,45 @@ export async function adminLogin(email: string, password: string) {
 }
 
 export function adminLogout() {
-  localStorage.removeItem("adminAccessToken");
-  localStorage.removeItem("adminRefreshToken");
-  localStorage.removeItem("adminUser");
+  clearAdminSessionStorage();
   window.location.href = "/admin/login";
 }
 
+function parseJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const [, payload] = token.split(".");
+    if (!payload) return null;
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+    const json = atob(padded);
+    return JSON.parse(json) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function isJwtActive(token: string) {
+  const payload = parseJwtPayload(token);
+  const exp = payload?.exp;
+  if (typeof exp !== "number") return false;
+
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  return exp > nowInSeconds;
+}
+
 export function isAdminAuthenticated() {
-  return (
-    typeof window !== "undefined" && !!localStorage.getItem("adminAccessToken")
-  );
+  if (typeof window === "undefined") return false;
+
+  const token = localStorage.getItem("adminAccessToken");
+  if (!token) return false;
+
+  if (!isJwtActive(token)) {
+    clearAdminSessionStorage();
+    return false;
+  }
+
+  return true;
 }
 
 export function getAdminUser() {
@@ -132,9 +160,7 @@ export async function downloadCompanyBackup(companyId: string) {
   window.URL.revokeObjectURL(url);
 }
 
-export async function uploadFullRestore(
-  file: File,
-): Promise<{
+export async function uploadFullRestore(file: File): Promise<{
   message: string;
   tenantsRestored: number;
   companiesRestored?: number;
