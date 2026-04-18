@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import api from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { Header } from "@/components/layout/header";
+import { DetailPanel } from "@/components/ui/detail-panel";
 
 // Validation schemas
 const supplierFormSchema = z.object({
@@ -357,55 +358,30 @@ function SupplierDetailModal({
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="fixed inset-0 bg-black/50 z-40"
-      />
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.3 }}
-        className="fixed inset-4 bg-white rounded-3xl shadow-lg overflow-hidden z-50 flex flex-col max-w-3xl mx-auto"
+      <DetailPanel
+        open={isOpen}
+        onClose={onClose}
+        title={supplier.name}
+        subtitle={supplier.tradeName || undefined}
+        badges={[
+          {
+            label: supplier.active ? "Ativo" : "Inativo",
+            variant: supplier.active ? "success" : "gray",
+          },
+        ]}
+        width="xl"
       >
-        {/* Header */}
-        <div className="border-b border-brand-border p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center text-white font-bold">
-              {supplier.name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-brand-text-primary">
-                {supplier.name}
-              </h2>
-              <p className="text-brand-text-secondary text-sm">
-                {supplier.tradeName}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-brand-bg rounded-lg transition-colors"
-          >
-            <X size={24} className="text-brand-text-secondary" />
-          </button>
-        </div>
-
         {/* Tabs */}
-        <div className="flex border-b border-brand-border px-6">
+        <div className="flex border-b border-slate-200 -mx-1 mb-4">
           {(["info", "products", "orders"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-6 py-4 font-medium text-sm transition-colors border-b-2",
+                "px-4 py-2.5 font-medium text-sm transition-colors border-b-2",
                 activeTab === tab
-                  ? "border-primary-600 text-primary-600"
-                  : "border-transparent text-brand-text-secondary hover:text-brand-text-primary",
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700",
               )}
             >
               {tab === "info" && "Informações"}
@@ -414,282 +390,150 @@ function SupplierDetailModal({
             </button>
           ))}
         </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <AnimatePresence mode="wait">
-            {activeTab === "info" && (
-              <motion.div
-                key="info"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {!editMode ? (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-brand-bg p-4 rounded-xl">
-                        <p className="text-xs font-medium text-brand-text-secondary uppercase">
-                          CNPJ
-                        </p>
-                        <p className="text-lg font-semibold text-brand-text-primary mt-1">
-                          {supplier.cnpj}
-                        </p>
-                      </div>
-                      <div className="bg-brand-bg p-4 rounded-xl">
-                        <p className="text-xs font-medium text-brand-text-secondary uppercase">
-                          Status
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          {supplier.active ? (
-                            <>
-                              <CheckCircle
-                                size={18}
-                                className="text-green-600"
-                              />
-                              <span className="font-semibold text-green-600">
-                                Ativo
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <AlertCircle
-                                size={18}
-                                className="text-gray-400"
-                              />
-                              <span className="font-semibold text-gray-400">
-                                Inativo
-                              </span>
-                            </>
-                          )}
-                        </div>
+        <AnimatePresence mode="wait">
+          {activeTab === "info" && (
+            <motion.div
+              key="info"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {!editMode ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-brand-bg p-4 rounded-xl">
+                      <p className="text-xs font-medium text-brand-text-secondary uppercase">
+                        CNPJ
+                      </p>
+                      <p className="text-lg font-semibold text-brand-text-primary mt-1">
+                        {supplier.cnpj}
+                      </p>
+                    </div>
+                    <div className="bg-brand-bg p-4 rounded-xl">
+                      <p className="text-xs font-medium text-brand-text-secondary uppercase">
+                        Status
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {supplier.active ? (
+                          <>
+                            <CheckCircle size={18} className="text-green-600" />
+                            <span className="font-semibold text-green-600">
+                              Ativo
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle size={18} className="text-gray-400" />
+                            <span className="font-semibold text-gray-400">
+                              Inativo
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center gap-3 bg-brand-bg p-4 rounded-xl">
-                        <Phone size={18} className="text-primary-600" />
-                        <div>
-                          <p className="text-xs text-brand-text-secondary">
-                            Telefone
-                          </p>
-                          <p className="font-semibold text-brand-text-primary">
-                            {supplier.phone}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 bg-brand-bg p-4 rounded-xl">
-                        <MapPin size={18} className="text-primary-600" />
-                        <div>
-                          <p className="text-xs text-brand-text-secondary">
-                            Localização
-                          </p>
-                          <p className="font-semibold text-brand-text-primary">
-                            {supplier.city}, {supplier.state}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {supplier.address && (
-                      <div className="bg-brand-bg p-4 rounded-xl">
-                        <p className="text-xs font-medium text-brand-text-secondary uppercase">
-                          Endereço
-                        </p>
-                        <p className="text-brand-text-primary mt-1">
-                          {supplier.address}
-                        </p>
-                      </div>
-                    )}
-
-                    {supplier.contactName && (
-                      <div className="bg-brand-bg p-4 rounded-xl">
-                        <p className="text-xs font-medium text-brand-text-secondary uppercase">
-                          Contato
-                        </p>
-                        <p className="text-brand-text-primary mt-1">
-                          {supplier.contactName}
-                        </p>
-                      </div>
-                    )}
-
-                    {supplier.notes && (
-                      <div className="bg-brand-bg p-4 rounded-xl">
-                        <p className="text-xs font-medium text-brand-text-secondary uppercase">
-                          Notas
-                        </p>
-                        <p className="text-brand-text-primary mt-1">
-                          {supplier.notes}
-                        </p>
-                      </div>
-                    )}
-
-                    <button
-                      onClick={() => {
-                        setEditMode(true);
-                        reset();
-                      }}
-                      className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl transition-colors"
-                    >
-                      <Edit2 size={18} />
-                      Editar Informações
-                    </button>
                   </div>
-                ) : (
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                          Nome *
-                        </label>
-                        <Controller
-                          name="name"
-                          control={control}
-                          render={({ field }) => (
-                            <input
-                              {...field}
-                              type="text"
-                              className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
-                            />
-                          )}
-                        />
-                        {errors.name && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {errors.name.message}
-                          </p>
-                        )}
-                      </div>
 
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 bg-brand-bg p-4 rounded-xl">
+                      <Phone size={18} className="text-primary-600" />
                       <div>
-                        <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                          Nome Fantasia
-                        </label>
-                        <Controller
-                          name="tradeName"
-                          control={control}
-                          render={({ field }) => (
-                            <input
-                              {...field}
-                              type="text"
-                              className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
-                            />
-                          )}
-                        />
+                        <p className="text-xs text-brand-text-secondary">
+                          Telefone
+                        </p>
+                        <p className="font-semibold text-brand-text-primary">
+                          {supplier.phone}
+                        </p>
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 bg-brand-bg p-4 rounded-xl">
+                      <MapPin size={18} className="text-primary-600" />
                       <div>
-                        <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                          CNPJ *
-                        </label>
-                        <Controller
-                          name="cnpj"
-                          control={control}
-                          render={({ field }) => (
-                            <input
-                              {...field}
-                              type="text"
-                              className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
-                            />
-                          )}
-                        />
-                        {errors.cnpj && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {errors.cnpj.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                          Telefone *
-                        </label>
-                        <Controller
-                          name="phone"
-                          control={control}
-                          render={({ field }) => (
-                            <input
-                              {...field}
-                              type="tel"
-                              className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
-                            />
-                          )}
-                        />
-                        {errors.phone && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {errors.phone.message}
-                          </p>
-                        )}
+                        <p className="text-xs text-brand-text-secondary">
+                          Localização
+                        </p>
+                        <p className="font-semibold text-brand-text-primary">
+                          {supplier.city}, {supplier.state}
+                        </p>
                       </div>
                     </div>
+                  </div>
 
+                  {supplier.address && (
+                    <div className="bg-brand-bg p-4 rounded-xl">
+                      <p className="text-xs font-medium text-brand-text-secondary uppercase">
+                        Endereço
+                      </p>
+                      <p className="text-brand-text-primary mt-1">
+                        {supplier.address}
+                      </p>
+                    </div>
+                  )}
+
+                  {supplier.contactName && (
+                    <div className="bg-brand-bg p-4 rounded-xl">
+                      <p className="text-xs font-medium text-brand-text-secondary uppercase">
+                        Contato
+                      </p>
+                      <p className="text-brand-text-primary mt-1">
+                        {supplier.contactName}
+                      </p>
+                    </div>
+                  )}
+
+                  {supplier.notes && (
+                    <div className="bg-brand-bg p-4 rounded-xl">
+                      <p className="text-xs font-medium text-brand-text-secondary uppercase">
+                        Notas
+                      </p>
+                      <p className="text-brand-text-primary mt-1">
+                        {supplier.notes}
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setEditMode(true);
+                      reset();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl transition-colors"
+                  >
+                    <Edit2 size={18} />
+                    Editar Informações
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                        Email *
+                        Nome *
                       </label>
                       <Controller
-                        name="email"
+                        name="name"
                         control={control}
                         render={({ field }) => (
                           <input
                             {...field}
-                            type="email"
+                            type="text"
                             className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
                           />
                         )}
                       />
-                      {errors.email && (
+                      {errors.name && (
                         <p className="text-red-500 text-xs mt-1">
-                          {errors.email.message}
+                          {errors.name.message}
                         </p>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                          Cidade
-                        </label>
-                        <Controller
-                          name="city"
-                          control={control}
-                          render={({ field }) => (
-                            <input
-                              {...field}
-                              type="text"
-                              className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
-                            />
-                          )}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                          Estado
-                        </label>
-                        <Controller
-                          name="state"
-                          control={control}
-                          render={({ field }) => (
-                            <input
-                              {...field}
-                              type="text"
-                              maxLength={2}
-                              className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
-                            />
-                          )}
-                        />
-                      </div>
-                    </div>
-
                     <div>
                       <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                        Endereço
+                        Nome Fantasia
                       </label>
                       <Controller
-                        name="address"
+                        name="tradeName"
                         control={control}
                         render={({ field }) => (
                           <input
@@ -700,197 +544,319 @@ function SupplierDetailModal({
                         )}
                       />
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                        Nome do Contato
-                      </label>
-                      <Controller
-                        name="contactName"
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            type="text"
-                            className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
-                          />
-                        )}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-brand-text-primary mb-2">
-                        Notas
-                      </label>
-                      <Controller
-                        name="notes"
-                        control={control}
-                        render={({ field }) => (
-                          <textarea
-                            {...field}
-                            rows={3}
-                            className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
-                          />
-                        )}
-                      />
-                    </div>
-
-                    <div className="flex gap-3">
-                      <button
-                        type="submit"
-                        disabled={updateMutation.isPending}
-                        className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-50"
-                      >
-                        {updateMutation.isPending
-                          ? "Salvando..."
-                          : "Salvar Alterações"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditMode(false)}
-                        className="flex-1 bg-brand-bg hover:bg-gray-100 text-brand-text-primary font-medium py-3 rounded-xl transition-colors"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </motion.div>
-            )}
-
-            {activeTab === "products" && (
-              <motion.div
-                key="products"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {supplier.products && supplier.products.length > 0 ? (
-                  <div className="space-y-2">
-                    {supplier.products.map((product, index) => (
-                      <motion.div
-                        key={product.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="bg-brand-bg p-4 rounded-xl hover:shadow-card transition-all"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <p className="font-semibold text-brand-text-primary">
-                              {product.name}
-                            </p>
-                            {product.supplierSku && (
-                              <p className="text-sm text-brand-text-secondary mt-1">
-                                SKU: {product.supplierSku}
-                              </p>
-                            )}
-                          </div>
-                          {product.unitPrice && (
-                            <div className="text-right">
-                              <p className="text-sm text-brand-text-secondary">
-                                Preço Unitário
-                              </p>
-                              <p className="font-bold text-primary-600">
-                                R$ {product.unitPrice.toFixed(2)}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    ))}
                   </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Package
-                      size={48}
-                      className="mx-auto text-brand-text-secondary/30 mb-3"
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-brand-text-primary mb-2">
+                        CNPJ *
+                      </label>
+                      <Controller
+                        name="cnpj"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="text"
+                            className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
+                          />
+                        )}
+                      />
+                      {errors.cnpj && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.cnpj.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-brand-text-primary mb-2">
+                        Telefone *
+                      </label>
+                      <Controller
+                        name="phone"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="tel"
+                            className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
+                          />
+                        )}
+                      />
+                      {errors.phone && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.phone.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-brand-text-primary mb-2">
+                      Email *
+                    </label>
+                    <Controller
+                      name="email"
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="email"
+                          className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
+                        />
+                      )}
                     />
-                    <p className="text-brand-text-secondary">
-                      Nenhum produto vinculado
-                    </p>
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
-                )}
 
-                <button
-                  onClick={() => setShowLinkProduct(true)}
-                  className="w-full mt-6 flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl transition-colors"
-                >
-                  <Link2 size={18} />
-                  Vincular Novo Produto
-                </button>
-              </motion.div>
-            )}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-brand-text-primary mb-2">
+                        Cidade
+                      </label>
+                      <Controller
+                        name="city"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="text"
+                            className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
+                          />
+                        )}
+                      />
+                    </div>
 
-            {activeTab === "orders" && (
-              <motion.div
-                key="orders"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {supplier.orders && supplier.orders.length > 0 ? (
-                  <div className="space-y-2">
-                    {supplier.orders.map((order, index) => (
-                      <motion.div
-                        key={order.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="bg-brand-bg p-4 rounded-xl hover:shadow-card transition-all"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <p className="font-semibold text-brand-text-primary">
-                              Pedido {order.orderNumber}
-                            </p>
+                    <div>
+                      <label className="block text-sm font-medium text-brand-text-primary mb-2">
+                        Estado
+                      </label>
+                      <Controller
+                        name="state"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="text"
+                            maxLength={2}
+                            className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-brand-text-primary mb-2">
+                      Endereço
+                    </label>
+                    <Controller
+                      name="address"
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="text"
+                          className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-brand-text-primary mb-2">
+                      Nome do Contato
+                    </label>
+                    <Controller
+                      name="contactName"
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="text"
+                          className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-brand-text-primary mb-2">
+                      Notas
+                    </label>
+                    <Controller
+                      name="notes"
+                      control={control}
+                      render={({ field }) => (
+                        <textarea
+                          {...field}
+                          rows={3}
+                          className="w-full px-4 py-2 border border-brand-border rounded-xl bg-white text-brand-text-primary focus:outline-none focus:ring-2 focus:ring-primary-600"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="submit"
+                      disabled={updateMutation.isPending}
+                      className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-50"
+                    >
+                      {updateMutation.isPending
+                        ? "Salvando..."
+                        : "Salvar Alterações"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditMode(false)}
+                      className="flex-1 bg-brand-bg hover:bg-gray-100 text-brand-text-primary font-medium py-3 rounded-xl transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === "products" && (
+            <motion.div
+              key="products"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {supplier.products && supplier.products.length > 0 ? (
+                <div className="space-y-2">
+                  {supplier.products.map((product, index) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="bg-brand-bg p-4 rounded-xl hover:shadow-card transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="font-semibold text-brand-text-primary">
+                            {product.name}
+                          </p>
+                          {product.supplierSku && (
                             <p className="text-sm text-brand-text-secondary mt-1">
-                              {new Date(order.date).toLocaleDateString("pt-BR")}
+                              SKU: {product.supplierSku}
                             </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-semibold text-primary-600">
-                              R$ {order.total.toFixed(2)}
-                            </p>
-                            <span
-                              className={cn(
-                                "text-xs font-medium mt-1 inline-block px-2 py-1 rounded-full",
-                                order.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-700"
-                                  : order.status === "completed"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-gray-100 text-gray-700",
-                              )}
-                            >
-                              {order.status === "pending"
-                                ? "Pendente"
-                                : order.status === "completed"
-                                  ? "Concluído"
-                                  : "Cancelado"}
-                            </span>
-                          </div>
+                          )}
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <ShoppingCart
-                      size={48}
-                      className="mx-auto text-brand-text-secondary/30 mb-3"
-                    />
-                    <p className="text-brand-text-secondary">
-                      Nenhuma compra registrada
-                    </p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </motion.div>
+                        {product.unitPrice && (
+                          <div className="text-right">
+                            <p className="text-sm text-brand-text-secondary">
+                              Preço Unitário
+                            </p>
+                            <p className="font-bold text-primary-600">
+                              R$ {product.unitPrice.toFixed(2)}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Package
+                    size={48}
+                    className="mx-auto text-brand-text-secondary/30 mb-3"
+                  />
+                  <p className="text-brand-text-secondary">
+                    Nenhum produto vinculado
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowLinkProduct(true)}
+                className="w-full mt-6 flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl transition-colors"
+              >
+                <Link2 size={18} />
+                Vincular Novo Produto
+              </button>
+            </motion.div>
+          )}
+
+          {activeTab === "orders" && (
+            <motion.div
+              key="orders"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {supplier.orders && supplier.orders.length > 0 ? (
+                <div className="space-y-2">
+                  {supplier.orders.map((order, index) => (
+                    <motion.div
+                      key={order.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="bg-brand-bg p-4 rounded-xl hover:shadow-card transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="font-semibold text-brand-text-primary">
+                            Pedido {order.orderNumber}
+                          </p>
+                          <p className="text-sm text-brand-text-secondary mt-1">
+                            {new Date(order.date).toLocaleDateString("pt-BR")}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-primary-600">
+                            R$ {order.total.toFixed(2)}
+                          </p>
+                          <span
+                            className={cn(
+                              "text-xs font-medium mt-1 inline-block px-2 py-1 rounded-full",
+                              order.status === "pending"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : order.status === "completed"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-gray-100 text-gray-700",
+                            )}
+                          >
+                            {order.status === "pending"
+                              ? "Pendente"
+                              : order.status === "completed"
+                                ? "Concluído"
+                                : "Cancelado"}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <ShoppingCart
+                    size={48}
+                    className="mx-auto text-brand-text-secondary/30 mb-3"
+                  />
+                  <p className="text-brand-text-secondary">
+                    Nenhuma compra registrada
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </DetailPanel>
 
       <LinkProductModal
         isOpen={showLinkProduct}

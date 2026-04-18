@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Route,
@@ -15,19 +15,26 @@ import {
   TrendingUp,
   Pencil,
   Trash2,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { format, parseISO, startOfMonth, endOfMonth, subMonths } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import api from '@/lib/api';
-import { Header } from '@/components/layout/header';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Modal } from '@/components/ui/modal';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/cn';
+} from "lucide-react";
+import { toast } from "sonner";
+import {
+  format,
+  parseISO,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+} from "date-fns";
+import { ptBR } from "date-fns/locale";
+import api from "@/lib/api";
+import { Header } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Modal } from "@/components/ui/modal";
+import { DetailPanel } from "@/components/ui/detail-panel";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/cn";
 
-type DailyKmStatus = 'OK' | 'NOK';
+type DailyKmStatus = "OK" | "NOK";
 
 interface DailyKmRecord {
   id: string;
@@ -76,120 +83,173 @@ interface Driver {
   name: string;
 }
 
-const recordSchema = z.object({
-  date: z.string().min(1, 'Data obrigatória'),
-  vehicleId: z.string().min(1, 'Veículo obrigatório'),
-  driverId: z.string().min(1, 'Condutor obrigatório'),
-  initialKm: z.coerce.number().min(0, 'KM inicial inválido'),
-  finalKm: z.coerce.number().min(0, 'KM final inválido'),
-  personalInitialKm: z.coerce.number().optional(),
-  personalFinalKm: z.coerce.number().optional(),
-  status: z.enum(['OK', 'NOK']),
-  notes: z.string().optional(),
-}).refine((d) => d.finalKm >= d.initialKm, {
-  message: 'KM final deve ser maior que KM inicial',
-  path: ['finalKm'],
-});
+const recordSchema = z
+  .object({
+    date: z.string().min(1, "Data obrigatória"),
+    vehicleId: z.string().min(1, "Veículo obrigatório"),
+    driverId: z.string().min(1, "Condutor obrigatório"),
+    initialKm: z.coerce.number().min(0, "KM inicial inválido"),
+    finalKm: z.coerce.number().min(0, "KM final inválido"),
+    personalInitialKm: z.coerce.number().optional(),
+    personalFinalKm: z.coerce.number().optional(),
+    status: z.enum(["OK", "NOK"]),
+    notes: z.string().optional(),
+  })
+  .refine((d) => d.finalKm >= d.initialKm, {
+    message: "KM final deve ser maior que KM inicial",
+    path: ["finalKm"],
+  });
 
 type RecordFormData = z.infer<typeof recordSchema>;
 
 const TABS = [
-  { key: 'records', label: 'Registros' },
-  { key: 'summary', label: 'Resumo por Condutor' },
-  { key: 'vehicleSummary', label: 'Resumo por Veículo' },
+  { key: "records", label: "Registros" },
+  { key: "summary", label: "Resumo por Condutor" },
+  { key: "vehicleSummary", label: "Resumo por Veículo" },
 ] as const;
 
 function StatusBadge({ status }: { status: DailyKmStatus }) {
-  if (status === 'OK') return <Badge variant="success" dot>OK</Badge>;
-  return <Badge variant="danger" dot>NOK</Badge>;
+  if (status === "OK")
+    return (
+      <Badge variant="success" dot>
+        OK
+      </Badge>
+    );
+  return (
+    <Badge variant="danger" dot>
+      NOK
+    </Badge>
+  );
 }
 
 export default function DailyKmPage() {
   const qc = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'records' | 'summary' | 'vehicleSummary'>('records');
+  const [activeTab, setActiveTab] = useState<
+    "records" | "summary" | "vehicleSummary"
+  >("records");
   const [modalOpen, setModalOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [summaryDetailOpen, setSummaryDetailOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<DailyKmRecord | null>(null);
-  const [selectedSummary, setSelectedSummary] = useState<DailyKmSummary | null>(null);
-  const [selectedVehicleSummary, setSelectedVehicleSummary] = useState<VehicleSummary | null>(null);
-  const [vehicleSummaryDetailOpen, setVehicleSummaryDetailOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<DailyKmRecord | null>(
+    null,
+  );
+  const [selectedSummary, setSelectedSummary] = useState<DailyKmSummary | null>(
+    null,
+  );
+  const [selectedVehicleSummary, setSelectedVehicleSummary] =
+    useState<VehicleSummary | null>(null);
+  const [vehicleSummaryDetailOpen, setVehicleSummaryDetailOpen] =
+    useState(false);
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
-  const [dateFrom, setDateFrom] = useState(() => format(startOfMonth(subMonths(new Date(), 5)), 'yyyy-MM-dd'));
-  const [dateTo, setDateTo] = useState(() => format(endOfMonth(new Date()), 'yyyy-MM-dd'));
+  const [dateFrom, setDateFrom] = useState(() =>
+    format(startOfMonth(subMonths(new Date(), 5)), "yyyy-MM-dd"),
+  );
+  const [dateTo, setDateTo] = useState(() =>
+    format(endOfMonth(new Date()), "yyyy-MM-dd"),
+  );
   const summaryDate = parseISO(dateFrom);
   const summaryYear = String(summaryDate.getFullYear());
   const summaryMonth = String(summaryDate.getMonth() + 1);
 
-  const { data: records = [], isLoading: loadingRecords } = useQuery<DailyKmRecord[]>({
-    queryKey: ['daily-km', dateFrom, dateTo],
+  const { data: records = [], isLoading: loadingRecords } = useQuery<
+    DailyKmRecord[]
+  >({
+    queryKey: ["daily-km", dateFrom, dateTo],
     queryFn: () =>
-      api.get('/daily-km', { params: { dateFrom, dateTo } }).then((r) => r.data),
+      api
+        .get("/daily-km", { params: { dateFrom, dateTo } })
+        .then((r) => r.data),
   });
 
-  const { data: summary = [], isLoading: loadingSummary } = useQuery<DailyKmSummary[]>({
-    queryKey: ['daily-km-summary', summaryYear, summaryMonth],
-    queryFn: () => api.get('/daily-km/summary', { params: { year: summaryYear, month: summaryMonth } }).then((r) => r.data),
-    enabled: activeTab === 'summary',
+  const { data: summary = [], isLoading: loadingSummary } = useQuery<
+    DailyKmSummary[]
+  >({
+    queryKey: ["daily-km-summary", summaryYear, summaryMonth],
+    queryFn: () =>
+      api
+        .get("/daily-km/summary", {
+          params: { year: summaryYear, month: summaryMonth },
+        })
+        .then((r) => r.data),
+    enabled: activeTab === "summary",
   });
 
-  const { data: vehicleSummary = [], isLoading: loadingVehicleSummary } = useQuery<VehicleSummary[]>({
-    queryKey: ['daily-km-vehicle-summary', summaryYear, summaryMonth],
-    queryFn: () => api.get('/daily-km/summary/vehicles', { params: { year: summaryYear, month: summaryMonth } }).then((r) => r.data),
-    enabled: activeTab === 'vehicleSummary',
-  });
+  const { data: vehicleSummary = [], isLoading: loadingVehicleSummary } =
+    useQuery<VehicleSummary[]>({
+      queryKey: ["daily-km-vehicle-summary", summaryYear, summaryMonth],
+      queryFn: () =>
+        api
+          .get("/daily-km/summary/vehicles", {
+            params: { year: summaryYear, month: summaryMonth },
+          })
+          .then((r) => r.data),
+      enabled: activeTab === "vehicleSummary",
+    });
 
   const { data: vehicles = [] } = useQuery<Vehicle[]>({
-    queryKey: ['vehicles-select'],
-    queryFn: () => api.get('/vehicles', { params: { status: 'ACTIVE', limit: 200 } }).then((r) => r.data?.vehicles ?? r.data),
+    queryKey: ["vehicles-select"],
+    queryFn: () =>
+      api
+        .get("/vehicles", { params: { status: "ACTIVE", limit: 200 } })
+        .then((r) => r.data?.vehicles ?? r.data),
   });
 
   const { data: drivers = [] } = useQuery<Driver[]>({
-    queryKey: ['drivers-select'],
-    queryFn: () => api.get('/drivers', { params: { status: 'ACTIVE', limit: 200 } }).then((r) => r.data?.drivers ?? r.data),
+    queryKey: ["drivers-select"],
+    queryFn: () =>
+      api
+        .get("/drivers", { params: { status: "ACTIVE", limit: 200 } })
+        .then((r) => r.data?.drivers ?? r.data),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: RecordFormData) => api.post('/daily-km', data),
+    mutationFn: (data: RecordFormData) => api.post("/daily-km", data),
     onSuccess: () => {
-      toast.success('Registro criado com sucesso!');
-      qc.invalidateQueries({ queryKey: ['daily-km'] });
-      qc.invalidateQueries({ queryKey: ['daily-km-summary'] });
+      toast.success("Registro criado com sucesso!");
+      qc.invalidateQueries({ queryKey: ["daily-km"] });
+      qc.invalidateQueries({ queryKey: ["daily-km-summary"] });
       setModalOpen(false);
       reset();
     },
-    onError: () => toast.error('Erro ao criar registro.'),
+    onError: () => toast.error("Erro ao criar registro."),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: RecordFormData }) => api.patch(`/daily-km/${id}`, data),
+    mutationFn: ({ id, data }: { id: string; data: RecordFormData }) =>
+      api.patch(`/daily-km/${id}`, data),
     onSuccess: () => {
-      toast.success('Registro atualizado com sucesso!');
-      qc.invalidateQueries({ queryKey: ['daily-km'] });
-      qc.invalidateQueries({ queryKey: ['daily-km-summary'] });
+      toast.success("Registro atualizado com sucesso!");
+      qc.invalidateQueries({ queryKey: ["daily-km"] });
+      qc.invalidateQueries({ queryKey: ["daily-km-summary"] });
       setModalOpen(false);
       setEditingRecordId(null);
       reset();
     },
-    onError: () => toast.error('Erro ao atualizar registro.'),
+    onError: () => toast.error("Erro ao atualizar registro."),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/daily-km/${id}`),
     onSuccess: () => {
-      toast.success('Registro removido com sucesso!');
-      qc.invalidateQueries({ queryKey: ['daily-km'] });
-      qc.invalidateQueries({ queryKey: ['daily-km-summary'] });
+      toast.success("Registro removido com sucesso!");
+      qc.invalidateQueries({ queryKey: ["daily-km"] });
+      qc.invalidateQueries({ queryKey: ["daily-km-summary"] });
       setSelectedRecord(null);
     },
-    onError: () => toast.error('Erro ao remover registro.'),
+    onError: () => toast.error("Erro ao remover registro."),
   });
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<RecordFormData>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<RecordFormData>({
     resolver: zodResolver(recordSchema),
     defaultValues: {
-      date: format(new Date(), 'yyyy-MM-dd'),
-      status: 'OK',
+      date: format(new Date(), "yyyy-MM-dd"),
+      status: "OK",
       initialKm: 0,
       finalKm: 0,
       personalInitialKm: 0,
@@ -197,42 +257,72 @@ export default function DailyKmPage() {
     },
   });
 
-  const watchInitialKm = watch('initialKm') ?? 0;
-  const watchFinalKm = watch('finalKm') ?? 0;
-  const watchPersonalInitial = watch('personalInitialKm') ?? 0;
-  const watchPersonalFinal = watch('personalFinalKm') ?? 0;
+  const watchInitialKm = watch("initialKm") ?? 0;
+  const watchFinalKm = watch("finalKm") ?? 0;
+  const watchPersonalInitial = watch("personalInitialKm") ?? 0;
+  const watchPersonalFinal = watch("personalFinalKm") ?? 0;
 
-  const calculatedPersonalKm = Math.max(0, (watchPersonalFinal ?? 0) - (watchPersonalInitial ?? 0));
+  const calculatedPersonalKm = Math.max(
+    0,
+    (watchPersonalFinal ?? 0) - (watchPersonalInitial ?? 0),
+  );
   const calculatedTotalKm = Math.max(0, watchFinalKm - watchInitialKm);
-  const calculatedWorkKm = Math.max(0, calculatedTotalKm - calculatedPersonalKm);
+  const calculatedWorkKm = Math.max(
+    0,
+    calculatedTotalKm - calculatedPersonalKm,
+  );
 
   const dashboardStats = {
     totalRegistros: records.length,
     totalWork: records.reduce((acc, r) => acc + (r.workKm || 0), 0),
     totalPersonal: records.reduce((acc, r) => acc + (r.personalKm || 0), 0),
     totalKm: records.reduce((acc, r) => acc + (r.totalKm || 0), 0),
-    nok: records.filter((r) => r.status === 'NOK').length,
+    nok: records.filter((r) => r.status === "NOK").length,
   };
 
   return (
     <div className="min-h-screen">
-      <Header
-        title="KM Diário"
-        breadcrumbs={[{ label: 'KM Diário' }]}
-      />
+      <Header title="KM Diário" breadcrumbs={[{ label: "KM Diário" }]} />
 
       <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           {[
-            { label: 'Registros', value: dashboardStats.totalRegistros, tone: 'text-slate-700' },
-            { label: 'KM Trabalho', value: dashboardStats.totalWork.toLocaleString('pt-BR'), tone: 'text-primary-700' },
-            { label: 'KM Pessoal', value: dashboardStats.totalPersonal.toLocaleString('pt-BR'), tone: 'text-brand-text-secondary' },
-            { label: 'KM Total', value: dashboardStats.totalKm.toLocaleString('pt-BR'), tone: 'text-brand-text-primary' },
-            { label: 'NOK', value: dashboardStats.nok, tone: 'text-danger-600' },
+            {
+              label: "Registros",
+              value: dashboardStats.totalRegistros,
+              tone: "text-slate-700",
+            },
+            {
+              label: "KM Trabalho",
+              value: dashboardStats.totalWork.toLocaleString("pt-BR"),
+              tone: "text-primary-700",
+            },
+            {
+              label: "KM Pessoal",
+              value: dashboardStats.totalPersonal.toLocaleString("pt-BR"),
+              tone: "text-brand-text-secondary",
+            },
+            {
+              label: "KM Total",
+              value: dashboardStats.totalKm.toLocaleString("pt-BR"),
+              tone: "text-brand-text-primary",
+            },
+            {
+              label: "NOK",
+              value: dashboardStats.nok,
+              tone: "text-danger-600",
+            },
           ].map((item) => (
-            <div key={item.label} className="bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
-              <p className="text-xs text-brand-text-secondary uppercase tracking-wide">{item.label}</p>
-              <p className={cn('text-2xl font-black mt-1', item.tone)}>{item.value}</p>
+            <div
+              key={item.label}
+              className="bg-white rounded-2xl border border-brand-border shadow-card p-3.5"
+            >
+              <p className="text-xs text-brand-text-secondary uppercase tracking-wide">
+                {item.label}
+              </p>
+              <p className={cn("text-2xl font-black mt-1", item.tone)}>
+                {item.value}
+              </p>
             </div>
           ))}
         </div>
@@ -245,10 +335,10 @@ export default function DailyKmPage() {
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
                   activeTab === tab.key
-                    ? 'bg-primary-600 text-white shadow-sm'
-                    : 'text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50',
+                    ? "bg-primary-600 text-white shadow-sm"
+                    : "text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50",
                 )}
               >
                 {tab.label}
@@ -268,8 +358,8 @@ export default function DailyKmPage() {
               onClick={() => {
                 setEditingRecordId(null);
                 reset({
-                  date: format(new Date(), 'yyyy-MM-dd'),
-                  status: 'OK',
+                  date: format(new Date(), "yyyy-MM-dd"),
+                  status: "OK",
                   initialKm: 0,
                   finalKm: 0,
                   personalInitialKm: 0,
@@ -290,7 +380,8 @@ export default function DailyKmPage() {
                 setEditingRecordId(selectedRecord.id);
                 reset({
                   date: selectedRecord.date?.slice(0, 10),
-                  vehicleId: selectedRecord.vehicleId ?? selectedRecord.vehicle.id,
+                  vehicleId:
+                    selectedRecord.vehicleId ?? selectedRecord.vehicle.id,
                   driverId: selectedRecord.driverId ?? selectedRecord.driver.id,
                   initialKm: selectedRecord.initialKm,
                   finalKm: selectedRecord.finalKm,
@@ -311,7 +402,11 @@ export default function DailyKmPage() {
               disabled={!selectedRecord || deleteMutation.isPending}
               onClick={() => {
                 if (!selectedRecord) return;
-                if (confirm(`Deseja excluir o registro de ${selectedRecord.vehicle.plate}?`)) {
+                if (
+                  confirm(
+                    `Deseja excluir o registro de ${selectedRecord.vehicle.plate}?`,
+                  )
+                ) {
                   deleteMutation.mutate(selectedRecord.id);
                 }
               }}
@@ -322,7 +417,7 @@ export default function DailyKmPage() {
         </div>
 
         <AnimatePresence mode="wait">
-          {activeTab === 'records' && (
+          {activeTab === "records" && (
             <motion.div
               key="records"
               initial={{ opacity: 0, y: 8 }}
@@ -335,7 +430,9 @@ export default function DailyKmPage() {
               <div className="flex flex-wrap items-center gap-3 bg-white rounded-2xl border border-brand-border shadow-card p-3.5">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-brand-text-secondary" />
-                  <span className="text-sm text-brand-text-secondary">Período:</span>
+                  <span className="text-sm text-brand-text-secondary">
+                    Período:
+                  </span>
                 </div>
                 <input
                   type="date"
@@ -357,7 +454,10 @@ export default function DailyKmPage() {
               {loadingRecords ? (
                 <div className="space-y-3">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="bg-white rounded-2xl border border-brand-border shadow-card p-4">
+                    <div
+                      key={i}
+                      className="bg-white rounded-2xl border border-brand-border shadow-card p-4"
+                    >
                       <Skeleton className="h-5 w-48 mb-2" />
                       <Skeleton className="h-4 w-full" />
                     </div>
@@ -366,9 +466,17 @@ export default function DailyKmPage() {
               ) : records.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-brand-border shadow-card">
                   <Route className="w-12 h-12 text-slate-300 mb-3" />
-                  <p className="font-semibold text-brand-text-primary">Nenhum registro encontrado</p>
-                  <p className="text-sm text-brand-text-secondary mt-1 mb-4">Tente ajustar o período ou crie um novo registro.</p>
-                  <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setModalOpen(true)}>
+                  <p className="font-semibold text-brand-text-primary">
+                    Nenhum registro encontrado
+                  </p>
+                  <p className="text-sm text-brand-text-secondary mt-1 mb-4">
+                    Tente ajustar o período ou crie um novo registro.
+                  </p>
+                  <Button
+                    size="sm"
+                    leftIcon={<Plus className="w-4 h-4" />}
+                    onClick={() => setModalOpen(true)}
+                  >
                     Novo Registro
                   </Button>
                 </div>
@@ -378,15 +486,33 @@ export default function DailyKmPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-brand-border bg-slate-50/80">
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Data</th>
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Condutor</th>
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Veículo</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Inicial</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Final</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Trabalho</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Pessoal</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Total</th>
-                          <th className="text-center px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Status</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Data
+                          </th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Condutor
+                          </th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Veículo
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            KM Inicial
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            KM Final
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Trabalho
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Pessoal
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Total
+                          </th>
+                          <th className="text-center px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Status
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-brand-border/50">
@@ -396,31 +522,56 @@ export default function DailyKmPage() {
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2, delay: i * 0.03 }}
-                            className={cn('hover:bg-slate-50/60 transition-colors cursor-pointer', selectedRecord?.id === record.id && 'bg-primary-50/40')}
-                            onClick={() => { setSelectedRecord(record); setDetailOpen(true); }}
+                            className={cn(
+                              "hover:bg-slate-50/60 transition-colors cursor-pointer",
+                              selectedRecord?.id === record.id &&
+                                "bg-primary-50/40",
+                            )}
+                            onClick={() => {
+                              setSelectedRecord(record);
+                              setDetailOpen(true);
+                            }}
                           >
                             <td className="px-4 py-3 text-brand-text-secondary text-xs whitespace-nowrap">
-                              {format(parseISO(record.date), 'dd/MM/yyyy', { locale: ptBR })}
+                              {format(parseISO(record.date), "dd/MM/yyyy", {
+                                locale: ptBR,
+                              })}
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-xs font-bold flex-shrink-0">
                                   {record.driver.name.charAt(0)}
                                 </div>
-                                <span className="font-medium text-brand-text-primary whitespace-nowrap">{record.driver.name}</span>
+                                <span className="font-medium text-brand-text-primary whitespace-nowrap">
+                                  {record.driver.name}
+                                </span>
                               </div>
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex flex-col">
-                                <span className="font-mono font-bold text-brand-text-primary">{record.vehicle.plate}</span>
-                                <span className="text-xs text-brand-text-secondary">{record.vehicle.brand} {record.vehicle.model}</span>
+                                <span className="font-mono font-bold text-brand-text-primary">
+                                  {record.vehicle.plate}
+                                </span>
+                                <span className="text-xs text-brand-text-secondary">
+                                  {record.vehicle.brand} {record.vehicle.model}
+                                </span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-right text-brand-text-primary font-mono">{record.initialKm.toLocaleString('pt-BR')}</td>
-                            <td className="px-4 py-3 text-right text-brand-text-primary font-mono">{record.finalKm.toLocaleString('pt-BR')}</td>
-                            <td className="px-4 py-3 text-right font-semibold text-primary-600 font-mono">{record.workKm.toLocaleString('pt-BR')}</td>
-                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">{record.personalKm.toLocaleString('pt-BR')}</td>
-                            <td className="px-4 py-3 text-right font-bold text-brand-text-primary font-mono">{record.totalKm.toLocaleString('pt-BR')}</td>
+                            <td className="px-4 py-3 text-right text-brand-text-primary font-mono">
+                              {record.initialKm.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-4 py-3 text-right text-brand-text-primary font-mono">
+                              {record.finalKm.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-4 py-3 text-right font-semibold text-primary-600 font-mono">
+                              {record.workKm.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">
+                              {record.personalKm.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-4 py-3 text-right font-bold text-brand-text-primary font-mono">
+                              {record.totalKm.toLocaleString("pt-BR")}
+                            </td>
                             <td className="px-4 py-3 text-center">
                               <StatusBadge status={record.status} />
                             </td>
@@ -434,7 +585,7 @@ export default function DailyKmPage() {
             </motion.div>
           )}
 
-          {activeTab === 'summary' && (
+          {activeTab === "summary" && (
             <motion.div
               key="summary"
               initial={{ opacity: 0, y: 8 }}
@@ -445,7 +596,10 @@ export default function DailyKmPage() {
               {loadingSummary ? (
                 <div className="space-y-3">
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="bg-white rounded-2xl border border-brand-border shadow-card p-4">
+                    <div
+                      key={i}
+                      className="bg-white rounded-2xl border border-brand-border shadow-card p-4"
+                    >
                       <Skeleton className="h-5 w-40 mb-2" />
                       <Skeleton className="h-4 w-64" />
                     </div>
@@ -454,8 +608,13 @@ export default function DailyKmPage() {
               ) : summary.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-brand-border shadow-card">
                   <TrendingUp className="w-12 h-12 text-slate-300 mb-3" />
-                  <p className="font-semibold text-brand-text-primary">Nenhum resumo disponível</p>
-                  <p className="text-sm text-brand-text-secondary mt-1">Os resumos por condutor aparecerão aqui após registros serem criados.</p>
+                  <p className="font-semibold text-brand-text-primary">
+                    Nenhum resumo disponível
+                  </p>
+                  <p className="text-sm text-brand-text-secondary mt-1">
+                    Os resumos por condutor aparecerão aqui após registros serem
+                    criados.
+                  </p>
                 </div>
               ) : (
                 <div className="bg-white rounded-2xl border border-brand-border shadow-card overflow-hidden">
@@ -463,11 +622,21 @@ export default function DailyKmPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-brand-border bg-slate-50/80">
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Condutor</th>
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Mês</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Pessoal</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Trabalho</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Total</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Condutor
+                          </th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Mês
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            KM Pessoal
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            KM Trabalho
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            KM Total
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-brand-border/50">
@@ -477,23 +646,43 @@ export default function DailyKmPage() {
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2, delay: i * 0.03 }}
-                            className={cn('hover:bg-slate-50/60 transition-colors cursor-pointer', selectedSummary?.driver.id === row.driver.id && selectedSummary?.month === row.month && 'bg-primary-50/40')}
-                            onClick={() => { setSelectedSummary(row); setSummaryDetailOpen(true); }}
+                            className={cn(
+                              "hover:bg-slate-50/60 transition-colors cursor-pointer",
+                              selectedSummary?.driver.id === row.driver.id &&
+                                selectedSummary?.month === row.month &&
+                                "bg-primary-50/40",
+                            )}
+                            onClick={() => {
+                              setSelectedSummary(row);
+                              setSummaryDetailOpen(true);
+                            }}
                           >
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-xs font-bold">
                                   {row.driver.name.charAt(0)}
                                 </div>
-                                <span className="font-medium text-brand-text-primary">{row.driver.name}</span>
+                                <span className="font-medium text-brand-text-primary">
+                                  {row.driver.name}
+                                </span>
                               </div>
                             </td>
                             <td className="px-4 py-3 text-brand-text-secondary capitalize">
-                              {format(parseISO(row.month + '-01'), 'MMMM yyyy', { locale: ptBR })}
+                              {format(
+                                parseISO(row.month + "-01"),
+                                "MMMM yyyy",
+                                { locale: ptBR },
+                              )}
                             </td>
-                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">{row.personalKm.toLocaleString('pt-BR')}</td>
-                            <td className="px-4 py-3 text-right text-primary-600 font-semibold font-mono">{row.workKm.toLocaleString('pt-BR')}</td>
-                            <td className="px-4 py-3 text-right font-bold text-brand-text-primary font-mono">{row.totalKm.toLocaleString('pt-BR')}</td>
+                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">
+                              {row.personalKm.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-4 py-3 text-right text-primary-600 font-semibold font-mono">
+                              {row.workKm.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-4 py-3 text-right font-bold text-brand-text-primary font-mono">
+                              {row.totalKm.toLocaleString("pt-BR")}
+                            </td>
                           </motion.tr>
                         ))}
                       </tbody>
@@ -503,7 +692,7 @@ export default function DailyKmPage() {
               )}
             </motion.div>
           )}
-          {activeTab === 'vehicleSummary' && (
+          {activeTab === "vehicleSummary" && (
             <motion.div
               key="vehicleSummary"
               initial={{ opacity: 0, y: 8 }}
@@ -514,7 +703,10 @@ export default function DailyKmPage() {
               {loadingVehicleSummary ? (
                 <div className="space-y-3">
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="bg-white rounded-2xl border border-brand-border shadow-card p-4">
+                    <div
+                      key={i}
+                      className="bg-white rounded-2xl border border-brand-border shadow-card p-4"
+                    >
                       <Skeleton className="h-5 w-40 mb-2" />
                       <Skeleton className="h-4 w-64" />
                     </div>
@@ -523,8 +715,13 @@ export default function DailyKmPage() {
               ) : vehicleSummary.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-brand-border shadow-card">
                   <Car className="w-12 h-12 text-slate-300 mb-3" />
-                  <p className="font-semibold text-brand-text-primary">Nenhum resumo disponível</p>
-                  <p className="text-sm text-brand-text-secondary mt-1">Os resumos por veículo aparecerão aqui após registros serem criados.</p>
+                  <p className="font-semibold text-brand-text-primary">
+                    Nenhum resumo disponível
+                  </p>
+                  <p className="text-sm text-brand-text-secondary mt-1">
+                    Os resumos por veículo aparecerão aqui após registros serem
+                    criados.
+                  </p>
                 </div>
               ) : (
                 <div className="bg-white rounded-2xl border border-brand-border shadow-card overflow-hidden">
@@ -532,12 +729,24 @@ export default function DailyKmPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-brand-border bg-slate-50/80">
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Veículo</th>
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Mês</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">Dias</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Pessoal</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Trabalho</th>
-                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">KM Total</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Veículo
+                          </th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Mês
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            Dias
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            KM Pessoal
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            KM Trabalho
+                          </th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-brand-text-secondary uppercase tracking-wide">
+                            KM Total
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-brand-border/50">
@@ -547,22 +756,47 @@ export default function DailyKmPage() {
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2, delay: i * 0.03 }}
-                            className={cn('hover:bg-slate-50/60 transition-colors cursor-pointer', selectedVehicleSummary?.vehicle.id === row.vehicle.id && selectedVehicleSummary?.month === row.month && 'bg-primary-50/40')}
-                            onClick={() => { setSelectedVehicleSummary(row); setVehicleSummaryDetailOpen(true); }}
+                            className={cn(
+                              "hover:bg-slate-50/60 transition-colors cursor-pointer",
+                              selectedVehicleSummary?.vehicle.id ===
+                                row.vehicle.id &&
+                                selectedVehicleSummary?.month === row.month &&
+                                "bg-primary-50/40",
+                            )}
+                            onClick={() => {
+                              setSelectedVehicleSummary(row);
+                              setVehicleSummaryDetailOpen(true);
+                            }}
                           >
                             <td className="px-4 py-3">
                               <div className="flex flex-col">
-                                <span className="font-mono font-bold text-brand-text-primary">{row.vehicle.plate}</span>
-                                <span className="text-xs text-brand-text-secondary">{row.vehicle.brand} {row.vehicle.model}</span>
+                                <span className="font-mono font-bold text-brand-text-primary">
+                                  {row.vehicle.plate}
+                                </span>
+                                <span className="text-xs text-brand-text-secondary">
+                                  {row.vehicle.brand} {row.vehicle.model}
+                                </span>
                               </div>
                             </td>
                             <td className="px-4 py-3 text-brand-text-secondary capitalize">
-                              {format(parseISO(row.month + '-01'), 'MMMM yyyy', { locale: ptBR })}
+                              {format(
+                                parseISO(row.month + "-01"),
+                                "MMMM yyyy",
+                                { locale: ptBR },
+                              )}
                             </td>
-                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">{row.daysCount}</td>
-                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">{row.personalKm.toLocaleString('pt-BR')}</td>
-                            <td className="px-4 py-3 text-right text-primary-600 font-semibold font-mono">{row.workKm.toLocaleString('pt-BR')}</td>
-                            <td className="px-4 py-3 text-right font-bold text-brand-text-primary font-mono">{row.totalKm.toLocaleString('pt-BR')}</td>
+                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">
+                              {row.daysCount}
+                            </td>
+                            <td className="px-4 py-3 text-right text-brand-text-secondary font-mono">
+                              {row.personalKm.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-4 py-3 text-right text-primary-600 font-semibold font-mono">
+                              {row.workKm.toLocaleString("pt-BR")}
+                            </td>
+                            <td className="px-4 py-3 text-right font-bold text-brand-text-primary font-mono">
+                              {row.totalKm.toLocaleString("pt-BR")}
+                            </td>
                           </motion.tr>
                         ))}
                       </tbody>
@@ -581,68 +815,140 @@ export default function DailyKmPage() {
           open={vehicleSummaryDetailOpen}
           onClose={() => setVehicleSummaryDetailOpen(false)}
           title={`${selectedVehicleSummary.vehicle.plate} — ${selectedVehicleSummary.vehicle.brand} ${selectedVehicleSummary.vehicle.model}`}
-          description={`Resumo de ${format(parseISO(selectedVehicleSummary.month + '-01'), 'MMMM yyyy', { locale: ptBR })}`}
+          description={`Resumo de ${format(parseISO(selectedVehicleSummary.month + "-01"), "MMMM yyyy", { locale: ptBR })}`}
           size="lg"
-          footer={<Button variant="secondary" onClick={() => setVehicleSummaryDetailOpen(false)}>Fechar</Button>}
+          footer={
+            <Button
+              variant="secondary"
+              onClick={() => setVehicleSummaryDetailOpen(false)}
+            >
+              Fechar
+            </Button>
+          }
         >
           <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-slate-50 rounded-xl p-3">
-                <div className="text-xs text-brand-text-secondary mb-1">Placa</div>
-                <div className="text-sm font-semibold text-brand-text-primary font-mono">{selectedVehicleSummary.vehicle.plate}</div>
+                <div className="text-xs text-brand-text-secondary mb-1">
+                  Placa
+                </div>
+                <div className="text-sm font-semibold text-brand-text-primary font-mono">
+                  {selectedVehicleSummary.vehicle.plate}
+                </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3">
-                <div className="text-xs text-brand-text-secondary mb-1">Veículo</div>
-                <div className="text-sm font-semibold text-brand-text-primary">{selectedVehicleSummary.vehicle.brand} {selectedVehicleSummary.vehicle.model}</div>
+                <div className="text-xs text-brand-text-secondary mb-1">
+                  Veículo
+                </div>
+                <div className="text-sm font-semibold text-brand-text-primary">
+                  {selectedVehicleSummary.vehicle.brand}{" "}
+                  {selectedVehicleSummary.vehicle.model}
+                </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3">
-                <div className="text-xs text-brand-text-secondary mb-1">Mês</div>
-                <div className="text-sm font-semibold text-brand-text-primary capitalize">{format(parseISO(selectedVehicleSummary.month + '-01'), 'MMMM yyyy', { locale: ptBR })}</div>
+                <div className="text-xs text-brand-text-secondary mb-1">
+                  Mês
+                </div>
+                <div className="text-sm font-semibold text-brand-text-primary capitalize">
+                  {format(
+                    parseISO(selectedVehicleSummary.month + "-01"),
+                    "MMMM yyyy",
+                    { locale: ptBR },
+                  )}
+                </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3">
-                <div className="text-xs text-brand-text-secondary mb-1">Dias Registrados</div>
-                <div className="text-sm font-semibold text-brand-text-primary">{selectedVehicleSummary.daysCount}</div>
+                <div className="text-xs text-brand-text-secondary mb-1">
+                  Dias Registrados
+                </div>
+                <div className="text-sm font-semibold text-brand-text-primary">
+                  {selectedVehicleSummary.daysCount}
+                </div>
               </div>
             </div>
 
             <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
-              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Quilometragem</h4>
+              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">
+                Quilometragem
+              </h4>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary-600 font-mono">{selectedVehicleSummary.workKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary mt-1">KM Trabalho</div>
+                  <div className="text-2xl font-bold text-primary-600 font-mono">
+                    {selectedVehicleSummary.workKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-brand-text-secondary mt-1">
+                    KM Trabalho
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-text-secondary font-mono">{selectedVehicleSummary.personalKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary mt-1">KM Pessoal</div>
+                  <div className="text-2xl font-bold text-brand-text-secondary font-mono">
+                    {selectedVehicleSummary.personalKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-brand-text-secondary mt-1">
+                    KM Pessoal
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-text-primary font-mono">{selectedVehicleSummary.totalKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary mt-1">KM Total</div>
+                  <div className="text-2xl font-bold text-brand-text-primary font-mono">
+                    {selectedVehicleSummary.totalKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-brand-text-secondary mt-1">
+                    KM Total
+                  </div>
                 </div>
               </div>
             </div>
 
             {selectedVehicleSummary.totalKm > 0 && (
               <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
-                <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Distribuição</h4>
+                <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">
+                  Distribuição
+                </h4>
                 <div className="space-y-2">
                   <div>
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-primary-600 font-medium">Trabalho</span>
-                      <span className="text-brand-text-secondary">{((selectedVehicleSummary.workKm / selectedVehicleSummary.totalKm) * 100).toFixed(1)}%</span>
+                      <span className="text-primary-600 font-medium">
+                        Trabalho
+                      </span>
+                      <span className="text-brand-text-secondary">
+                        {(
+                          (selectedVehicleSummary.workKm /
+                            selectedVehicleSummary.totalKm) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
                     </div>
                     <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary-500 rounded-full" style={{ width: `${(selectedVehicleSummary.workKm / selectedVehicleSummary.totalKm) * 100}%` }} />
+                      <div
+                        className="h-full bg-primary-500 rounded-full"
+                        style={{
+                          width: `${(selectedVehicleSummary.workKm / selectedVehicleSummary.totalKm) * 100}%`,
+                        }}
+                      />
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-brand-text-secondary font-medium">Pessoal</span>
-                      <span className="text-brand-text-secondary">{((selectedVehicleSummary.personalKm / selectedVehicleSummary.totalKm) * 100).toFixed(1)}%</span>
+                      <span className="text-brand-text-secondary font-medium">
+                        Pessoal
+                      </span>
+                      <span className="text-brand-text-secondary">
+                        {(
+                          (selectedVehicleSummary.personalKm /
+                            selectedVehicleSummary.totalKm) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
                     </div>
                     <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-slate-400 rounded-full" style={{ width: `${(selectedVehicleSummary.personalKm / selectedVehicleSummary.totalKm) * 100}%` }} />
+                      <div
+                        className="h-full bg-slate-400 rounded-full"
+                        style={{
+                          width: `${(selectedVehicleSummary.personalKm / selectedVehicleSummary.totalKm) * 100}%`,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -658,60 +964,122 @@ export default function DailyKmPage() {
           open={summaryDetailOpen}
           onClose={() => setSummaryDetailOpen(false)}
           title={selectedSummary.driver.name}
-          description={`Resumo de ${format(parseISO(selectedSummary.month + '-01'), 'MMMM yyyy', { locale: ptBR })}`}
+          description={`Resumo de ${format(parseISO(selectedSummary.month + "-01"), "MMMM yyyy", { locale: ptBR })}`}
           size="lg"
-          footer={<Button variant="secondary" onClick={() => setSummaryDetailOpen(false)}>Fechar</Button>}
+          footer={
+            <Button
+              variant="secondary"
+              onClick={() => setSummaryDetailOpen(false)}
+            >
+              Fechar
+            </Button>
+          }
         >
           <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-slate-50 rounded-xl p-3">
-                <div className="text-xs text-brand-text-secondary mb-1">Condutor</div>
-                <div className="text-sm font-semibold text-brand-text-primary">{selectedSummary.driver.name}</div>
+                <div className="text-xs text-brand-text-secondary mb-1">
+                  Condutor
+                </div>
+                <div className="text-sm font-semibold text-brand-text-primary">
+                  {selectedSummary.driver.name}
+                </div>
               </div>
               <div className="bg-slate-50 rounded-xl p-3">
-                <div className="text-xs text-brand-text-secondary mb-1">Mês</div>
-                <div className="text-sm font-semibold text-brand-text-primary capitalize">{format(parseISO(selectedSummary.month + '-01'), 'MMMM yyyy', { locale: ptBR })}</div>
+                <div className="text-xs text-brand-text-secondary mb-1">
+                  Mês
+                </div>
+                <div className="text-sm font-semibold text-brand-text-primary capitalize">
+                  {format(
+                    parseISO(selectedSummary.month + "-01"),
+                    "MMMM yyyy",
+                    { locale: ptBR },
+                  )}
+                </div>
               </div>
             </div>
 
             <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
-              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Quilometragem</h4>
+              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">
+                Quilometragem
+              </h4>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary-600 font-mono">{selectedSummary.workKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary mt-1">KM Trabalho</div>
+                  <div className="text-2xl font-bold text-primary-600 font-mono">
+                    {selectedSummary.workKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-brand-text-secondary mt-1">
+                    KM Trabalho
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-text-secondary font-mono">{selectedSummary.personalKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary mt-1">KM Pessoal</div>
+                  <div className="text-2xl font-bold text-brand-text-secondary font-mono">
+                    {selectedSummary.personalKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-brand-text-secondary mt-1">
+                    KM Pessoal
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-text-primary font-mono">{selectedSummary.totalKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary mt-1">KM Total</div>
+                  <div className="text-2xl font-bold text-brand-text-primary font-mono">
+                    {selectedSummary.totalKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-brand-text-secondary mt-1">
+                    KM Total
+                  </div>
                 </div>
               </div>
             </div>
 
             {selectedSummary.totalKm > 0 && (
               <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
-                <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Distribuição</h4>
+                <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">
+                  Distribuição
+                </h4>
                 <div className="space-y-2">
                   <div>
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-primary-600 font-medium">Trabalho</span>
-                      <span className="text-brand-text-secondary">{((selectedSummary.workKm / selectedSummary.totalKm) * 100).toFixed(1)}%</span>
+                      <span className="text-primary-600 font-medium">
+                        Trabalho
+                      </span>
+                      <span className="text-brand-text-secondary">
+                        {(
+                          (selectedSummary.workKm / selectedSummary.totalKm) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
                     </div>
                     <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary-500 rounded-full" style={{ width: `${(selectedSummary.workKm / selectedSummary.totalKm) * 100}%` }} />
+                      <div
+                        className="h-full bg-primary-500 rounded-full"
+                        style={{
+                          width: `${(selectedSummary.workKm / selectedSummary.totalKm) * 100}%`,
+                        }}
+                      />
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-brand-text-secondary font-medium">Pessoal</span>
-                      <span className="text-brand-text-secondary">{((selectedSummary.personalKm / selectedSummary.totalKm) * 100).toFixed(1)}%</span>
+                      <span className="text-brand-text-secondary font-medium">
+                        Pessoal
+                      </span>
+                      <span className="text-brand-text-secondary">
+                        {(
+                          (selectedSummary.personalKm /
+                            selectedSummary.totalKm) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
                     </div>
                     <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-slate-400 rounded-full" style={{ width: `${(selectedSummary.personalKm / selectedSummary.totalKm) * 100}%` }} />
+                      <div
+                        className="h-full bg-slate-400 rounded-full"
+                        style={{
+                          width: `${(selectedSummary.personalKm / selectedSummary.totalKm) * 100}%`,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -723,137 +1091,175 @@ export default function DailyKmPage() {
 
       {/* Detail Modal */}
       {selectedRecord && (
-        <Modal
+        <DetailPanel
           open={detailOpen}
           onClose={() => setDetailOpen(false)}
           title={`${selectedRecord.vehicle.plate} — ${selectedRecord.vehicle.brand} ${selectedRecord.vehicle.model}`}
-          description={`${format(parseISO(selectedRecord.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })} • ${selectedRecord.driver.name}`}
-          size="xl"
-          footer={
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => setDetailOpen(false)}>Fechar</Button>
-              <Button
-                leftIcon={<Pencil className="w-4 h-4" />}
-                onClick={() => {
-                  setDetailOpen(false);
-                  setEditingRecordId(selectedRecord.id);
-                  reset({
-                    date: selectedRecord.date?.slice(0, 10),
-                    vehicleId: selectedRecord.vehicleId ?? selectedRecord.vehicle.id,
-                    driverId: selectedRecord.driverId ?? selectedRecord.driver.id,
-                    initialKm: selectedRecord.initialKm,
-                    finalKm: selectedRecord.finalKm,
-                    personalInitialKm: selectedRecord.personalInitialKm ?? 0,
-                    personalFinalKm: selectedRecord.personalFinalKm ?? 0,
-                    status: selectedRecord.status,
-                    notes: selectedRecord.notes,
-                  });
-                  setModalOpen(true);
-                }}
-              >
-                Editar
-              </Button>
-            </div>
-          }
+          subtitle={`${format(parseISO(selectedRecord.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })} • ${selectedRecord.driver.name}`}
+          badges={[
+            {
+              label: selectedRecord.status === "OK" ? "OK" : "NOK",
+              variant: selectedRecord.status === "OK" ? "success" : "danger",
+            },
+          ]}
+          onEdit={() => {
+            setDetailOpen(false);
+            setEditingRecordId(selectedRecord.id);
+            reset({
+              date: selectedRecord.date?.slice(0, 10),
+              vehicleId: selectedRecord.vehicleId ?? selectedRecord.vehicle.id,
+              driverId: selectedRecord.driverId ?? selectedRecord.driver.id,
+              initialKm: selectedRecord.initialKm,
+              finalKm: selectedRecord.finalKm,
+              personalInitialKm: selectedRecord.personalInitialKm ?? 0,
+              personalFinalKm: selectedRecord.personalFinalKm ?? 0,
+              status: selectedRecord.status,
+              notes: selectedRecord.notes,
+            });
+            setModalOpen(true);
+          }}
+          width="lg"
         >
-          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { label: 'Data', value: format(parseISO(selectedRecord.date), 'dd/MM/yyyy (EEEE)', { locale: ptBR }) },
-                { label: 'Status', value: selectedRecord.status },
-                { label: 'Condutor', value: selectedRecord.driver.name },
-                { label: 'Placa', value: selectedRecord.vehicle.plate, mono: true },
-                { label: 'Veículo', value: `${selectedRecord.vehicle.brand} ${selectedRecord.vehicle.model}` },
-              ].map((item) => (
-                <div key={item.label} className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-xs text-brand-text-secondary mb-1">{item.label}</div>
-                  <div className={cn('text-sm font-semibold text-brand-text-primary', item.mono && 'font-mono')}>
-                    {item.label === 'Status' ? <StatusBadge status={selectedRecord.status} /> : item.value}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <DetailPanel.Section title="Informações Gerais">
+            <DetailPanel.Grid cols={2}>
+              <DetailPanel.Field
+                label="Data"
+                value={format(
+                  parseISO(selectedRecord.date),
+                  "dd/MM/yyyy (EEEE)",
+                  { locale: ptBR },
+                )}
+              />
+              <DetailPanel.Field
+                label="Condutor"
+                value={selectedRecord.driver.name}
+              />
+              <DetailPanel.Field
+                label="Placa"
+                value={selectedRecord.vehicle.plate}
+                mono
+              />
+              <DetailPanel.Field
+                label="Veículo"
+                value={`${selectedRecord.vehicle.brand} ${selectedRecord.vehicle.model}`}
+              />
+            </DetailPanel.Grid>
+          </DetailPanel.Section>
 
-            <div>
-              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-2 flex items-center gap-2">
-                <Car className="w-4 h-4 text-primary-600" />
-                KM de Trabalho
-              </h4>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
-                  <div className="text-xs text-brand-text-secondary mb-1">KM Inicial</div>
-                  <div className="text-lg font-bold text-brand-text-primary font-mono">{selectedRecord.initialKm.toLocaleString('pt-BR')}</div>
+          <DetailPanel.Section title="KM de Trabalho">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <div className="text-xs text-slate-500 mb-1">KM Inicial</div>
+                <div className="text-lg font-bold text-slate-800 font-mono">
+                  {selectedRecord.initialKm.toLocaleString("pt-BR")}
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
-                  <div className="text-xs text-brand-text-secondary mb-1">KM Final</div>
-                  <div className="text-lg font-bold text-brand-text-primary font-mono">{selectedRecord.finalKm.toLocaleString('pt-BR')}</div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <div className="text-xs text-slate-500 mb-1">KM Final</div>
+                <div className="text-lg font-bold text-slate-800 font-mono">
+                  {selectedRecord.finalKm.toLocaleString("pt-BR")}
                 </div>
-                <div className="bg-primary-50 rounded-xl p-3 text-center border border-primary-200">
-                  <div className="text-xs text-primary-600 mb-1">KM Trabalho</div>
-                  <div className="text-lg font-bold text-primary-700 font-mono">{selectedRecord.workKm.toLocaleString('pt-BR')}</div>
+              </div>
+              <div className="bg-blue-50 rounded-xl p-3 text-center border border-blue-200">
+                <div className="text-xs text-blue-600 mb-1">KM Trabalho</div>
+                <div className="text-lg font-bold text-blue-700 font-mono">
+                  {selectedRecord.workKm.toLocaleString("pt-BR")}
                 </div>
               </div>
             </div>
+          </DetailPanel.Section>
 
-            <div>
-              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-2 flex items-center gap-2">
-                <User className="w-4 h-4 text-brand-text-secondary" />
-                KM Pessoal
-              </h4>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
-                  <div className="text-xs text-brand-text-secondary mb-1">KM Inicial</div>
-                  <div className="text-lg font-bold text-brand-text-primary font-mono">{(selectedRecord.personalInitialKm ?? 0).toLocaleString('pt-BR')}</div>
+          <DetailPanel.Section title="KM Pessoal">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <div className="text-xs text-slate-500 mb-1">KM Inicial</div>
+                <div className="text-lg font-bold text-slate-800 font-mono">
+                  {(selectedRecord.personalInitialKm ?? 0).toLocaleString(
+                    "pt-BR",
+                  )}
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
-                  <div className="text-xs text-brand-text-secondary mb-1">KM Final</div>
-                  <div className="text-lg font-bold text-brand-text-primary font-mono">{(selectedRecord.personalFinalKm ?? 0).toLocaleString('pt-BR')}</div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <div className="text-xs text-slate-500 mb-1">KM Final</div>
+                <div className="text-lg font-bold text-slate-800 font-mono">
+                  {(selectedRecord.personalFinalKm ?? 0).toLocaleString(
+                    "pt-BR",
+                  )}
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3 text-center">
-                  <div className="text-xs text-brand-text-secondary mb-1">KM Pessoal</div>
-                  <div className="text-lg font-bold text-brand-text-secondary font-mono">{selectedRecord.personalKm.toLocaleString('pt-BR')}</div>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <div className="text-xs text-slate-500 mb-1">KM Pessoal</div>
+                <div className="text-lg font-bold text-slate-500 font-mono">
+                  {selectedRecord.personalKm.toLocaleString("pt-BR")}
                 </div>
               </div>
             </div>
+          </DetailPanel.Section>
 
-            <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
-              <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Resumo Total</h4>
+          <DetailPanel.Section title="Resumo Total">
+            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <div className="text-xl font-bold text-primary-600 font-mono">{selectedRecord.workKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary">Trabalho</div>
+                  <div className="text-xl font-bold text-blue-600 font-mono">
+                    {selectedRecord.workKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-slate-500">Trabalho</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-brand-text-secondary font-mono">{selectedRecord.personalKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary">Pessoal</div>
+                  <div className="text-xl font-bold text-slate-500 font-mono">
+                    {selectedRecord.personalKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-slate-500">Pessoal</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-brand-text-primary font-mono">{selectedRecord.totalKm.toLocaleString('pt-BR')}</div>
-                  <div className="text-xs text-brand-text-secondary">Total</div>
+                  <div className="text-xl font-bold text-slate-800 font-mono">
+                    {selectedRecord.totalKm.toLocaleString("pt-BR")}
+                  </div>
+                  <div className="text-xs text-slate-500">Total</div>
                 </div>
               </div>
             </div>
+          </DetailPanel.Section>
 
-            {selectedRecord.notes && (
-              <div className="bg-slate-50 rounded-xl p-3">
-                <div className="text-xs text-brand-text-secondary mb-1">Observações</div>
-                <div className="text-sm text-brand-text-primary">{selectedRecord.notes}</div>
-              </div>
-            )}
-          </div>
-        </Modal>
+          {selectedRecord.notes && (
+            <DetailPanel.Section title="Observações">
+              <p className="text-sm text-slate-600 bg-slate-50 rounded-lg p-3">
+                {selectedRecord.notes}
+              </p>
+            </DetailPanel.Section>
+          )}
+        </DetailPanel>
       )}
 
       {/* Create Record Modal */}
       <Modal
         open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditingRecordId(null); reset(); }}
-        title={editingRecordId ? 'Editar Registro de KM' : 'Novo Registro de KM'}
-        description={editingRecordId ? 'Atualize os dados do trajeto.' : 'Preencha os dados do trajeto do dia.'}
+        onClose={() => {
+          setModalOpen(false);
+          setEditingRecordId(null);
+          reset();
+        }}
+        title={
+          editingRecordId ? "Editar Registro de KM" : "Novo Registro de KM"
+        }
+        description={
+          editingRecordId
+            ? "Atualize os dados do trajeto."
+            : "Preencha os dados do trajeto do dia."
+        }
         size="xl"
         footer={
           <>
-            <Button variant="secondary" onClick={() => { setModalOpen(false); setEditingRecordId(null); reset(); }}>Cancelar</Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setModalOpen(false);
+                setEditingRecordId(null);
+                reset();
+              }}
+            >
+              Cancelar
+            </Button>
             <Button
               loading={createMutation.isPending || updateMutation.isPending}
               onClick={handleSubmit(
@@ -864,10 +1270,10 @@ export default function DailyKmPage() {
                   }
                   createMutation.mutate(d);
                 },
-                () => toast.error('Preencha todos os campos obrigatórios'),
+                () => toast.error("Preencha todos os campos obrigatórios"),
               )}
             >
-              {editingRecordId ? 'Salvar Alterações' : 'Salvar Registro'}
+              {editingRecordId ? "Salvar Alterações" : "Salvar Registro"}
             </Button>
           </>
         }
@@ -875,43 +1281,79 @@ export default function DailyKmPage() {
         <form className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Data *</label>
+              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                Data *
+              </label>
               <input
                 type="date"
-                {...register('date')}
-                className={cn('input-base', errors.date && 'border-danger-400')}
+                {...register("date")}
+                className={cn("input-base", errors.date && "border-danger-400")}
               />
-              {errors.date && <p className="text-danger-500 text-xs mt-1">{errors.date.message}</p>}
+              {errors.date && (
+                <p className="text-danger-500 text-xs mt-1">
+                  {errors.date.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Status *</label>
-              <select {...register('status')} className="input-base">
+              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                Status *
+              </label>
+              <select {...register("status")} className="input-base">
                 <option value="OK">OK</option>
                 <option value="NOK">NOK</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Veículo *</label>
-              <select {...register('vehicleId')} className={cn('input-base', errors.vehicleId && 'border-danger-400')}>
+              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                Veículo *
+              </label>
+              <select
+                {...register("vehicleId")}
+                className={cn(
+                  "input-base",
+                  errors.vehicleId && "border-danger-400",
+                )}
+              >
                 <option value="">Selecione o veículo</option>
                 {vehicles.map((v) => (
-                  <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>
+                  <option key={v.id} value={v.id}>
+                    {v.plate} — {v.brand} {v.model}
+                  </option>
                 ))}
               </select>
-              {errors.vehicleId && <p className="text-danger-500 text-xs mt-1">{errors.vehicleId.message}</p>}
+              {errors.vehicleId && (
+                <p className="text-danger-500 text-xs mt-1">
+                  {errors.vehicleId.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Condutor *</label>
-              <select {...register('driverId')} className={cn('input-base', errors.driverId && 'border-danger-400')}>
+              <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+                Condutor *
+              </label>
+              <select
+                {...register("driverId")}
+                className={cn(
+                  "input-base",
+                  errors.driverId && "border-danger-400",
+                )}
+              >
                 <option value="">Selecione o condutor</option>
                 {drivers.map((d) => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
                 ))}
               </select>
-              {errors.driverId && <p className="text-danger-500 text-xs mt-1">{errors.driverId.message}</p>}
+              {errors.driverId && (
+                <p className="text-danger-500 text-xs mt-1">
+                  {errors.driverId.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -923,24 +1365,42 @@ export default function DailyKmPage() {
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-brand-text-secondary mb-1.5">KM Inicial *</label>
+                <label className="block text-xs font-medium text-brand-text-secondary mb-1.5">
+                  KM Inicial *
+                </label>
                 <input
                   type="number"
-                  {...register('initialKm')}
+                  {...register("initialKm")}
                   placeholder="0"
-                  className={cn('input-base', errors.initialKm && 'border-danger-400')}
+                  className={cn(
+                    "input-base",
+                    errors.initialKm && "border-danger-400",
+                  )}
                 />
-                {errors.initialKm && <p className="text-danger-500 text-xs mt-1">{errors.initialKm.message}</p>}
+                {errors.initialKm && (
+                  <p className="text-danger-500 text-xs mt-1">
+                    {errors.initialKm.message}
+                  </p>
+                )}
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-text-secondary mb-1.5">KM Final *</label>
+                <label className="block text-xs font-medium text-brand-text-secondary mb-1.5">
+                  KM Final *
+                </label>
                 <input
                   type="number"
-                  {...register('finalKm')}
+                  {...register("finalKm")}
                   placeholder="0"
-                  className={cn('input-base', errors.finalKm && 'border-danger-400')}
+                  className={cn(
+                    "input-base",
+                    errors.finalKm && "border-danger-400",
+                  )}
                 />
-                {errors.finalKm && <p className="text-danger-500 text-xs mt-1">{errors.finalKm.message}</p>}
+                {errors.finalKm && (
+                  <p className="text-danger-500 text-xs mt-1">
+                    {errors.finalKm.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -953,39 +1413,69 @@ export default function DailyKmPage() {
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-brand-text-secondary mb-1.5">KM Inicial Pessoal</label>
-                <input type="number" {...register('personalInitialKm')} placeholder="0" className="input-base" />
+                <label className="block text-xs font-medium text-brand-text-secondary mb-1.5">
+                  KM Inicial Pessoal
+                </label>
+                <input
+                  type="number"
+                  {...register("personalInitialKm")}
+                  placeholder="0"
+                  className="input-base"
+                />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-text-secondary mb-1.5">KM Final Pessoal</label>
-                <input type="number" {...register('personalFinalKm')} placeholder="0" className="input-base" />
+                <label className="block text-xs font-medium text-brand-text-secondary mb-1.5">
+                  KM Final Pessoal
+                </label>
+                <input
+                  type="number"
+                  {...register("personalFinalKm")}
+                  placeholder="0"
+                  className="input-base"
+                />
               </div>
             </div>
           </div>
 
           {/* Auto-calculated summary */}
           <div className="bg-slate-50 rounded-xl border border-brand-border p-4">
-            <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">Resumo Calculado</h4>
+            <h4 className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wide mb-3">
+              Resumo Calculado
+            </h4>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center">
-                <div className="text-lg font-bold text-primary-600">{calculatedWorkKm.toLocaleString('pt-BR')}</div>
-                <div className="text-xs text-brand-text-secondary">KM Trabalho</div>
+                <div className="text-lg font-bold text-primary-600">
+                  {calculatedWorkKm.toLocaleString("pt-BR")}
+                </div>
+                <div className="text-xs text-brand-text-secondary">
+                  KM Trabalho
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-brand-text-secondary">{calculatedPersonalKm.toLocaleString('pt-BR')}</div>
-                <div className="text-xs text-brand-text-secondary">KM Pessoal</div>
+                <div className="text-lg font-bold text-brand-text-secondary">
+                  {calculatedPersonalKm.toLocaleString("pt-BR")}
+                </div>
+                <div className="text-xs text-brand-text-secondary">
+                  KM Pessoal
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-brand-text-primary">{calculatedTotalKm.toLocaleString('pt-BR')}</div>
-                <div className="text-xs text-brand-text-secondary">KM Total</div>
+                <div className="text-lg font-bold text-brand-text-primary">
+                  {calculatedTotalKm.toLocaleString("pt-BR")}
+                </div>
+                <div className="text-xs text-brand-text-secondary">
+                  KM Total
+                </div>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">Observações</label>
+            <label className="block text-sm font-semibold text-brand-text-primary mb-1.5">
+              Observações
+            </label>
             <textarea
-              {...register('notes')}
+              {...register("notes")}
               placeholder="Observações sobre o trajeto..."
               rows={2}
               className="input-base resize-none"

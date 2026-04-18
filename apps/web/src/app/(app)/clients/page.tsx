@@ -7,6 +7,8 @@ import api from "@/lib/api";
 import { Search, Plus, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { toast } from "sonner";
+import { DetailPanel } from "@/components/ui/detail-panel";
+import { Button } from "@/components/ui/button";
 
 interface Client {
   id: string;
@@ -41,6 +43,7 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState<ClientFormState>(emptyForm);
+  const [detailClient, setDetailClient] = useState<Client | null>(null);
 
   const { data: clients = [], isLoading } = useQuery<Client[]>({
     queryKey: ["clients", search],
@@ -117,20 +120,13 @@ export default function ClientsPage() {
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold text-brand-text-primary">
-              Clientes
-            </h1>
             <p className="text-brand-text-secondary mt-1">
               Cadastro e consulta de clientes para uso nas vendas.
             </p>
           </div>
-          <button
-            onClick={openCreate}
-            className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-5 py-2.5 font-semibold flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
+          <Button onClick={openCreate} leftIcon={<Plus className="w-4 h-4" />}>
             Novo Cliente
-          </button>
+          </Button>
         </div>
 
         <div className="bg-white border border-brand-border rounded-2xl p-4 shadow-card">
@@ -198,7 +194,8 @@ export default function ClientsPage() {
                   filtered.map((client) => (
                     <tr
                       key={client.id}
-                      className="hover:bg-slate-50/60 transition-colors"
+                      className="hover:bg-slate-50/60 transition-colors cursor-pointer"
+                      onClick={() => setDetailClient(client)}
                     >
                       <td className="px-4 py-3 font-semibold text-brand-text-primary">
                         {client.name}
@@ -216,12 +213,16 @@ export default function ClientsPage() {
                         {client._count?.saleOrders ?? 0}
                       </td>
                       <td className="px-4 py-3">
-                        <button
-                          onClick={() => openEdit(client)}
-                          className="rounded-lg border border-brand-border px-3 py-1.5 text-xs font-semibold hover:bg-slate-50"
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEdit(client);
+                          }}
                         >
                           Editar
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -244,6 +245,7 @@ export default function ClientsPage() {
               </h2>
               <button
                 onClick={() => setIsOpen(false)}
+                aria-label="Fechar"
                 className="p-1 text-brand-text-secondary hover:text-brand-text-primary"
               >
                 <X className="w-5 h-5" />
@@ -293,7 +295,8 @@ export default function ClientsPage() {
               />
             </div>
 
-            <button
+            <Button
+              className="mt-5 w-full"
               onClick={() => {
                 if (!form.name.trim()) {
                   toast.error("Nome do cliente é obrigatório");
@@ -301,16 +304,60 @@ export default function ClientsPage() {
                 }
                 saveMutation.mutate(form);
               }}
-              disabled={saveMutation.isPending}
-              className={cn(
-                "mt-5 w-full rounded-xl py-2.5 font-semibold text-white",
-                "bg-primary-600 hover:bg-primary-700 disabled:opacity-50",
-              )}
+              loading={saveMutation.isPending}
             >
-              {saveMutation.isPending ? "Salvando..." : "Salvar Cliente"}
-            </button>
+              Salvar Cliente
+            </Button>
           </div>
         </div>
+      )}
+
+      {detailClient && (
+        <DetailPanel
+          open={!!detailClient}
+          onClose={() => setDetailClient(null)}
+          title={detailClient.name}
+          subtitle={detailClient.doc || undefined}
+          badges={[
+            {
+              label: detailClient.isActive ? "Ativo" : "Inativo",
+              variant: detailClient.isActive ? "success" : "gray",
+            },
+          ]}
+          onEdit={() => {
+            openEdit(detailClient);
+            setDetailClient(null);
+          }}
+          width="md"
+        >
+          <DetailPanel.Section title="Informações">
+            <DetailPanel.Grid cols={2}>
+              <DetailPanel.Field
+                label="Documento"
+                value={detailClient.doc || "—"}
+                mono
+              />
+              <DetailPanel.Field
+                label="Telefone"
+                value={detailClient.phone || "—"}
+              />
+              <DetailPanel.Field
+                label="Email"
+                value={detailClient.email || "—"}
+              />
+              <DetailPanel.Field
+                label="Pedidos"
+                value={detailClient._count?.saleOrders ?? 0}
+              />
+            </DetailPanel.Grid>
+          </DetailPanel.Section>
+
+          {detailClient.address && (
+            <DetailPanel.Section title="Endereço">
+              <p className="text-sm text-slate-600">{detailClient.address}</p>
+            </DetailPanel.Section>
+          )}
+        </DetailPanel>
       )}
     </div>
   );

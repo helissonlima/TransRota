@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import api from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { Header } from "@/components/layout/header";
+import { DetailPanel } from "@/components/ui/detail-panel";
 
 // Types and Schemas
 interface PurchaseOrder {
@@ -191,9 +192,8 @@ export default function PurchasesPage() {
       setIsCreateModalOpen(false);
       form.reset();
     },
-    onError: (error) => {
+    onError: () => {
       toast.error("Erro ao criar ordem de compra");
-      console.error(error);
     },
   });
 
@@ -312,9 +312,6 @@ export default function PurchasesPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 flex items-center justify-between"
         >
-          <h1 className="text-3xl font-bold text-brand-text-primary">
-            Compras
-          </h1>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -554,302 +551,307 @@ export default function PurchasesPage() {
       {/* Create Modal */}
       <AnimatePresence>
         {isCreateModalOpen && (
-          <Modal onClose={() => setIsCreateModalOpen(false)}>
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl"
-            >
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-brand-text-primary">
-                  Nova Ordem de Compra
-                </h2>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className="text-brand-text-secondary hover:text-brand-text-primary"
-                >
-                  <X size={24} />
-                </motion.button>
-              </div>
-
-              <form
-                onSubmit={form.handleSubmit(handleCreateOrder)}
-                className="space-y-6"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsCreateModalOpen(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          >
+            <motion.div onClick={(e) => e.stopPropagation()}>
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl"
               >
-                {/* Supplier */}
-                <div>
-                  <label className="block text-sm font-semibold text-brand-text-primary mb-2">
-                    Fornecedor *
-                  </label>
-                  <select
-                    {...form.register("supplierId")}
-                    className={cn(
-                      "w-full rounded-xl border border-brand-border bg-slate-50 px-3.5 py-2.5 text-sm",
-                      "focus:border-primary-500 focus:outline-none",
-                    )}
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-brand-text-primary">
+                    Nova Ordem de Compra
+                  </h2>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsCreateModalOpen(false)}
+                    className="text-brand-text-secondary hover:text-brand-text-primary"
                   >
-                    <option value="">Selecione um fornecedor</option>
-                    {suppliers?.map((supplier) => (
-                      <option key={supplier.id} value={supplier.id}>
-                        {supplier.name}
-                      </option>
-                    ))}
-                  </select>
-                  {form.formState.errors.supplierId && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {form.formState.errors.supplierId.message}
-                    </p>
-                  )}
+                    <X size={24} />
+                  </motion.button>
                 </div>
 
-                {/* Invoice & Due Date */}
-                <div className="grid grid-cols-2 gap-4">
+                <form
+                  onSubmit={form.handleSubmit(handleCreateOrder)}
+                  className="space-y-6"
+                >
+                  {/* Supplier */}
                   <div>
                     <label className="block text-sm font-semibold text-brand-text-primary mb-2">
-                      Nota Fiscal *
+                      Fornecedor *
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Ex: NF-2024-001"
-                      {...form.register("invoiceNumber")}
+                    <select
+                      {...form.register("supplierId")}
                       className={cn(
                         "w-full rounded-xl border border-brand-border bg-slate-50 px-3.5 py-2.5 text-sm",
                         "focus:border-primary-500 focus:outline-none",
                       )}
-                    />
-                    {form.formState.errors.invoiceNumber && (
+                    >
+                      <option value="">Selecione um fornecedor</option>
+                      {suppliers?.map((supplier) => (
+                        <option key={supplier.id} value={supplier.id}>
+                          {supplier.name}
+                        </option>
+                      ))}
+                    </select>
+                    {form.formState.errors.supplierId && (
                       <p className="mt-1 text-xs text-red-500">
-                        {form.formState.errors.invoiceNumber.message}
+                        {form.formState.errors.supplierId.message}
                       </p>
                     )}
                   </div>
+
+                  {/* Invoice & Due Date */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-brand-text-primary mb-2">
+                        Nota Fiscal *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ex: NF-2024-001"
+                        {...form.register("invoiceNumber")}
+                        className={cn(
+                          "w-full rounded-xl border border-brand-border bg-slate-50 px-3.5 py-2.5 text-sm",
+                          "focus:border-primary-500 focus:outline-none",
+                        )}
+                      />
+                      {form.formState.errors.invoiceNumber && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {form.formState.errors.invoiceNumber.message}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-brand-text-primary mb-2">
+                        Vencimento *
+                      </label>
+                      <input
+                        type="date"
+                        {...form.register("dueDate")}
+                        className={cn(
+                          "w-full rounded-xl border border-brand-border bg-slate-50 px-3.5 py-2.5 text-sm",
+                          "focus:border-primary-500 focus:outline-none",
+                        )}
+                      />
+                      {form.formState.errors.dueDate && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {form.formState.errors.dueDate.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Toggles */}
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        {...form.register("isPriceLocked")}
+                        className="h-4 w-4 rounded border-brand-border"
+                      />
+                      <span className="text-sm text-brand-text-primary">
+                        Preço Travado (TRAVA)
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        {...form.register("isSafra")}
+                        className="h-4 w-4 rounded border-brand-border"
+                      />
+                      <span className="text-sm text-brand-text-primary">
+                        Safra
+                      </span>
+                    </label>
+                    {form.watch("isSafra") && (
+                      <motion.input
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        type="text"
+                        placeholder="Ex: 2024/2025"
+                        {...form.register("safra")}
+                        className={cn(
+                          "w-full rounded-xl border border-brand-border bg-slate-50 px-3.5 py-2.5 text-sm",
+                          "focus:border-primary-500 focus:outline-none",
+                        )}
+                      />
+                    )}
+                  </div>
+
+                  {/* Notes */}
                   <div>
                     <label className="block text-sm font-semibold text-brand-text-primary mb-2">
-                      Vencimento *
+                      Observações
                     </label>
-                    <input
-                      type="date"
-                      {...form.register("dueDate")}
+                    <textarea
+                      placeholder="Adicione notas sobre esta ordem..."
+                      {...form.register("notes")}
+                      rows={3}
                       className={cn(
                         "w-full rounded-xl border border-brand-border bg-slate-50 px-3.5 py-2.5 text-sm",
                         "focus:border-primary-500 focus:outline-none",
                       )}
                     />
-                    {form.formState.errors.dueDate && (
+                  </div>
+
+                  {/* Items */}
+                  <div>
+                    <div className="mb-3 flex items-center justify-between">
+                      <label className="block text-sm font-semibold text-brand-text-primary">
+                        Itens *
+                      </label>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={() =>
+                          append({ productId: "", quantity: 1, unitPrice: 0 })
+                        }
+                        className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
+                      >
+                        <Plus size={16} /> Adicionar Item
+                      </motion.button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <AnimatePresence mode="popLayout">
+                        {fields.map((field, index) => (
+                          <motion.div
+                            key={field.id}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="flex gap-2"
+                          >
+                            <select
+                              {...form.register(`items.${index}.productId`)}
+                              className={cn(
+                                "flex-1 rounded-xl border border-brand-border bg-slate-50 px-3 py-2 text-sm",
+                                "focus:border-primary-500 focus:outline-none",
+                              )}
+                            >
+                              <option value="">Produto</option>
+                              {products?.map((product) => (
+                                <option key={product.id} value={product.id}>
+                                  {product.name}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              type="number"
+                              placeholder="Qtd"
+                              {...form.register(`items.${index}.quantity`, {
+                                valueAsNumber: true,
+                              })}
+                              className={cn(
+                                "w-20 rounded-xl border border-brand-border bg-slate-50 px-2 py-2 text-sm",
+                                "focus:border-primary-500 focus:outline-none",
+                              )}
+                            />
+                            <input
+                              type="number"
+                              placeholder="Preço"
+                              {...form.register(`items.${index}.unitPrice`, {
+                                valueAsNumber: true,
+                              })}
+                              className={cn(
+                                "w-24 rounded-xl border border-brand-border bg-slate-50 px-2 py-2 text-sm",
+                                "focus:border-primary-500 focus:outline-none",
+                              )}
+                            />
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              type="button"
+                              onClick={() => remove(index)}
+                              className="text-brand-text-secondary hover:text-red-600"
+                            >
+                              <X size={18} />
+                            </motion.button>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+
+                    {form.formState.errors.items && (
                       <p className="mt-1 text-xs text-red-500">
-                        {form.formState.errors.dueDate.message}
+                        {form.formState.errors.items.message}
                       </p>
                     )}
                   </div>
-                </div>
 
-                {/* Toggles */}
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      {...form.register("isPriceLocked")}
-                      className="h-4 w-4 rounded border-brand-border"
-                    />
-                    <span className="text-sm text-brand-text-primary">
-                      Preço Travado (TRAVA)
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      {...form.register("isSafra")}
-                      className="h-4 w-4 rounded border-brand-border"
-                    />
-                    <span className="text-sm text-brand-text-primary">
-                      Safra
-                    </span>
-                  </label>
-                  {form.watch("isSafra") && (
-                    <motion.input
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      type="text"
-                      placeholder="Ex: 2024/2025"
-                      {...form.register("safra")}
-                      className={cn(
-                        "w-full rounded-xl border border-brand-border bg-slate-50 px-3.5 py-2.5 text-sm",
-                        "focus:border-primary-500 focus:outline-none",
-                      )}
-                    />
-                  )}
-                </div>
+                  {/* Subtotal */}
+                  <div className="flex justify-end rounded-xl bg-slate-50 p-3">
+                    <div className="text-right">
+                      <p className="text-xs text-brand-text-secondary">
+                        Subtotal
+                      </p>
+                      <p className="text-lg font-bold text-brand-text-primary">
+                        {formatCurrency(
+                          form
+                            .watch("items")
+                            .reduce(
+                              (sum, item) =>
+                                sum + item.quantity * item.unitPrice,
+                              0,
+                            ),
+                        )}
+                      </p>
+                    </div>
+                  </div>
 
-                {/* Notes */}
-                <div>
-                  <label className="block text-sm font-semibold text-brand-text-primary mb-2">
-                    Observações
-                  </label>
-                  <textarea
-                    placeholder="Adicione notas sobre esta ordem..."
-                    {...form.register("notes")}
-                    rows={3}
-                    className={cn(
-                      "w-full rounded-xl border border-brand-border bg-slate-50 px-3.5 py-2.5 text-sm",
-                      "focus:border-primary-500 focus:outline-none",
-                    )}
-                  />
-                </div>
-
-                {/* Items */}
-                <div>
-                  <div className="mb-3 flex items-center justify-between">
-                    <label className="block text-sm font-semibold text-brand-text-primary">
-                      Itens *
-                    </label>
+                  {/* Actions */}
+                  <div className="flex gap-3 pt-4">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       type="button"
-                      onClick={() =>
-                        append({ productId: "", quantity: 1, unitPrice: 0 })
-                      }
-                      className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700"
+                      onClick={() => setIsCreateModalOpen(false)}
+                      className="flex-1 rounded-xl border border-brand-border px-4 py-2.5 text-sm font-semibold text-brand-text-primary hover:bg-slate-50"
                     >
-                      <Plus size={16} /> Adicionar Item
+                      Cancelar
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      type="submit"
+                      disabled={createOrderMutation.isPending}
+                      className="flex-1 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
+                    >
+                      {createOrderMutation.isPending
+                        ? "Criando..."
+                        : "Criar Ordem"}
                     </motion.button>
                   </div>
-
-                  <div className="space-y-3">
-                    <AnimatePresence mode="popLayout">
-                      {fields.map((field, index) => (
-                        <motion.div
-                          key={field.id}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="flex gap-2"
-                        >
-                          <select
-                            {...form.register(`items.${index}.productId`)}
-                            className={cn(
-                              "flex-1 rounded-xl border border-brand-border bg-slate-50 px-3 py-2 text-sm",
-                              "focus:border-primary-500 focus:outline-none",
-                            )}
-                          >
-                            <option value="">Produto</option>
-                            {products?.map((product) => (
-                              <option key={product.id} value={product.id}>
-                                {product.name}
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            type="number"
-                            placeholder="Qtd"
-                            {...form.register(`items.${index}.quantity`, {
-                              valueAsNumber: true,
-                            })}
-                            className={cn(
-                              "w-20 rounded-xl border border-brand-border bg-slate-50 px-2 py-2 text-sm",
-                              "focus:border-primary-500 focus:outline-none",
-                            )}
-                          />
-                          <input
-                            type="number"
-                            placeholder="Preço"
-                            {...form.register(`items.${index}.unitPrice`, {
-                              valueAsNumber: true,
-                            })}
-                            className={cn(
-                              "w-24 rounded-xl border border-brand-border bg-slate-50 px-2 py-2 text-sm",
-                              "focus:border-primary-500 focus:outline-none",
-                            )}
-                          />
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            type="button"
-                            onClick={() => remove(index)}
-                            className="text-brand-text-secondary hover:text-red-600"
-                          >
-                            <X size={18} />
-                          </motion.button>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-
-                  {form.formState.errors.items && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {form.formState.errors.items.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Subtotal */}
-                <div className="flex justify-end rounded-xl bg-slate-50 p-3">
-                  <div className="text-right">
-                    <p className="text-xs text-brand-text-secondary">
-                      Subtotal
-                    </p>
-                    <p className="text-lg font-bold text-brand-text-primary">
-                      {formatCurrency(
-                        form
-                          .watch("items")
-                          .reduce(
-                            (sum, item) => sum + item.quantity * item.unitPrice,
-                            0,
-                          ),
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-3 pt-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    onClick={() => setIsCreateModalOpen(false)}
-                    className="flex-1 rounded-xl border border-brand-border px-4 py-2.5 text-sm font-semibold text-brand-text-primary hover:bg-slate-50"
-                  >
-                    Cancelar
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="submit"
-                    disabled={createOrderMutation.isPending}
-                    className="flex-1 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
-                  >
-                    {createOrderMutation.isPending
-                      ? "Criando..."
-                      : "Criar Ordem"}
-                  </motion.button>
-                </div>
-              </form>
+                </form>
+              </motion.div>
             </motion.div>
-          </Modal>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Detail Modal */}
-      <AnimatePresence>
-        {selectedOrder && (
-          <Modal onClose={() => setSelectedOrder(null)}>
-            <OrderDetailModal
-              order={selectedOrder}
-              onClose={() => setSelectedOrder(null)}
-              onConfirm={handleConfirmOrder}
-              onReceive={handleReceiveItems}
-              onCancel={handleCancelOrder}
-              formatCurrency={formatCurrency}
-              formatDate={formatDate}
-            />
-          </Modal>
-        )}
-      </AnimatePresence>
+      {/* Detail Panel */}
+      {selectedOrder && (
+        <OrderDetailPanel
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onConfirm={handleConfirmOrder}
+          onReceive={handleReceiveItems}
+          onCancel={handleCancelOrder}
+          formatCurrency={formatCurrency}
+          formatDate={formatDate}
+        />
+      )}
     </div>
   );
 }
@@ -901,26 +903,7 @@ function KPICard({
   );
 }
 
-interface ModalProps {
-  onClose: () => void;
-  children: React.ReactNode;
-}
-
-function Modal({ onClose, children }: ModalProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-    >
-      <motion.div onClick={(e) => e.stopPropagation()}>{children}</motion.div>
-    </motion.div>
-  );
-}
-
-interface OrderDetailModalProps {
+interface OrderDetailPanelProps {
   order: PurchaseOrder;
   onClose: () => void;
   onConfirm: (orderId: string) => void;
@@ -930,7 +913,7 @@ interface OrderDetailModalProps {
   formatDate: (date: string) => string;
 }
 
-function OrderDetailModal({
+function OrderDetailPanel({
   order,
   onClose,
   onConfirm,
@@ -938,207 +921,150 @@ function OrderDetailModal({
   onCancel,
   formatCurrency,
   formatDate,
-}: OrderDetailModalProps) {
+}: OrderDetailPanelProps) {
   const [receivedItems, setReceivedItems] = useState<Record<string, number>>(
     {},
   );
 
   return (
-    <motion.div
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.95, opacity: 0 }}
-      className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+    <DetailPanel
+      open
+      onClose={onClose}
+      title={`Ordem #${order.id.slice(0, 8)}`}
+      subtitle={order.supplierName}
+      badges={[
+        {
+          label: STATUS_LABEL[order.status],
+          variant:
+            order.status === "RECEIVED"
+              ? "success"
+              : order.status === "CANCELLED"
+                ? "danger"
+                : order.status === "CONFIRMED" ||
+                    order.status === "PARTIALLY_RECEIVED"
+                  ? "warning"
+                  : "gray",
+        },
+      ]}
+      width="lg"
     >
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-brand-text-primary">
-            Ordem #{order.id.slice(0, 8)}
-          </h2>
-          <p className="text-sm text-brand-text-secondary">
-            {order.supplierName}
-          </p>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onClose}
-          className="text-brand-text-secondary hover:text-brand-text-primary"
-        >
-          <X size={24} />
-        </motion.button>
-      </div>
+      <DetailPanel.Section title="Informações">
+        <DetailPanel.Grid cols={2}>
+          <DetailPanel.Field
+            label="Nota Fiscal"
+            value={order.invoiceNumber}
+            mono
+          />
+          <DetailPanel.Field
+            label="Vencimento"
+            value={formatDate(order.dueDate)}
+          />
+          <DetailPanel.Field
+            label="Trava de Preço"
+            value={order.isPriceLocked ? "Sim" : "Não"}
+          />
+          <DetailPanel.Field
+            label="Total"
+            value={formatCurrency(order.total)}
+          />
+        </DetailPanel.Grid>
+      </DetailPanel.Section>
 
-      <div className="space-y-6">
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-4 rounded-xl bg-slate-50 p-4 sm:grid-cols-4">
-          <div>
-            <p className="text-xs text-brand-text-secondary">Nota Fiscal</p>
-            <p className="mt-1 font-semibold text-brand-text-primary">
-              {order.invoiceNumber}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-brand-text-secondary">Vencimento</p>
-            <p className="mt-1 font-semibold text-brand-text-primary">
-              {formatDate(order.dueDate)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-brand-text-secondary">Trava</p>
-            <p className="mt-1 font-semibold text-brand-text-primary">
-              {order.isPriceLocked ? "Sim" : "Não"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-brand-text-secondary">Status</p>
-            <span
-              className={cn(
-                "inline-block mt-1 rounded-full px-2.5 py-1 text-xs font-semibold",
-                STATUS_COLOR[order.status],
-              )}
-            >
-              {STATUS_LABEL[order.status]}
-            </span>
-          </div>
-        </div>
-
-        {/* Items Table */}
-        <div>
-          <h3 className="mb-3 text-sm font-semibold text-brand-text-primary">
-            Itens
-          </h3>
-          <div className="overflow-x-auto rounded-xl border border-brand-border">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-brand-border bg-slate-50">
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-brand-text-primary">
-                    Produto
-                  </th>
-                  <th className="px-4 py-2 text-center text-xs font-semibold text-brand-text-primary">
-                    Qtd
-                  </th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-brand-text-primary">
-                    Preço Unit.
-                  </th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-brand-text-primary">
-                    Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.items.map((item) => (
-                  <tr key={item.id} className="border-b border-brand-border">
-                    <td className="px-4 py-2 text-sm text-brand-text-primary">
-                      {item.productName}
-                    </td>
-                    <td className="px-4 py-2 text-center text-sm text-brand-text-primary">
-                      {item.quantity}
-                    </td>
-                    <td className="px-4 py-2 text-right text-sm text-brand-text-primary">
-                      {formatCurrency(item.unitPrice)}
-                    </td>
-                    <td className="px-4 py-2 text-right text-sm font-semibold text-brand-text-primary">
-                      {formatCurrency(item.quantity * item.unitPrice)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Receive Items Section */}
-        {["CONFIRMED", "PARTIALLY_RECEIVED"].includes(order.status) && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border-2 border-amber-200 bg-amber-50 p-4"
-          >
-            <h3 className="mb-3 text-sm font-semibold text-amber-900">
-              Receber Itens
-            </h3>
-            <div className="space-y-2">
+      <DetailPanel.Section title="Itens">
+        <div className="overflow-x-auto rounded-xl border border-slate-200">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-600">
+                  Produto
+                </th>
+                <th className="px-3 py-2 text-center text-xs font-semibold text-slate-600">
+                  Qtd
+                </th>
+                <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600">
+                  Preço Unit.
+                </th>
+                <th className="px-3 py-2 text-right text-xs font-semibold text-slate-600">
+                  Total
+                </th>
+              </tr>
+            </thead>
+            <tbody>
               {order.items.map((item) => (
-                <div key={item.id} className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <p className="text-sm text-amber-900">{item.productName}</p>
-                    <p className="text-xs text-amber-700">
-                      {item.receivedQty || 0}/{item.quantity} recebido
-                    </p>
-                  </div>
-                  <input
-                    type="number"
-                    min="0"
-                    max={item.quantity - (item.receivedQty || 0)}
-                    defaultValue={0}
-                    onChange={(e) =>
-                      setReceivedItems({
-                        ...receivedItems,
-                        [item.id]: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className={cn(
-                      "w-16 rounded-lg border border-amber-300 bg-white px-2 py-1 text-sm",
-                      "focus:border-amber-400 focus:outline-none",
-                    )}
-                  />
-                </div>
+                <tr key={item.id} className="border-b border-slate-100">
+                  <td className="px-3 py-2 text-sm text-slate-700">
+                    {item.productName}
+                  </td>
+                  <td className="px-3 py-2 text-center text-sm text-slate-700">
+                    {item.quantity}
+                  </td>
+                  <td className="px-3 py-2 text-right text-sm text-slate-700">
+                    {formatCurrency(item.unitPrice)}
+                  </td>
+                  <td className="px-3 py-2 text-right text-sm font-semibold text-slate-800">
+                    {formatCurrency(item.quantity * item.unitPrice)}
+                  </td>
+                </tr>
               ))}
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            </tbody>
+          </table>
+        </div>
+      </DetailPanel.Section>
+
+      {["CONFIRMED", "PARTIALLY_RECEIVED"].includes(order.status) && (
+        <DetailPanel.Section title="Receber Itens">
+          <div className="rounded-xl border-2 border-amber-200 bg-amber-50 p-4 space-y-2">
+            {order.items.map((item) => (
+              <div key={item.id} className="flex items-center gap-2">
+                <div className="flex-1">
+                  <p className="text-sm text-amber-900">{item.productName}</p>
+                  <p className="text-xs text-amber-700">
+                    {item.receivedQty || 0}/{item.quantity} recebido
+                  </p>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  max={item.quantity - (item.receivedQty || 0)}
+                  defaultValue={0}
+                  onChange={(e) =>
+                    setReceivedItems({
+                      ...receivedItems,
+                      [item.id]: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="w-16 rounded-lg border border-amber-300 bg-white px-2 py-1 text-sm focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+            ))}
+            <button
               onClick={() => onReceive(order.id, receivedItems)}
-              className="mt-3 w-full rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+              className="mt-2 w-full rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
             >
               Receber Itens
-            </motion.button>
-          </motion.div>
-        )}
-
-        {/* Subtotal */}
-        <div className="flex justify-end rounded-xl bg-slate-100 p-4">
-          <div className="text-right">
-            <p className="text-sm text-brand-text-secondary">Total</p>
-            <p className="mt-1 text-2xl font-bold text-brand-text-primary">
-              {formatCurrency(order.total)}
-            </p>
+            </button>
           </div>
-        </div>
+        </DetailPanel.Section>
+      )}
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-4">
-          {order.status === "DRAFT" && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onConfirm(order.id)}
-              className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
-            >
-              Confirmar Ordem
-            </motion.button>
-          )}
-          {!["RECEIVED", "CANCELLED"].includes(order.status) && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onCancel(order.id)}
-              className="flex-1 rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
-            >
-              Cancelar
-            </motion.button>
-          )}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onClose}
-            className="flex-1 rounded-xl border border-brand-border px-4 py-2.5 text-sm font-semibold text-brand-text-primary hover:bg-slate-50"
+      <div className="flex gap-3 pt-2">
+        {order.status === "DRAFT" && (
+          <button
+            onClick={() => onConfirm(order.id)}
+            className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            Fechar
-          </motion.button>
-        </div>
+            Confirmar Ordem
+          </button>
+        )}
+        {!["RECEIVED", "CANCELLED"].includes(order.status) && (
+          <button
+            onClick={() => onCancel(order.id)}
+            className="flex-1 rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+          >
+            Cancelar
+          </button>
+        )}
       </div>
-    </motion.div>
+    </DetailPanel>
   );
 }

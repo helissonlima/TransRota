@@ -46,6 +46,7 @@ import {
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import api from "@/lib/api";
+import { toast } from "sonner";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -352,6 +353,9 @@ export default function ReportsPage() {
         },
       );
       return response.data;
+    },
+    onError: () => {
+      toast.error("Erro ao processar conferência");
     },
   });
 

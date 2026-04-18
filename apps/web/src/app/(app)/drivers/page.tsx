@@ -29,6 +29,7 @@ import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { DriverStatusBadge, LicenseCategoryBadge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
+import { DetailPanel } from "@/components/ui/detail-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { cn } from "@/lib/cn";
@@ -1036,210 +1037,161 @@ export default function DriversPage() {
         </form>
       </Modal>
 
-      {/* ════ DRIVER DETAIL MODAL ════ */}
+      {/* ════ DRIVER DETAIL PANEL ════ */}
       {selected && (
-        <Modal
+        <DetailPanel
           open={detailOpen}
           onClose={() => setDetailOpen(false)}
           title={selected.name}
-          description={`CNH: ${selected.licenseNumber} (Cat. ${selected.licenseCategory})`}
-          size="xl"
-          footer={
-            <Button variant="secondary" onClick={() => setDetailOpen(false)}>
-              Fechar
-            </Button>
-          }
+          subtitle={`CNH: ${selected.licenseNumber} (Cat. ${selected.licenseCategory})`}
+          badges={[
+            {
+              label:
+                selected.status === "ACTIVE"
+                  ? "Ativo"
+                  : selected.status === "ON_ROUTE"
+                    ? "Em Rota"
+                    : selected.status === "VACATION"
+                      ? "Férias"
+                      : "Inativo",
+              variant:
+                selected.status === "ACTIVE"
+                  ? "success"
+                  : selected.status === "ON_ROUTE"
+                    ? "info"
+                    : selected.status === "VACATION"
+                      ? "warning"
+                      : "gray",
+            },
+          ]}
+          width="lg"
         >
-          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
-            {/* Avatar + status */}
-            <div className="flex items-center gap-4">
-              <div
-                className={cn(
-                  "w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0",
-                  getAvatarColor(selected.name),
-                )}
-              >
-                {getInitials(selected.name)}
-              </div>
-              <div>
-                <p className="font-bold text-lg text-brand-text-primary">
-                  {selected.name}
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <DriverStatusBadge status={selected.status} />
-                  <LicenseCategoryBadge category={selected.licenseCategory} />
-                </div>
-              </div>
+          {/* Avatar header */}
+          <div className="flex items-center gap-4 mb-2">
+            <div
+              className={cn(
+                "w-14 h-14 rounded-2xl flex items-center justify-center text-white text-lg font-bold flex-shrink-0",
+                getAvatarColor(selected.name),
+              )}
+            >
+              {getInitials(selected.name)}
             </div>
-
-            {/* Dados principais */}
             <div>
-              <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">
-                Dados Principais
+              <p className="font-bold text-lg text-slate-800">
+                {selected.name}
               </p>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { label: "CPF", value: maskCPF(selected.cpf), mono: true },
-                  { label: "Telefone", value: selected.phone },
-                  { label: "Filial", value: selected.branch?.name },
-                  {
-                    label: "Rotas",
-                    value: `${selected._count.routes} realizadas`,
-                  },
-                  {
-                    label: "Nasc.",
-                    value: selected.birthDate
-                      ? format(parseISO(selected.birthDate), "dd/MM/yyyy")
-                      : null,
-                  },
-                  { label: "Nacion.", value: selected.nationality },
-                ]
-                  .filter((i) => i.value)
-                  .map((item) => (
-                    <div
-                      key={item.label}
-                      className="bg-slate-50 rounded-xl p-3"
-                    >
-                      <div className="text-xs text-brand-text-secondary mb-1">
-                        {item.label}
-                      </div>
-                      <div
-                        className={cn(
-                          "text-sm font-semibold text-brand-text-primary",
-                          item.mono && "font-mono",
-                        )}
-                      >
-                        {item.value}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-
-            {/* RG */}
-            {(selected.rg || selected.filiation) && (
-              <div>
-                <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">
-                  Identidade
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { label: "RG", value: selected.rg, mono: true },
-                    {
-                      label: "Org. Emiss.",
-                      value:
-                        selected.rgIssuingOrg && selected.rgIssuingState
-                          ? `${selected.rgIssuingOrg} / ${selected.rgIssuingState}`
-                          : (selected.rgIssuingOrg ?? selected.rgIssuingState),
-                    },
-                    {
-                      label: "Filiação",
-                      value: selected.filiation,
-                      span: true,
-                    },
-                  ]
-                    .filter((i) => i.value)
-                    .map((item) => (
-                      <div
-                        key={item.label}
-                        className={cn(
-                          "bg-slate-50 rounded-xl p-3",
-                          (item as any).span && "col-span-2",
-                        )}
-                      >
-                        <div className="text-xs text-brand-text-secondary mb-1">
-                          {item.label}
-                        </div>
-                        <div
-                          className={cn(
-                            "text-sm font-semibold text-brand-text-primary",
-                            item.mono && "font-mono",
-                          )}
-                        >
-                          {item.value}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-
-            {/* CNH */}
-            <div>
-              <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">
-                CNH
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  {
-                    label: "Número",
-                    value: selected.licenseNumber,
-                    mono: true,
-                  },
-                  { label: "Categoria", value: selected.licenseCategory },
-                  {
-                    label: "1ª Habilitação",
-                    value: selected.licenseFirstDate
-                      ? format(
-                          parseISO(selected.licenseFirstDate),
-                          "dd/MM/yyyy",
-                        )
-                      : null,
-                  },
-                  {
-                    label: "Emissão",
-                    value: selected.licenseIssueDate
-                      ? format(
-                          parseISO(selected.licenseIssueDate),
-                          "dd/MM/yyyy",
-                        )
-                      : null,
-                  },
-                  {
-                    label: "Validade",
-                    value: format(
-                      parseISO(selected.licenseExpiry),
-                      "dd/MM/yyyy",
-                    ),
-                  },
-                  {
-                    label: "Org. Emiss.",
-                    value:
-                      selected.licenseIssuingOrg && selected.licenseIssuingState
-                        ? `${selected.licenseIssuingOrg} / ${selected.licenseIssuingState}`
-                        : (selected.licenseIssuingOrg ??
-                          selected.licenseIssuingState),
-                  },
-                ]
-                  .filter((i) => i.value)
-                  .map((item) => (
-                    <div
-                      key={item.label}
-                      className="bg-slate-50 rounded-xl p-3"
-                    >
-                      <div className="text-xs text-brand-text-secondary mb-1">
-                        {item.label}
-                      </div>
-                      <div
-                        className={cn(
-                          "text-sm font-semibold text-brand-text-primary",
-                          item.mono && "font-mono",
-                        )}
-                      >
-                        {item.value}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-              <div className="mt-2 bg-slate-50 rounded-xl p-3">
-                <div className="text-xs text-brand-text-secondary mb-1">
-                  Status da CNH
-                </div>
-                <ExpiryCountdown expiryDate={selected.licenseExpiry} />
+              <div className="flex items-center gap-2 mt-1">
+                <DriverStatusBadge status={selected.status} />
+                <LicenseCategoryBadge category={selected.licenseCategory} />
               </div>
             </div>
           </div>
-        </Modal>
+
+          <DetailPanel.Section title="Dados Principais">
+            <DetailPanel.Grid cols={2}>
+              <DetailPanel.Field
+                label="CPF"
+                value={maskCPF(selected.cpf)}
+                mono
+              />
+              <DetailPanel.Field label="Telefone" value={selected.phone} />
+              <DetailPanel.Field label="Filial" value={selected.branch?.name} />
+              <DetailPanel.Field
+                label="Rotas"
+                value={`${selected._count.routes} realizadas`}
+              />
+              {selected.birthDate && (
+                <DetailPanel.Field
+                  label="Nasc."
+                  value={format(parseISO(selected.birthDate), "dd/MM/yyyy")}
+                />
+              )}
+              {selected.nationality && (
+                <DetailPanel.Field
+                  label="Nacion."
+                  value={selected.nationality}
+                />
+              )}
+            </DetailPanel.Grid>
+          </DetailPanel.Section>
+
+          {(selected.rg || selected.filiation) && (
+            <DetailPanel.Section title="Identidade">
+              <DetailPanel.Grid cols={2}>
+                {selected.rg && (
+                  <DetailPanel.Field label="RG" value={selected.rg} mono />
+                )}
+                {(selected.rgIssuingOrg || selected.rgIssuingState) && (
+                  <DetailPanel.Field
+                    label="Org. Emiss."
+                    value={
+                      selected.rgIssuingOrg && selected.rgIssuingState
+                        ? `${selected.rgIssuingOrg} / ${selected.rgIssuingState}`
+                        : (selected.rgIssuingOrg ?? selected.rgIssuingState)
+                    }
+                  />
+                )}
+                {selected.filiation && (
+                  <DetailPanel.Field
+                    label="Filiação"
+                    value={selected.filiation}
+                  />
+                )}
+              </DetailPanel.Grid>
+            </DetailPanel.Section>
+          )}
+
+          <DetailPanel.Section title="CNH">
+            <DetailPanel.Grid cols={2}>
+              <DetailPanel.Field
+                label="Número"
+                value={selected.licenseNumber}
+                mono
+              />
+              <DetailPanel.Field
+                label="Categoria"
+                value={selected.licenseCategory}
+              />
+              {selected.licenseFirstDate && (
+                <DetailPanel.Field
+                  label="1ª Habilitação"
+                  value={format(
+                    parseISO(selected.licenseFirstDate),
+                    "dd/MM/yyyy",
+                  )}
+                />
+              )}
+              {selected.licenseIssueDate && (
+                <DetailPanel.Field
+                  label="Emissão"
+                  value={format(
+                    parseISO(selected.licenseIssueDate),
+                    "dd/MM/yyyy",
+                  )}
+                />
+              )}
+              <DetailPanel.Field
+                label="Validade"
+                value={format(parseISO(selected.licenseExpiry), "dd/MM/yyyy")}
+              />
+              {(selected.licenseIssuingOrg || selected.licenseIssuingState) && (
+                <DetailPanel.Field
+                  label="Org. Emiss."
+                  value={
+                    selected.licenseIssuingOrg && selected.licenseIssuingState
+                      ? `${selected.licenseIssuingOrg} / ${selected.licenseIssuingState}`
+                      : (selected.licenseIssuingOrg ??
+                        selected.licenseIssuingState)
+                  }
+                />
+              )}
+            </DetailPanel.Grid>
+            <div className="mt-3 bg-slate-50 rounded-xl p-3">
+              <div className="text-xs text-slate-500 mb-1">Status da CNH</div>
+              <ExpiryCountdown expiryDate={selected.licenseExpiry} />
+            </div>
+          </DetailPanel.Section>
+        </DetailPanel>
       )}
     </div>
   );

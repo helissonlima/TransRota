@@ -31,6 +31,7 @@ import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Badge, VehicleStatusBadge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
+import { DetailPanel } from "@/components/ui/detail-panel";
 import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { cn } from "@/lib/cn";
@@ -1947,297 +1948,253 @@ export default function FleetPage() {
 
       {/* ════ VEHICLE DETAIL MODAL ════ */}
       {detailVehicle && (
-        <Modal
+        <DetailPanel
           open={!!detailVehicle}
           onClose={() => setDetailVehicle(null)}
           title={`${detailVehicle.brand} ${detailVehicle.model}`}
-          description={`Identificação: ${vehicleCode(detailVehicle)}${detailVehicle.tag !== undefined ? ` · TAG #${detailVehicle.tag}` : ""}`}
-          size="xl"
-          footer={
-            <Button variant="secondary" onClick={() => setDetailVehicle(null)}>
-              Fechar
-            </Button>
-          }
+          subtitle={`${vehicleCode(detailVehicle)}${detailVehicle.tag !== undefined ? ` · TAG #${detailVehicle.tag}` : ""}`}
+          badges={[
+            {
+              label:
+                detailVehicle.status === "ACTIVE"
+                  ? "Ativo"
+                  : detailVehicle.status === "MAINTENANCE"
+                    ? "Manutenção"
+                    : "Inativo",
+              variant:
+                detailVehicle.status === "ACTIVE"
+                  ? "success"
+                  : detailVehicle.status === "MAINTENANCE"
+                    ? "warning"
+                    : "gray",
+            },
+          ]}
+          width="lg"
         >
-          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 scrollbar-thin">
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: "Placa", value: detailVehicle.plate, mono: true },
-                {
-                  label: "Status",
-                  value: <VehicleStatusBadge status={detailVehicle.status} />,
-                },
-                {
-                  label: "KM Atual",
-                  value: `${detailVehicle.currentKm.toLocaleString("pt-BR")} km`,
-                },
-                {
-                  label: "Tipo",
-                  value: TYPE_LABELS[detailVehicle.type] ?? detailVehicle.type,
-                },
-                {
-                  label: "Combustível",
-                  value:
-                    FUEL_LABELS[detailVehicle.fuelType ?? ""]?.label ?? "—",
-                },
-                { label: "Rotas", value: detailVehicle._count.routes },
-              ].map((item) => (
-                <div key={item.label} className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-xs text-brand-text-secondary mb-1">
-                    {item.label}
-                  </div>
-                  <div
-                    className={cn(
-                      "text-sm font-semibold text-brand-text-primary",
-                      item.mono && "font-plate",
+          <DetailPanel.Section title="Informações Gerais">
+            <DetailPanel.Grid cols={3}>
+              <DetailPanel.Field
+                label="Placa"
+                value={detailVehicle.plate}
+                mono
+              />
+              <DetailPanel.Field
+                label="KM Atual"
+                value={`${detailVehicle.currentKm.toLocaleString("pt-BR")} km`}
+              />
+              <DetailPanel.Field
+                label="Rotas"
+                value={detailVehicle._count.routes}
+              />
+              <DetailPanel.Field
+                label="Tipo"
+                value={TYPE_LABELS[detailVehicle.type] ?? detailVehicle.type}
+              />
+              <DetailPanel.Field
+                label="Combustível"
+                value={FUEL_LABELS[detailVehicle.fuelType ?? ""]?.label ?? "—"}
+              />
+              <DetailPanel.Field
+                label="Ano"
+                value={`${detailVehicle.year}${detailVehicle.manufacturingYear ? `/${detailVehicle.manufacturingYear}` : ""}`}
+              />
+            </DetailPanel.Grid>
+          </DetailPanel.Section>
+
+          {(detailVehicle.tankCapacity ||
+            detailVehicle.horsepower ||
+            detailVehicle.seats ||
+            detailVehicle.oilChangeIntervalKm) && (
+            <DetailPanel.Section title="Especificações">
+              <DetailPanel.Grid cols={2}>
+                {detailVehicle.tankCapacity && (
+                  <DetailPanel.Field
+                    label="Tanque"
+                    value={`${detailVehicle.tankCapacity} L`}
+                  />
+                )}
+                {detailVehicle.horsepower && (
+                  <DetailPanel.Field
+                    label="Potência"
+                    value={detailVehicle.horsepower}
+                  />
+                )}
+                {detailVehicle.seats && (
+                  <DetailPanel.Field
+                    label="Lotação"
+                    value={detailVehicle.seats}
+                  />
+                )}
+                {detailVehicle.grossWeight && (
+                  <DetailPanel.Field
+                    label="Peso Bruto"
+                    value={detailVehicle.grossWeight}
+                  />
+                )}
+                {detailVehicle.axles && (
+                  <DetailPanel.Field
+                    label="Eixos"
+                    value={detailVehicle.axles}
+                  />
+                )}
+                {detailVehicle.oilChangeIntervalKm && (
+                  <DetailPanel.Field
+                    label="Int. Óleo"
+                    value={`${detailVehicle.oilChangeIntervalKm.toLocaleString("pt-BR")} km`}
+                  />
+                )}
+              </DetailPanel.Grid>
+            </DetailPanel.Section>
+          )}
+
+          {(detailVehicle.renavam ||
+            detailVehicle.chassisNumber ||
+            detailVehicle.crvNumber ||
+            detailVehicle.documentExpiry) && (
+            <DetailPanel.Section title="Documentação">
+              <DetailPanel.Grid cols={2}>
+                {detailVehicle.renavam && (
+                  <DetailPanel.Field
+                    label="RENAVAM"
+                    value={detailVehicle.renavam}
+                    mono
+                  />
+                )}
+                {detailVehicle.crvNumber && (
+                  <DetailPanel.Field
+                    label="Nº CRV"
+                    value={detailVehicle.crvNumber}
+                    mono
+                  />
+                )}
+                {detailVehicle.chassisNumber && (
+                  <DetailPanel.Field
+                    label="Chassi"
+                    value={detailVehicle.chassisNumber}
+                    mono
+                  />
+                )}
+                {detailVehicle.category && (
+                  <DetailPanel.Field
+                    label="Categoria"
+                    value={detailVehicle.category}
+                  />
+                )}
+                {detailVehicle.documentExpiry && (
+                  <DetailPanel.Field
+                    label="Vigência Doc."
+                    value={format(
+                      parseISO(detailVehicle.documentExpiry),
+                      "dd/MM/yyyy",
                     )}
-                  >
-                    {item.value as React.ReactNode}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Specs */}
-            {(detailVehicle.tankCapacity ||
-              detailVehicle.horsepower ||
-              detailVehicle.seats ||
-              detailVehicle.oilChangeIntervalKm) && (
-              <div>
-                <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">
-                  Especificações
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    {
-                      label: "Tanque",
-                      value: detailVehicle.tankCapacity
-                        ? `${detailVehicle.tankCapacity} L`
-                        : null,
-                    },
-                    { label: "Potência", value: detailVehicle.horsepower },
-                    { label: "Lotação", value: detailVehicle.seats },
-                    { label: "Peso Bruto", value: detailVehicle.grossWeight },
-                    { label: "Eixos", value: detailVehicle.axles },
-                    {
-                      label: "Int. Óleo",
-                      value: detailVehicle.oilChangeIntervalKm
-                        ? `${detailVehicle.oilChangeIntervalKm.toLocaleString("pt-BR")} km`
-                        : null,
-                    },
-                  ]
-                    .filter((i) => i.value)
-                    .map((item) => (
-                      <div
-                        key={item.label}
-                        className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-xs"
-                      >
-                        <span className="text-brand-text-secondary">
-                          {item.label}
-                        </span>
-                        <span className="font-semibold text-brand-text-primary">
-                          {item.value}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-
-            {/* Docs */}
-            {(detailVehicle.renavam ||
-              detailVehicle.chassisNumber ||
-              detailVehicle.crvNumber ||
-              detailVehicle.documentExpiry) && (
-              <div>
-                <p className="text-xs font-semibold text-brand-text-secondary uppercase tracking-wider mb-2">
-                  Documentação
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { label: "RENAVAM", value: detailVehicle.renavam },
-                    { label: "Nº CRV", value: detailVehicle.crvNumber },
-                    { label: "Chassi", value: detailVehicle.chassisNumber },
-                    { label: "Categoria", value: detailVehicle.category },
-                    {
-                      label: "Vigência Doc.",
-                      value: detailVehicle.documentExpiry
-                        ? format(
-                            parseISO(detailVehicle.documentExpiry),
-                            "dd/MM/yyyy",
-                          )
-                        : null,
-                    },
-                    {
-                      label: "Responsável",
-                      value: detailVehicle.responsiblePerson,
-                    },
-                  ]
-                    .filter((i) => i.value)
-                    .map((item) => (
-                      <div
-                        key={item.label}
-                        className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-xs"
-                      >
-                        <span className="text-brand-text-secondary">
-                          {item.label}
-                        </span>
-                        <span className="font-semibold font-mono text-brand-text-primary">
-                          {item.value}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </Modal>
+                  />
+                )}
+                {detailVehicle.responsiblePerson && (
+                  <DetailPanel.Field
+                    label="Responsável"
+                    value={detailVehicle.responsiblePerson}
+                  />
+                )}
+              </DetailPanel.Grid>
+            </DetailPanel.Section>
+          )}
+        </DetailPanel>
       )}
 
       {/* ════ OIL DETAIL MODAL ════ */}
       {detailOil && (
-        <Modal
+        <DetailPanel
           open={!!detailOil}
           onClose={() => setDetailOil(null)}
           title={`Troca de Óleo — ${detailOil.vehicle?.plate ?? "—"}`}
-          description={
+          subtitle={
             `${detailOil.vehicle?.brand ?? ""} ${detailOil.vehicle?.model ?? ""}`.trim() ||
             undefined
           }
-          size="md"
-          footer={
-            <div className="flex items-center justify-between w-full">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  oForm.setValue("vehicleId", detailOil.vehicleId);
-                  setOilModal(true);
-                  setDetailOil(null);
-                }}
-              >
-                Registrar Nova Troca
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setDetailOil(null)}
-              >
-                Fechar
-              </Button>
-            </div>
-          }
+          badges={[
+            {
+              label:
+                OIL_STATUS_CONFIG[detailOil.status]?.label ?? detailOil.status,
+              variant:
+                detailOil.status === "UP_TO_DATE"
+                  ? "success"
+                  : detailOil.status === "OVERDUE"
+                    ? "danger"
+                    : "warning",
+            },
+          ]}
+          width="md"
         >
-          <div className="space-y-4">
-            {/* Status banner */}
-            {(() => {
-              const cfg = OIL_STATUS_CONFIG[detailOil.status];
-              return (
-                <div
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-semibold",
-                    cfg.bg,
-                    cfg.border,
-                    cfg.color,
-                  )}
-                >
-                  <Droplets className="w-4 h-4 flex-shrink-0" />
-                  {cfg.label}
-                </div>
-              );
-            })()}
+          <DetailPanel.Section title="Dados da Troca">
+            <DetailPanel.Grid cols={2}>
+              <DetailPanel.Field
+                label="Placa"
+                value={detailOil.vehicle?.plate}
+                mono
+              />
+              <DetailPanel.Field
+                label="Veículo"
+                value={
+                  `${detailOil.vehicle?.brand ?? ""} ${detailOil.vehicle?.model ?? ""}`.trim() ||
+                  undefined
+                }
+              />
+              {detailOil.changeDate && (
+                <DetailPanel.Field
+                  label="Última Troca"
+                  value={format(parseISO(detailOil.changeDate), "dd/MM/yyyy")}
+                />
+              )}
+              {detailOil.changeKm != null && (
+                <DetailPanel.Field
+                  label="KM da Troca"
+                  value={`${detailOil.changeKm.toLocaleString("pt-BR")} km`}
+                />
+              )}
+              {detailOil.currentKm != null && (
+                <DetailPanel.Field
+                  label="KM Atual"
+                  value={`${detailOil.currentKm.toLocaleString("pt-BR")} km`}
+                />
+              )}
+              {detailOil.nextChangeKm != null && (
+                <DetailPanel.Field
+                  label="Próxima Troca"
+                  value={`${detailOil.nextChangeKm.toLocaleString("pt-BR")} km`}
+                />
+              )}
+              {detailOil.kmDriven != null && (
+                <DetailPanel.Field
+                  label="KM Percorrido"
+                  value={`${detailOil.kmDriven.toLocaleString("pt-BR")} km`}
+                />
+              )}
+              {detailOil.oilType && (
+                <DetailPanel.Field
+                  label="Tipo de Óleo"
+                  value={detailOil.oilType}
+                />
+              )}
+            </DetailPanel.Grid>
+          </DetailPanel.Section>
 
-            {/* Info grid */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {[
-                { label: "Placa", value: detailOil.vehicle?.plate, mono: true },
-                {
-                  label: "Veículo",
-                  value:
-                    `${detailOil.vehicle?.brand ?? ""} ${detailOil.vehicle?.model ?? ""}`.trim() ||
-                    null,
-                },
-                {
-                  label: "Última Troca",
-                  value: detailOil.changeDate
-                    ? format(parseISO(detailOil.changeDate), "dd/MM/yyyy")
-                    : null,
-                },
-                {
-                  label: "KM da Troca",
-                  value:
-                    detailOil.changeKm != null
-                      ? `${detailOil.changeKm.toLocaleString("pt-BR")} km`
-                      : null,
-                },
-                {
-                  label: "KM Atual",
-                  value:
-                    detailOil.currentKm != null
-                      ? `${detailOil.currentKm.toLocaleString("pt-BR")} km`
-                      : null,
-                },
-                {
-                  label: "Próxima Troca",
-                  value:
-                    detailOil.nextChangeKm != null
-                      ? `${detailOil.nextChangeKm.toLocaleString("pt-BR")} km`
-                      : null,
-                  danger: detailOil.status === "OVERDUE",
-                },
-                {
-                  label: "KM Percorrido",
-                  value:
-                    detailOil.kmDriven != null
-                      ? `${detailOil.kmDriven.toLocaleString("pt-BR")} km`
-                      : null,
-                },
-                { label: "Tipo de Óleo", value: detailOil.oilType },
-              ]
-                .filter((i) => i.value)
-                .map((item) => (
-                  <div
-                    key={item.label}
-                    className="bg-slate-50 rounded-lg px-3 py-2.5"
-                  >
-                    <p className="text-brand-text-secondary mb-0.5">
-                      {item.label}
-                    </p>
-                    <p
-                      className={cn(
-                        "font-semibold text-brand-text-primary",
-                        item.mono && "font-plate",
-                        item.danger && "text-danger-600",
-                      )}
-                    >
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
-            </div>
+          {detailOil.responsibleName && (
+            <DetailPanel.Section title="Responsável">
+              <DetailPanel.Field
+                label="Nome"
+                value={detailOil.responsibleName}
+              />
+            </DetailPanel.Section>
+          )}
 
-            {detailOil.responsibleName && (
-              <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 text-sm border border-brand-border/60">
-                <User className="w-4 h-4 text-brand-text-secondary flex-shrink-0" />
-                <span className="text-brand-text-secondary">Responsável:</span>
-                <span className="font-semibold text-brand-text-primary">
-                  {detailOil.responsibleName}
-                </span>
-              </div>
-            )}
-
-            {detailOil.notes && (
-              <div className="bg-slate-50 rounded-xl px-4 py-3">
-                <p className="text-xs text-brand-text-secondary mb-1">
-                  Observações
-                </p>
-                <p className="text-sm text-brand-text-primary">
-                  {detailOil.notes}
-                </p>
-              </div>
-            )}
-          </div>
-        </Modal>
+          {detailOil.notes && (
+            <DetailPanel.Section title="Observações">
+              <p className="text-sm text-slate-600 bg-slate-50 rounded-lg p-3">
+                {detailOil.notes}
+              </p>
+            </DetailPanel.Section>
+          )}
+        </DetailPanel>
       )}
     </div>
   );

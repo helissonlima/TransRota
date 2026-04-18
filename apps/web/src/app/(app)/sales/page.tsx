@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,12 +22,21 @@ import {
   Trash2,
   Edit2,
   Package,
+  FileText,
+  User,
+  MapPin,
+  CreditCard,
+  Hash,
+  TrendingUp,
+  BarChart3,
+  Filter,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { Header } from "@/components/layout/header";
+import { DetailPanel } from "@/components/ui/detail-panel";
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -113,12 +122,30 @@ interface SellerPerformance {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  DRAFT: "text-slate-500 bg-slate-100",
-  CONFIRMED: "text-blue-400 bg-blue-500/10",
-  PARTIALLY_DELIVERED: "text-orange-400 bg-orange-500/10",
-  DELIVERED: "text-emerald-400 bg-emerald-500/10",
-  CANCELLED: "text-red-400 bg-red-500/10",
-  INVOICED: "text-purple-400 bg-purple-500/10",
+  DRAFT: "text-slate-600 bg-slate-100 border-slate-200",
+  CONFIRMED: "text-blue-600 bg-blue-50 border-blue-200",
+  PARTIALLY_DELIVERED: "text-orange-600 bg-orange-50 border-orange-200",
+  DELIVERED: "text-emerald-600 bg-emerald-50 border-emerald-200",
+  CANCELLED: "text-red-600 bg-red-50 border-red-200",
+  INVOICED: "text-purple-600 bg-purple-50 border-purple-200",
+};
+
+const STATUS_ACCENT: Record<string, string> = {
+  DRAFT: "border-l-slate-400",
+  CONFIRMED: "border-l-blue-500",
+  PARTIALLY_DELIVERED: "border-l-orange-500",
+  DELIVERED: "border-l-emerald-500",
+  CANCELLED: "border-l-red-500",
+  INVOICED: "border-l-purple-500",
+};
+
+const STATUS_HEADER_BG: Record<string, string> = {
+  DRAFT: "from-slate-500 to-slate-600",
+  CONFIRMED: "from-blue-500 to-blue-600",
+  PARTIALLY_DELIVERED: "from-orange-500 to-orange-600",
+  DELIVERED: "from-emerald-500 to-emerald-600",
+  CANCELLED: "from-red-500 to-red-600",
+  INVOICED: "from-purple-500 to-purple-600",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -131,12 +158,12 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const DELIVERY_STATUS_COLOR: Record<string, string> = {
-  PENDING: "text-amber-500 bg-amber-500/10",
-  IN_TRANSIT: "text-blue-500 bg-blue-500/10",
-  DELIVERED: "text-emerald-500 bg-emerald-500/10",
-  RETURNED: "text-red-500 bg-red-500/10",
-  TO_VERIFY: "text-orange-500 bg-orange-500/10",
-  PARTIAL: "text-purple-500 bg-purple-500/10",
+  PENDING: "text-amber-600 bg-amber-50",
+  IN_TRANSIT: "text-blue-600 bg-blue-50",
+  DELIVERED: "text-emerald-600 bg-emerald-50",
+  RETURNED: "text-red-600 bg-red-50",
+  TO_VERIFY: "text-orange-600 bg-orange-50",
+  PARTIAL: "text-purple-600 bg-purple-50",
 };
 
 const DELIVERY_STATUS_LABEL: Record<string, string> = {
@@ -157,6 +184,10 @@ const PAYMENT_METHODS = [
   { value: "TRANSFER", label: "Transferência" },
 ];
 
+const PAYMENT_LABEL: Record<string, string> = Object.fromEntries(
+  PAYMENT_METHODS.map((m) => [m.value, m.label]),
+);
+
 const BRL_FORMATTER = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -168,6 +199,10 @@ function formatBRL(value: number) {
 
 function formatBRLFromCents(value: number) {
   return BRL_FORMATTER.format(Number(value || 0) / 100);
+}
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("pt-BR");
 }
 
 // ============================================================================
@@ -211,82 +246,162 @@ function KPICards({ stats }: { stats: DashboardStats }) {
       label: "Total Pedidos",
       value: stats.totalOrders,
       icon: ShoppingCart,
-      color: "from-blue-500/20 to-blue-600/20",
+      bg: "bg-blue-50",
+      iconColor: "text-blue-600",
     },
     {
       label: "Receita Total",
       value: formatBRLFromCents(stats.totalRevenue),
       icon: DollarSign,
-      color: "from-emerald-500/20 to-emerald-600/20",
+      bg: "bg-emerald-50",
+      iconColor: "text-emerald-600",
     },
     {
       label: "Pendentes",
       value: stats.pendingOrders,
       icon: Clock,
-      color: "from-amber-500/20 to-amber-600/20",
+      bg: "bg-amber-50",
+      iconColor: "text-amber-600",
     },
     {
       label: "Entregues",
       value: stats.deliveredOrders,
       icon: Truck,
-      color: "from-cyan-500/20 to-cyan-600/20",
+      bg: "bg-cyan-50",
+      iconColor: "text-cyan-600",
     },
     {
       label: "Cancelados",
       value: stats.cancelledOrders,
       icon: XCircle,
-      color: "from-red-500/20 to-red-600/20",
+      bg: "bg-red-50",
+      iconColor: "text-red-600",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-      <AnimatePresence>
-        {kpis.map((kpi, idx) => {
-          const Icon = kpi.icon;
-          return (
-            <motion.div
-              key={kpi.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, duration: 0.4 }}
-              className={cn(
-                "bg-white border border-brand-border rounded-2xl p-6 shadow-card",
-                "bg-gradient-to-br",
-                kpi.color,
-              )}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-brand-text-secondary text-sm font-medium">
-                    {kpi.label}
-                  </p>
-                  <p className="text-brand-text-primary text-2xl font-bold mt-2">
-                    {kpi.value}
-                  </p>
-                </div>
-                <Icon className="w-5 h-5 text-brand-text-secondary opacity-60" />
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {kpis.map((kpi, idx) => {
+        const Icon = kpi.icon;
+        return (
+          <motion.div
+            key={kpi.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.06, duration: 0.35 }}
+            className="group relative bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-lg hover:border-slate-300 transition-all duration-200"
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+                  kpi.bg,
+                )}
+              >
+                <Icon className={cn("w-5 h-5", kpi.iconColor)} />
               </div>
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
+              <div className="min-w-0">
+                <p className="text-xs text-slate-500 font-medium truncate">
+                  {kpi.label}
+                </p>
+                <p className="text-xl font-bold text-slate-900 truncate">
+                  {kpi.value}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
 
 // ============================================================================
-// COMPONENT: PIPELINE TAB
+// COMPONENT: PIPELINE CARD (compacto e elegante)
+// ============================================================================
+
+function PipelineCard({
+  order,
+  onClick,
+  selected,
+  delay = 0,
+}: {
+  order: SaleOrder;
+  onClick: (order: SaleOrder) => void;
+  selected?: boolean;
+  delay?: number;
+}) {
+  return (
+    <motion.button
+      type="button"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ delay, duration: 0.2 }}
+      onClick={() => onClick(order)}
+      className={cn(
+        "w-full text-left rounded-xl border-l-[3px] bg-white p-3.5 shadow-sm transition-all duration-150",
+        "hover:shadow-md hover:translate-y-[-1px]",
+        STATUS_ACCENT[order.status],
+        selected
+          ? "ring-2 ring-primary-400 ring-offset-1 border-l-primary-500"
+          : "border-r border-t border-b border-slate-200/80",
+      )}
+    >
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <span className="text-[11px] font-mono font-semibold text-slate-400">
+          #{order.orderNumber}
+        </span>
+        <span className="text-sm font-bold text-slate-900">
+          {formatBRLFromCents(order.totalAmount)}
+        </span>
+      </div>
+      <p className="text-sm font-semibold text-slate-800 truncate mb-2">
+        {order.clientName}
+      </p>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
+          <span className="text-[11px] text-slate-500 truncate">
+            {order.sellerName || "—"}
+          </span>
+        </div>
+        <span className="text-[11px] text-slate-400 flex-shrink-0">
+          {formatDate(order.createdAt)}
+        </span>
+      </div>
+      {order.deliveryStatus && order.deliveryStatus !== "PENDING" && (
+        <div className="mt-2 pt-2 border-t border-slate-100">
+          <span
+            className={cn(
+              "inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded",
+              DELIVERY_STATUS_COLOR[order.deliveryStatus],
+            )}
+          >
+            {DELIVERY_STATUS_LABEL[order.deliveryStatus]}
+          </span>
+        </div>
+      )}
+    </motion.button>
+  );
+}
+
+// ============================================================================
+// COMPONENT: PIPELINE TAB (Kanban redesenhado)
 // ============================================================================
 
 function PipelineTab({
   orders,
+  selectedOrderId,
   onSelectOrder,
 }: {
   orders: SaleOrder[];
+  selectedOrderId?: string | null;
   onSelectOrder: (order: SaleOrder) => void;
 }) {
-  const statuses = ["DRAFT", "CONFIRMED", "DELIVERED", "CANCELLED"] as const;
+  const statuses = Object.keys(STATUS_LABEL) as Array<
+    keyof typeof STATUS_LABEL
+  >;
 
   const ordersByStatus = useMemo(() => {
     return statuses.reduce(
@@ -294,129 +409,90 @@ function PipelineTab({
         acc[status] = orders.filter((o) => o.status === status);
         return acc;
       },
-      {} as Record<(typeof statuses)[number], SaleOrder[]>,
+      {} as Record<string, SaleOrder[]>,
     );
   }, [orders]);
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      {statuses.map((status) => (
-        <div
-          key={status}
-          className="rounded-2xl border border-brand-border bg-white shadow-card"
-        >
-          <div className="flex items-center justify-between border-b border-brand-border bg-brand-bg/80 px-4 py-3">
-            <h3 className="font-semibold text-brand-text-primary">
-              {STATUS_LABEL[status]}
-            </h3>
-            <span className="rounded-full bg-primary-600 px-2.5 py-1 text-xs font-bold text-white">
-              {ordersByStatus[status].length}
-            </span>
-          </div>
+    <div className="space-y-4">
+      {/* Pipeline summary bar */}
+      <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-thin">
+        {statuses.map((status) => {
+          const count = ordersByStatus[status].length;
+          const statusValue = ordersByStatus[status].reduce(
+            (s, o) => s + (o.totalAmount || 0),
+            0,
+          );
+          return (
+            <div
+              key={status}
+              className="flex items-center gap-2 bg-white rounded-lg border border-slate-200/80 px-3 py-1.5 flex-shrink-0"
+            >
+              <div
+                className={cn(
+                  "w-2 h-2 rounded-full bg-gradient-to-br",
+                  STATUS_HEADER_BG[status],
+                )}
+              />
+              <span className="text-xs font-medium text-slate-600">
+                {STATUS_LABEL[status]}
+              </span>
+              <span className="text-xs font-bold text-slate-900">{count}</span>
+              <span className="text-[10px] text-slate-400">
+                {formatBRLFromCents(statusValue)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
 
-          <div className="space-y-3 p-3 max-h-[68vh] overflow-y-auto">
-            <AnimatePresence>
-              {ordersByStatus[status].map((order) => {
-                const items = (order.items || []) as any[];
-                const previewItems = items.slice(0, 3);
-                return (
-                  <motion.button
-                    type="button"
-                    key={order.id}
-                    layout
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    whileHover={{ y: -2 }}
-                    onClick={() => onSelectOrder(order)}
-                    className="w-full rounded-xl border border-brand-border bg-white p-3 text-left transition-all hover:border-primary-300 hover:shadow-md"
-                  >
-                    <div className="mb-2 flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-brand-text-secondary">
-                          Pedido #{order.orderNumber}
-                        </p>
-                        <p className="mt-0.5 text-sm font-bold text-brand-text-primary line-clamp-1">
-                          {order.clientName}
-                        </p>
-                      </div>
-                      <span
-                        className={cn(
-                          "rounded-md px-2 py-1 text-[10px] font-semibold",
-                          DELIVERY_STATUS_COLOR[order.deliveryStatus],
-                        )}
-                      >
-                        {DELIVERY_STATUS_LABEL[order.deliveryStatus]}
-                      </span>
-                    </div>
-
-                    <div className="mb-2 space-y-1 rounded-lg bg-brand-bg px-2.5 py-2">
-                      {previewItems.length > 0 ? (
-                        previewItems.map((item, index) => (
-                          <div
-                            key={`${order.id}-item-${index}`}
-                            className="flex items-center justify-between text-xs"
-                          >
-                            <span className="line-clamp-1 text-brand-text-secondary">
-                              {
-                                (item.productName ||
-                                  item.product?.name ||
-                                  "Item sem nome") as string
-                              }
-                            </span>
-                            <span className="font-semibold text-brand-text-primary">
-                              x
-                              {Number(item.quantity || 0).toLocaleString(
-                                "pt-BR",
-                              )}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-xs text-brand-text-secondary">
-                          Sem itens vinculados
-                        </p>
-                      )}
-                      {items.length > 3 && (
-                        <p className="text-[11px] font-semibold text-primary-600">
-                          +{items.length - 3} itens
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between border-t border-brand-border pt-2.5">
-                      <div>
-                        <p className="text-[11px] text-brand-text-secondary">
-                          Vendedor
-                        </p>
-                        <p className="text-xs font-semibold text-brand-text-primary line-clamp-1">
-                          {order.sellerName || "-"}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[11px] text-brand-text-secondary">
-                          Total
-                        </p>
-                        <p className="text-sm font-black text-brand-text-primary">
-                          {formatBRLFromCents(order.totalAmount)}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </AnimatePresence>
-
-            {ordersByStatus[status].length === 0 && (
-              <div className="rounded-xl border border-dashed border-brand-border p-5 text-center">
-                <p className="text-xs text-brand-text-secondary">
-                  Nenhum pedido nesta etapa.
-                </p>
+      {/* Kanban columns */}
+      <div className="flex gap-3 overflow-x-auto pb-4 -mx-1 px-1 scrollbar-thin">
+        {statuses.map((status) => (
+          <div
+            key={status}
+            className="flex-shrink-0 w-[280px] flex flex-col max-h-[72vh]"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "w-1.5 h-6 rounded-full bg-gradient-to-b",
+                    STATUS_HEADER_BG[status],
+                  )}
+                />
+                <h3 className="text-sm font-semibold text-slate-700">
+                  {STATUS_LABEL[status]}
+                </h3>
               </div>
-            )}
+              <span className="text-xs font-bold text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">
+                {ordersByStatus[status].length}
+              </span>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin rounded-xl bg-slate-50/50 p-2 border border-slate-200/50">
+              <AnimatePresence>
+                {ordersByStatus[status].map((order, idx) => (
+                  <PipelineCard
+                    key={order.id}
+                    order={order}
+                    onClick={onSelectOrder}
+                    selected={selectedOrderId === order.id}
+                    delay={idx * 0.02}
+                  />
+                ))}
+              </AnimatePresence>
+              {ordersByStatus[status].length === 0 && (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="w-8 h-8 rounded-full bg-slate-200/60 flex items-center justify-center mb-2">
+                    <Package className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <p className="text-xs text-slate-400">Nenhum pedido</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -433,122 +509,88 @@ interface ListaFilters {
   supplierId: string;
 }
 
-function SaleOrderDetailPanel({
+function ListOrderRow({
   order,
-  onClose,
+  onClick,
+  selected,
+  delay = 0,
 }: {
-  order: SaleOrder | null;
-  onClose: () => void;
+  order: SaleOrder;
+  onClick: (order: SaleOrder) => void;
+  selected?: boolean;
+  delay?: number;
 }) {
-  useEffect(() => {
-    if (!order) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [order, onClose]);
-
   return (
-    <AnimatePresence>
-      {order && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/35 backdrop-blur-[1px]"
-          />
-          <motion.aside
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 24, stiffness: 220 }}
-            className="fixed right-0 top-0 z-50 h-full w-full max-w-2xl bg-white shadow-2xl"
-          >
-            <div className="flex h-full flex-col">
-              <div className="flex items-start justify-between border-b border-brand-border p-6">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-brand-text-secondary">
-                    Pedido #{order.orderNumber}
-                  </p>
-                  <h3 className="mt-1 text-2xl font-bold text-brand-text-primary">
-                    {order.clientName}
-                  </h3>
-                </div>
-                <button
-                  onClick={onClose}
-                  className="rounded-lg p-2 text-brand-text-secondary hover:bg-slate-100 hover:text-brand-text-primary"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 border-b border-brand-border p-6 text-sm">
-                <div>
-                  <p className="text-brand-text-secondary">Fornecedor</p>
-                  <p className="font-semibold text-brand-text-primary">
-                    {order.supplierName}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-brand-text-secondary">Vendedor</p>
-                  <p className="font-semibold text-brand-text-primary">
-                    {order.sellerName}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-brand-text-secondary">Vencimento</p>
-                  <p className="font-semibold text-brand-text-primary">
-                    {new Date(order.dueDate).toLocaleDateString("pt-BR")}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-brand-text-secondary">Total</p>
-                  <p className="font-semibold text-emerald-600">
-                    {formatBRLFromCents(order.totalAmount)}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-brand-text-secondary">Endereço</p>
-                  <p className="font-semibold text-brand-text-primary">
-                    {order.clientAddress || "-"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6">
-                <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-text-secondary">
-                  Itens vendidos
-                </h4>
-                <div className="space-y-3">
-                  {order.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-xl border border-brand-border bg-brand-bg p-4"
-                    >
-                      <div className="mb-2 flex items-center justify-between">
-                        <p className="font-semibold text-brand-text-primary">
-                          {item.productName}
-                        </p>
-                        <p className="font-bold text-brand-text-primary">
-                          {formatBRL(item.lineTotal / 100)}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between text-sm text-brand-text-secondary">
-                        <p>Qtd: {item.quantity}</p>
-                        <p>Unit: {formatBRL(item.unitPrice / 100)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.aside>
-        </>
+    <motion.button
+      type="button"
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ delay, duration: 0.15 }}
+      onClick={() => onClick(order)}
+      className={cn(
+        "w-full text-left bg-white rounded-xl border transition-all duration-150 group",
+        "hover:shadow-md hover:border-slate-300",
+        selected
+          ? "border-primary-400 ring-2 ring-primary-100 shadow-md"
+          : "border-slate-200/80 shadow-sm",
       )}
-    </AnimatePresence>
+    >
+      <div className="flex items-center gap-4 px-4 py-3.5">
+        <div
+          className={cn(
+            "w-1 h-10 rounded-full flex-shrink-0 bg-gradient-to-b",
+            STATUS_HEADER_BG[order.status],
+          )}
+        />
+        <div className="flex-1 min-w-0 grid grid-cols-12 gap-3 items-center">
+          <div className="col-span-4 min-w-0">
+            <p className="text-xs font-mono font-semibold text-slate-400">
+              #{order.orderNumber}
+            </p>
+            <p className="text-sm font-semibold text-slate-800 truncate">
+              {order.clientName}
+            </p>
+          </div>
+          <div className="col-span-3 min-w-0 hidden md:block">
+            <p className="text-xs text-slate-500 truncate">
+              <User className="w-3 h-3 inline mr-1" />
+              {order.sellerName || "—"}
+            </p>
+            <p className="text-xs text-slate-400 truncate mt-0.5">
+              {order.supplierName || "—"}
+            </p>
+          </div>
+          <div className="col-span-3 flex flex-wrap gap-1">
+            <span
+              className={cn(
+                "inline-flex text-[11px] font-semibold px-2 py-0.5 rounded-md border",
+                STATUS_COLOR[order.status],
+              )}
+            >
+              {STATUS_LABEL[order.status]}
+            </span>
+            <span
+              className={cn(
+                "inline-flex text-[10px] font-medium px-1.5 py-0.5 rounded",
+                DELIVERY_STATUS_COLOR[order.deliveryStatus],
+              )}
+            >
+              {DELIVERY_STATUS_LABEL[order.deliveryStatus]}
+            </span>
+          </div>
+          <div className="col-span-2 text-right">
+            <p className="text-sm font-bold text-slate-900">
+              {formatBRLFromCents(order.totalAmount)}
+            </p>
+            <p className="text-[11px] text-slate-400">
+              {formatDate(order.createdAt)}
+            </p>
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors flex-shrink-0" />
+      </div>
+    </motion.button>
   );
 }
 
@@ -572,6 +614,7 @@ function ListaTab({
     sellerId: "",
     supplierId: "",
   });
+  const [showFilters, setShowFilters] = useState(false);
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -581,7 +624,6 @@ function ListaTab({
           .toLowerCase()
           .includes(filters.search.toLowerCase()) ||
         order.clientName.toLowerCase().includes(filters.search.toLowerCase());
-
       const statusMatch =
         filters.status === "" || order.status === filters.status;
       const deliveryMatch =
@@ -591,7 +633,6 @@ function ListaTab({
         filters.sellerId === "" || order.sellerId === filters.sellerId;
       const supplierMatch =
         filters.supplierId === "" || order.supplierId === filters.supplierId;
-
       return (
         searchMatch &&
         statusMatch &&
@@ -602,182 +643,159 @@ function ListaTab({
     });
   }, [orders, filters]);
 
+  const activeFilterCount = [
+    filters.status,
+    filters.deliveryStatus,
+    filters.sellerId,
+    filters.supplierId,
+  ].filter(Boolean).length;
+
   return (
-    <div className="space-y-4">
-      <div className="bg-white border border-brand-border rounded-2xl p-4 shadow-card">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-secondary" />
-            <input
-              type="text"
-              placeholder="Buscar por pedido ou cliente..."
-              value={filters.search}
-              onChange={(e) =>
-                setFilters({ ...filters, search: e.target.value })
-              }
-              className="w-full bg-slate-50 border border-brand-border rounded-xl pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-            />
-          </div>
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-          >
-            <option value="">Todos os Status</option>
-            {Object.entries(STATUS_LABEL).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filters.deliveryStatus}
-            onChange={(e) =>
-              setFilters({ ...filters, deliveryStatus: e.target.value })
-            }
-            className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-          >
-            <option value="">Todas as Entregas</option>
-            {Object.entries(DELIVERY_STATUS_LABEL).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filters.sellerId}
-            onChange={(e) =>
-              setFilters({ ...filters, sellerId: e.target.value })
-            }
-            className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-          >
-            <option value="">Todos os Vendedores</option>
-            {sellers.map((seller) => (
-              <option key={seller.id} value={seller.id}>
-                {seller.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filters.supplierId}
-            onChange={(e) =>
-              setFilters({ ...filters, supplierId: e.target.value })
-            }
-            className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-          >
-            <option value="">Todos os Fornecedores</option>
-            {suppliers.map((supplier) => (
-              <option key={supplier.id} value={supplier.id}>
-                {supplier.name}
-              </option>
-            ))}
-          </select>
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Buscar por pedido ou cliente..."
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
+          />
         </div>
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={cn(
+            "flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-sm font-medium transition-all",
+            showFilters || activeFilterCount > 0
+              ? "bg-primary-50 border-primary-200 text-primary-700"
+              : "bg-white border-slate-200 text-slate-600 hover:border-slate-300",
+          )}
+        >
+          <Filter className="w-4 h-4" />
+          Filtros
+          {activeFilterCount > 0 && (
+            <span className="bg-primary-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      <div className="space-y-3">
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-white border border-slate-200 rounded-xl p-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <select
+                  value={filters.status}
+                  onChange={(e) =>
+                    setFilters({ ...filters, status: e.target.value })
+                  }
+                  className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
+                >
+                  <option value="">Todos os Status</option>
+                  {Object.entries(STATUS_LABEL).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={filters.deliveryStatus}
+                  onChange={(e) =>
+                    setFilters({ ...filters, deliveryStatus: e.target.value })
+                  }
+                  className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
+                >
+                  <option value="">Todas as Entregas</option>
+                  {Object.entries(DELIVERY_STATUS_LABEL).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={filters.sellerId}
+                  onChange={(e) =>
+                    setFilters({ ...filters, sellerId: e.target.value })
+                  }
+                  className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
+                >
+                  <option value="">Todos os Vendedores</option>
+                  {sellers.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={filters.supplierId}
+                  onChange={(e) =>
+                    setFilters({ ...filters, supplierId: e.target.value })
+                  }
+                  className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
+                >
+                  <option value="">Todos os Fornecedores</option>
+                  {suppliers.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={() =>
+                    setFilters({
+                      ...filters,
+                      status: "",
+                      deliveryStatus: "",
+                      sellerId: "",
+                      supplierId: "",
+                    })
+                  }
+                  className="mt-2 text-xs text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  Limpar filtros
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <p className="text-xs text-slate-400 px-1">
+        {filteredOrders.length} pedido{filteredOrders.length !== 1 ? "s" : ""}{" "}
+        encontrado{filteredOrders.length !== 1 ? "s" : ""}
+      </p>
+
+      <div className="space-y-2">
         <AnimatePresence>
           {filteredOrders.map((order, idx) => (
-            <motion.button
-              type="button"
+            <ListOrderRow
               key={order.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ delay: idx * 0.015 }}
-              onClick={() => onSelectOrder(order)}
-              className={cn(
-                "w-full rounded-2xl border bg-white p-5 text-left shadow-card transition-all",
-                "hover:border-primary-500/50 hover:shadow-lg",
-                selectedOrderId === order.id
-                  ? "border-primary-500 ring-2 ring-primary-200"
-                  : "border-brand-border",
-              )}
-            >
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-brand-text-secondary">
-                    Pedido #{order.orderNumber}
-                  </p>
-                  <h3 className="mt-1 text-lg font-bold text-brand-text-primary">
-                    {order.clientName}
-                  </h3>
-                  <p className="mt-1 text-sm text-brand-text-secondary">
-                    {order.clientAddress || "Endereço não informado"}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-brand-text-secondary">Total</p>
-                  <p className="text-2xl font-black text-brand-text-primary">
-                    {formatBRLFromCents(order.totalAmount)}
-                  </p>
-                  <p className="mt-1 text-xs text-brand-text-secondary">
-                    {new Date(order.createdAt).toLocaleDateString("pt-BR")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-                <div className="rounded-xl bg-brand-bg p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-brand-text-secondary">
-                    Vendedor
-                  </p>
-                  <p className="mt-1 font-semibold text-brand-text-primary">
-                    {order.sellerName || "-"}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-brand-bg p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-brand-text-secondary">
-                    Fornecedor
-                  </p>
-                  <p className="mt-1 font-semibold text-brand-text-primary">
-                    {order.supplierName || "-"}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-brand-bg p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-brand-text-secondary">
-                    NF
-                  </p>
-                  <p className="mt-1 font-semibold text-brand-text-primary">
-                    {order.invoiceNumber || "-"}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-brand-bg p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-brand-text-secondary">
-                    Vencimento
-                  </p>
-                  <p className="mt-1 font-semibold text-brand-text-primary">
-                    {new Date(order.dueDate).toLocaleDateString("pt-BR")}
-                  </p>
-                </div>
-                <div className="flex items-center justify-between rounded-xl bg-brand-bg p-3 md:justify-end md:gap-2">
-                  <span
-                    className={cn(
-                      "text-xs font-semibold px-2 py-1 rounded-md",
-                      STATUS_COLOR[order.status],
-                    )}
-                  >
-                    {STATUS_LABEL[order.status]}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-xs font-semibold px-2 py-1 rounded-md",
-                      DELIVERY_STATUS_COLOR[order.deliveryStatus],
-                    )}
-                  >
-                    {DELIVERY_STATUS_LABEL[order.deliveryStatus]}
-                  </span>
-                  <ChevronRight className="h-4 w-4 text-brand-text-secondary" />
-                </div>
-              </div>
-            </motion.button>
+              order={order}
+              onClick={onSelectOrder}
+              selected={selectedOrderId === order.id}
+              delay={idx * 0.01}
+            />
           ))}
         </AnimatePresence>
-
         {filteredOrders.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-brand-border bg-white p-10 text-center">
-            <p className="text-brand-text-secondary">
-              Nenhum pedido encontrado com os filtros atuais.
+          <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
+            <Search className="w-8 h-8 text-slate-300 mb-3" />
+            <p className="text-sm font-medium text-slate-500">
+              Nenhum pedido encontrado
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              Tente ajustar os filtros
             </p>
           </div>
         )}
@@ -798,66 +816,248 @@ function VendedoresTab({
   performance: SellerPerformance[];
 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
       <AnimatePresence>
         {performance.map((seller, idx) => {
           const deliveredRatio =
             seller.totalOrders > 0
               ? (seller.deliveredCount / seller.totalOrders) * 100
               : 0;
-
           return (
             <motion.div
               key={seller.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white border border-brand-border rounded-2xl p-6 shadow-card hover:shadow-lg transition-shadow"
+              transition={{ delay: idx * 0.06 }}
+              className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-200 group"
             >
-              <div className="mb-4">
-                <h3 className="text-lg font-bold text-brand-text-primary">
-                  {seller.name}
-                </h3>
-              </div>
-              <div className="space-y-3 mb-4">
-                <div>
-                  <p className="text-sm text-brand-text-secondary mb-1">
-                    Total de Pedidos
-                  </p>
-                  <p className="text-2xl font-bold text-brand-text-primary">
-                    {seller.totalOrders}
-                  </p>
+              <div className="h-1 bg-gradient-to-r from-primary-500 to-primary-600" />
+              <div className="p-5">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900">
+                        {seller.name}
+                      </h3>
+                      <p className="text-xs text-slate-400">Vendedor</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-emerald-600">
+                      {formatBRLFromCents(seller.totalRevenue)}
+                    </p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">
+                      receita
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="bg-slate-50 rounded-lg p-2.5 text-center">
+                    <p className="text-lg font-bold text-slate-900">
+                      {seller.totalOrders}
+                    </p>
+                    <p className="text-[10px] text-slate-500">Pedidos</p>
+                  </div>
+                  <div className="bg-emerald-50 rounded-lg p-2.5 text-center">
+                    <p className="text-lg font-bold text-emerald-700">
+                      {seller.deliveredCount}
+                    </p>
+                    <p className="text-[10px] text-emerald-600">Entregues</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-2.5 text-center">
+                    <p className="text-lg font-bold text-blue-700">
+                      {deliveredRatio.toFixed(0)}%
+                    </p>
+                    <p className="text-[10px] text-blue-600">Taxa</p>
+                  </div>
                 </div>
                 <div>
-                  <p className="text-sm text-brand-text-secondary mb-1">
-                    Receita Total
-                  </p>
-                  <p className="text-2xl font-bold text-emerald-600">
-                    {formatBRLFromCents(seller.totalRevenue)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-brand-text-secondary mb-2">
-                    Entregues: {seller.deliveredCount}/{seller.totalOrders}
-                  </p>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
+                    <span>Entregas</span>
+                    <span>
+                      {seller.deliveredCount}/{seller.totalOrders}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-1.5">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${deliveredRatio}%` }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      className="bg-emerald-500 h-2 rounded-full"
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-1.5 rounded-full"
                     />
                   </div>
                 </div>
               </div>
-              <button className="w-full bg-primary-600 hover:bg-primary-700 text-white rounded-xl py-2 text-sm font-semibold transition-colors">
-                Ver Detalhes
-              </button>
             </motion.div>
           );
         })}
       </AnimatePresence>
+      {performance.length === 0 && (
+        <div className="col-span-full flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
+          <BarChart3 className="w-8 h-8 text-slate-300 mb-3" />
+          <p className="text-sm font-medium text-slate-500">
+            Nenhum vendedor com dados
+          </p>
+        </div>
+      )}
     </div>
+  );
+}
+
+// ============================================================================
+// COMPONENT: ORDER DETAIL (usando DetailPanel global)
+// ============================================================================
+
+function OrderDetail({
+  order,
+  onClose,
+}: {
+  order: SaleOrder | null;
+  onClose: () => void;
+}) {
+  if (!order) return null;
+
+  const statusBadge = {
+    label: STATUS_LABEL[order.status] || order.status,
+    variant:
+      (
+        {
+          DRAFT: "gray",
+          CONFIRMED: "info",
+          PARTIALLY_DELIVERED: "orange",
+          DELIVERED: "success",
+          CANCELLED: "danger",
+          INVOICED: "purple",
+        } as Record<string, any>
+      )[order.status] || "default",
+  };
+
+  const deliveryBadge = {
+    label: DELIVERY_STATUS_LABEL[order.deliveryStatus] || order.deliveryStatus,
+    variant:
+      (
+        {
+          PENDING: "warning",
+          IN_TRANSIT: "info",
+          DELIVERED: "success",
+          RETURNED: "danger",
+          TO_VERIFY: "orange",
+          PARTIAL: "purple",
+        } as Record<string, any>
+      )[order.deliveryStatus] || "default",
+  };
+
+  return (
+    <DetailPanel
+      open={!!order}
+      onClose={onClose}
+      title={`Pedido #${order.orderNumber}`}
+      subtitle={order.clientName}
+      badges={[statusBadge, deliveryBadge]}
+      width="lg"
+    >
+      <div className="px-5 py-4 bg-gradient-to-r from-emerald-50 to-emerald-50/30 border-b border-slate-100">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-emerald-600 font-medium">Valor Total</p>
+            <p className="text-2xl font-bold text-emerald-700">
+              {formatBRLFromCents(order.totalAmount)}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-slate-500">
+              {order.items.length} ite{order.items.length !== 1 ? "ns" : "m"}
+            </p>
+            <p className="text-xs text-slate-400">
+              Criado em {formatDate(order.createdAt)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <DetailPanel.Section title="Cliente">
+        <DetailPanel.Grid cols={2}>
+          <DetailPanel.Field label="Nome" value={order.clientName} />
+          <DetailPanel.Field label="CPF/CNPJ" value={order.clientDoc} mono />
+          <DetailPanel.Field label="Email" value={order.clientEmail} />
+          <DetailPanel.Field label="Telefone" value={order.clientPhone} />
+          <DetailPanel.Field
+            label="Endereço"
+            value={order.clientAddress}
+            className="col-span-2"
+          />
+        </DetailPanel.Grid>
+      </DetailPanel.Section>
+
+      <DetailPanel.Section title="Informações da Venda">
+        <DetailPanel.Grid cols={2}>
+          <DetailPanel.Field label="Vendedor" value={order.sellerName} />
+          <DetailPanel.Field label="Fornecedor" value={order.supplierName} />
+          <DetailPanel.Field
+            label="Pagamento"
+            value={PAYMENT_LABEL[order.paymentMethod] || order.paymentMethod}
+          />
+          <DetailPanel.Field
+            label="Vencimento"
+            value={formatDate(order.dueDate)}
+          />
+          <DetailPanel.Field
+            label="Nota Fiscal"
+            value={order.invoiceNumber}
+            mono
+          />
+          <div className="flex items-center gap-3">
+            {order.isPriceLocked && (
+              <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded">
+                TRAVA
+              </span>
+            )}
+            {order.isSafra && (
+              <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                SAFRA
+              </span>
+            )}
+          </div>
+        </DetailPanel.Grid>
+      </DetailPanel.Section>
+
+      <DetailPanel.Section title="Itens do Pedido">
+        <div className="space-y-2">
+          {order.items.map((item) => (
+            <DetailPanel.ItemRow key={item.id}>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-slate-800 truncate">
+                  {item.productName}
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {item.quantity}x {formatBRL(item.unitPrice / 100)}
+                </p>
+              </div>
+              <p className="text-sm font-bold text-slate-900 flex-shrink-0 ml-3">
+                {formatBRL(item.lineTotal / 100)}
+              </p>
+            </DetailPanel.ItemRow>
+          ))}
+        </div>
+        <div className="mt-3 flex items-center justify-between bg-slate-900 text-white rounded-xl px-4 py-3">
+          <span className="text-sm font-medium">Total</span>
+          <span className="text-lg font-bold">
+            {formatBRLFromCents(order.totalAmount)}
+          </span>
+        </div>
+      </DetailPanel.Section>
+
+      {order.notes && (
+        <DetailPanel.Section title="Observações">
+          <p className="text-sm text-slate-600 bg-slate-50 rounded-lg p-3">
+            {order.notes}
+          </p>
+        </DetailPanel.Section>
+      )}
+    </DetailPanel>
   );
 }
 
@@ -894,15 +1094,10 @@ function NewOrderModal({
     formState: { errors },
   } = useForm<CreateSaleOrderInput>({
     resolver: zodResolver(CreateSaleOrderSchema),
-    defaultValues: {
-      items: [{ productId: "", quantity: 1, unitPrice: 0 }],
-    },
+    defaultValues: { items: [{ productId: "", quantity: 1, unitPrice: 0 }] },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "items",
-  });
+  const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
   const [clientSearch, setClientSearch] = useState("");
   const [showClientSuggestions, setShowClientSuggestions] = useState(false);
@@ -927,10 +1122,10 @@ function NewOrderModal({
     useQuery<Client[]>({
       queryKey: ["clients-search", clientSearch],
       queryFn: async () => {
-        const response = await api.get("/clients", {
+        const r = await api.get("/clients", {
           params: { q: clientSearch, limit: 8 },
         });
-        return response.data;
+        return r.data;
       },
       enabled: isOpen && clientSearch.trim().length >= 3,
     });
@@ -944,8 +1139,8 @@ function NewOrderModal({
         phone: getValues("clientPhone") || undefined,
         address: getValues("clientAddress") || undefined,
       };
-      const response = await api.post("/clients", payload);
-      return response.data as Client;
+      const r = await api.post("/clients", payload);
+      return r.data as Client;
     },
     onSuccess: (client) => {
       setValue("clientId", client.id);
@@ -971,10 +1166,10 @@ function NewOrderModal({
   const { data: productSuggestions = [] } = useQuery<Product[]>({
     queryKey: ["products-search", productSearch],
     queryFn: async () => {
-      const response = await api.get("/products", {
+      const r = await api.get("/products", {
         params: { search: productSearch },
       });
-      return response.data;
+      return r.data;
     },
     enabled:
       isOpen && activeProductIndex !== null && productSearch.trim().length >= 3,
@@ -984,20 +1179,18 @@ function NewOrderModal({
   const subtotal = useMemo(
     () =>
       itemsValue.reduce((sum, item) => {
-        const quantity = item.quantity || 0;
-        const price = item.unitPrice || 0;
-        return sum + quantity * price * 100;
+        return sum + (item.quantity || 0) * (item.unitPrice || 0) * 100;
       }, 0),
     [itemsValue],
   );
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: CreateSaleOrderInput) => {
-      const response = await api.post("/sale-orders", {
+      const r = await api.post("/sale-orders", {
         ...data,
         totalAmount: subtotal,
       });
-      return response.data;
+      return r.data;
     },
     onSuccess: () => {
       toast.success("Pedido criado com sucesso!");
@@ -1020,6 +1213,11 @@ function NewOrderModal({
   const onSubmit = (data: CreateSaleOrderInput) => {
     createOrderMutation.mutate(data);
   };
+  const inputClass =
+    "w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all placeholder:text-slate-400";
+  const selectClass =
+    "w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all";
+  const labelClass = "text-xs font-medium text-slate-500 mb-1 block";
 
   return (
     <AnimatePresence>
@@ -1030,41 +1228,51 @@ function NewOrderModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-40"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6"
+            initial={{ opacity: 0, scale: 0.97, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.97, y: 10 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="h-[94vh] w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-lg">
-              <div className="sticky top-0 flex items-center justify-between p-6 border-b border-brand-border bg-white">
-                <h2 className="text-2xl font-bold text-brand-text-primary">
-                  Novo Pedido de Venda
-                </h2>
+            <div className="h-[92vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200/50">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Novo Pedido de Venda
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Preencha os dados abaixo
+                  </p>
+                </div>
                 <button
                   onClick={onClose}
-                  className="text-brand-text-secondary hover:text-brand-text-primary"
+                  className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="grid h-[calc(94vh-96px)] grid-cols-1 gap-0 md:grid-cols-12"
+                className="grid h-[calc(92vh-72px)] grid-cols-1 md:grid-cols-12"
               >
-                <div className="space-y-6 overflow-hidden p-6 md:col-span-8">
-                  {/* Client Section */}
-                  <div>
-                    <h3 className="font-semibold text-brand-text-primary mb-3">
-                      Dados do Cliente
-                    </h3>
+                <div className="space-y-5 overflow-y-auto p-6 md:col-span-8 scrollbar-thin">
+                  {/* Client */}
+                  <div className="bg-slate-50/50 rounded-xl border border-slate-200/60 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <User className="w-4 h-4 text-slate-500" />
+                      <h3 className="text-sm font-semibold text-slate-800">
+                        Dados do Cliente
+                      </h3>
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <input type="hidden" {...register("clientId")} />
                       <input type="hidden" {...register("clientName")} />
                       <div className="col-span-2 relative">
+                        <label className={labelClass}>Cliente</label>
                         <input
                           value={clientSearch}
                           onFocus={() => setShowClientSuggestions(true)}
@@ -1075,22 +1283,22 @@ function NewOrderModal({
                             )
                           }
                           onChange={(e) => {
-                            const value = e.target.value;
-                            setClientSearch(value);
-                            setValue("clientName", value);
+                            setClientSearch(e.target.value);
+                            setValue("clientName", e.target.value);
                             setValue("clientId", "");
                           }}
-                          placeholder="Nome do Cliente"
-                          className="w-full bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
+                          placeholder="Digite 3 letras para buscar..."
+                          className={inputClass}
                         />
                         {showClientSuggestions &&
                           clientSearch.trim().length >= 3 &&
                           clientSuggestions.length > 0 && (
-                            <div className="absolute z-20 mt-1 w-full rounded-xl border border-brand-border bg-white shadow-lg overflow-hidden">
+                            <div className="absolute z-20 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg overflow-hidden">
                               {clientSuggestions.map((client) => (
                                 <button
                                   key={client.id}
                                   type="button"
+                                  onMouseDown={(e) => e.preventDefault()}
                                   onClick={() => {
                                     setValue("clientId", client.id);
                                     setValue("clientName", client.name || "");
@@ -1104,12 +1312,12 @@ function NewOrderModal({
                                     setClientSearch(client.name || "");
                                     setShowClientSuggestions(false);
                                   }}
-                                  className="w-full px-3 py-2.5 text-left hover:bg-slate-50"
+                                  className="w-full px-3 py-2.5 text-left hover:bg-slate-50 transition-colors"
                                 >
-                                  <p className="text-sm font-semibold text-brand-text-primary">
+                                  <p className="text-sm font-semibold text-slate-800">
                                     {client.name}
                                   </p>
-                                  <p className="text-xs text-brand-text-secondary">
+                                  <p className="text-xs text-slate-400">
                                     {client.doc || "-"}{" "}
                                     {client.phone ? `• ${client.phone}` : ""}
                                   </p>
@@ -1121,144 +1329,195 @@ function NewOrderModal({
                           clientSearch.trim().length >= 3 &&
                           !clientSuggestionsLoading &&
                           clientSuggestions.length === 0 && (
-                            <div className="absolute z-20 mt-1 w-full rounded-xl border border-brand-border bg-white shadow-lg overflow-hidden">
+                            <div className="absolute z-20 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg overflow-hidden">
                               <button
                                 type="button"
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={() =>
                                   quickCreateClientMutation.mutate()
                                 }
                                 disabled={quickCreateClientMutation.isPending}
-                                className="w-full px-3 py-2.5 text-left hover:bg-slate-50 disabled:opacity-60"
+                                className="w-full px-3 py-2.5 text-left hover:bg-primary-50 disabled:opacity-60 transition-colors"
                               >
                                 <p className="text-sm font-semibold text-primary-700">
                                   {quickCreateClientMutation.isPending
-                                    ? "Criando cliente..."
-                                    : `Cadastrar cliente "${clientSearch.trim()}"`}
+                                    ? "Criando..."
+                                    : `Cadastrar "${clientSearch.trim()}"`}
                                 </p>
-                                <p className="text-xs text-brand-text-secondary">
-                                  Não encontrado no banco. Clique para criar e
-                                  selecionar.
+                                <p className="text-xs text-slate-400">
+                                  Clique para criar e selecionar
                                 </p>
                               </button>
                             </div>
                           )}
-                        <p className="mt-1 text-[11px] text-brand-text-secondary">
-                          Digite 3 letras para buscar cliente no banco.
-                        </p>
                       </div>
-                      <input
-                        {...register("clientDoc")}
-                        placeholder="CPF/CNPJ"
-                        className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      />
-                      <input
-                        {...register("clientEmail")}
-                        type="email"
-                        placeholder="Email"
-                        className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      />
-                      <input
-                        {...register("clientPhone")}
-                        placeholder="Telefone"
-                        className="col-span-2 bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      />
-                      <input
-                        {...register("clientAddress")}
-                        placeholder="Endereço"
-                        className="col-span-2 bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      />
+                      <div>
+                        <label className={labelClass}>CPF/CNPJ</label>
+                        <input
+                          {...register("clientDoc")}
+                          placeholder="000.000.000-00"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Email</label>
+                        <input
+                          {...register("clientEmail")}
+                          type="email"
+                          placeholder="email@exemplo.com"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Telefone</label>
+                        <input
+                          {...register("clientPhone")}
+                          placeholder="(00) 00000-0000"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Endereço</label>
+                        <input
+                          {...register("clientAddress")}
+                          placeholder="Rua, nº - Cidade/UF"
+                          className={inputClass}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Sales Info Section */}
-                  <div>
-                    <h3 className="font-semibold text-brand-text-primary mb-3">
-                      Informações de Vendas
-                    </h3>
+                  {/* Sales Info */}
+                  <div className="bg-slate-50/50 rounded-xl border border-slate-200/60 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <FileText className="w-4 h-4 text-slate-500" />
+                      <h3 className="text-sm font-semibold text-slate-800">
+                        Informações da Venda
+                      </h3>
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <select
-                        {...register("sellerId")}
-                        className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      >
-                        <option value="">Selecione Vendedor</option>
-                        {sellers.map((seller) => (
-                          <option key={seller.id} value={seller.id}>
-                            {seller.name}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        {...register("supplierId")}
-                        className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      >
-                        <option value="">Selecione Fornecedor</option>
-                        {suppliers.map((supplier) => (
-                          <option key={supplier.id} value={supplier.id}>
-                            {supplier.name}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        {...register("invoiceNumber")}
-                        placeholder="Nº Nota Fiscal"
-                        className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      />
-                      <select
-                        {...register("paymentMethod")}
-                        className="bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      >
-                        <option value="">Método de Pagamento</option>
-                        {PAYMENT_METHODS.map((method) => (
-                          <option key={method.value} value={method.value}>
-                            {method.label}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        {...register("dueDate")}
-                        type="date"
-                        className="col-span-2 bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                      />
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <div>
+                        <label className={labelClass}>Vendedor</label>
+                        <select
+                          {...register("sellerId")}
+                          className={selectClass}
+                        >
+                          <option value="">Selecione...</option>
+                          {sellers.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Fornecedor</label>
+                        <select
+                          {...register("supplierId")}
+                          className={selectClass}
+                        >
+                          <option value="">Selecione...</option>
+                          {suppliers.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Nº Nota Fiscal</label>
                         <input
-                          {...register("isPriceLocked")}
-                          type="checkbox"
-                          className="w-4 h-4"
+                          {...register("invoiceNumber")}
+                          placeholder="Opcional"
+                          className={inputClass}
                         />
-                        <span className="text-sm font-semibold text-red-600">
-                          TRAVA
-                        </span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      </div>
+                      <div>
+                        <label className={labelClass}>Pagamento</label>
+                        <select
+                          {...register("paymentMethod")}
+                          className={selectClass}
+                        >
+                          <option value="">Selecione...</option>
+                          {PAYMENT_METHODS.map((m) => (
+                            <option key={m.value} value={m.value}>
+                              {m.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Vencimento</label>
                         <input
-                          {...register("isSafra")}
-                          type="checkbox"
-                          className="w-4 h-4"
+                          {...register("dueDate")}
+                          type="date"
+                          className={inputClass}
                         />
-                        <span className="text-sm font-semibold text-blue-600">
-                          SAFRA
-                        </span>
-                      </label>
+                      </div>
+                      <div className="flex items-end gap-4 pb-1">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            {...register("isPriceLocked")}
+                            type="checkbox"
+                            className="w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-500"
+                          />
+                          <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">
+                            TRAVA
+                          </span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            {...register("isSafra")}
+                            type="checkbox"
+                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                            SAFRA
+                          </span>
+                        </label>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Items Section */}
-                  <div>
-                    <h3 className="font-semibold text-brand-text-primary mb-3">
-                      Itens do Pedido
-                    </h3>
-                    <div className="space-y-2">
+                  {/* Items */}
+                  <div className="bg-slate-50/50 rounded-xl border border-slate-200/60 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-4 h-4 text-slate-500" />
+                        <h3 className="text-sm font-semibold text-slate-800">
+                          Itens do Pedido
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          append({ productId: "", quantity: 1, unitPrice: 0 });
+                          setProductInputValues((prev) => ({
+                            ...prev,
+                            [fields.length]: "",
+                          }));
+                        }}
+                        className="flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-semibold text-xs transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Adicionar
+                      </button>
+                    </div>
+                    <div className="space-y-2 max-h-[36vh] overflow-y-auto pr-1 scrollbar-thin">
                       {fields.map((field, idx) => {
                         const selectedProduct = products.find(
                           (p) => p.id === itemsValue[idx]?.productId,
                         );
                         return (
-                          <div key={field.id} className="flex gap-2">
+                          <div
+                            key={field.id}
+                            className="flex items-center gap-2 bg-white rounded-lg border border-slate-200 p-2.5"
+                          >
                             <input
                               type="hidden"
                               {...register(`items.${idx}.productId`)}
                             />
-                            <div className="relative flex-1">
+                            <div className="relative flex-1 min-w-0">
                               <input
                                 value={
                                   productInputValues[idx] ??
@@ -1281,22 +1540,21 @@ function NewOrderModal({
                                   )
                                 }
                                 onChange={(e) => {
-                                  const value = e.target.value;
                                   setProductInputValues((prev) => ({
                                     ...prev,
-                                    [idx]: value,
+                                    [idx]: e.target.value,
                                   }));
                                   setActiveProductIndex(idx);
-                                  setProductSearch(value);
+                                  setProductSearch(e.target.value);
                                   setValue(`items.${idx}.productId`, "");
                                 }}
-                                placeholder="Produto"
-                                className="w-full bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
+                                placeholder="Buscar produto..."
+                                className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
                               />
                               {activeProductIndex === idx &&
                                 productSearch.trim().length >= 3 &&
                                 productSuggestions.length > 0 && (
-                                  <div className="absolute z-20 mt-1 w-full rounded-xl border border-brand-border bg-white shadow-lg max-h-56 overflow-y-auto">
+                                  <div className="absolute z-20 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg max-h-48 overflow-y-auto">
                                     {productSuggestions.map((product) => (
                                       <button
                                         key={product.id}
@@ -1317,13 +1575,12 @@ function NewOrderModal({
                                           setProductSearch(product.name);
                                           setActiveProductIndex(null);
                                         }}
-                                        className="w-full px-3 py-2.5 text-left hover:bg-slate-50"
+                                        className="w-full px-3 py-2 text-left hover:bg-slate-50 transition-colors"
                                       >
-                                        <p className="text-sm font-semibold text-brand-text-primary">
+                                        <p className="text-sm font-semibold text-slate-800">
                                           {product.name}
                                         </p>
-                                        <p className="text-xs text-brand-text-secondary">
-                                          Preço:{" "}
+                                        <p className="text-xs text-slate-400">
                                           {formatBRL(
                                             Number(product.salePrice || 0),
                                           )}
@@ -1338,8 +1595,8 @@ function NewOrderModal({
                                 valueAsNumber: true,
                               })}
                               type="number"
-                              placeholder="Qty"
-                              className="w-20 bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
+                              placeholder="Qtd"
+                              className="w-20 bg-slate-50 border border-slate-200 rounded-md px-2.5 py-2 text-sm text-center focus:outline-none focus:border-primary-500"
                             />
                             <input
                               {...register(`items.${idx}.unitPrice`, {
@@ -1349,12 +1606,12 @@ function NewOrderModal({
                               placeholder="Preço"
                               defaultValue={selectedProduct?.salePrice}
                               step="0.01"
-                              className="w-24 bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
+                              className="w-28 bg-slate-50 border border-slate-200 rounded-md px-2.5 py-2 text-sm text-right focus:outline-none focus:border-primary-500"
                             />
                             <button
                               type="button"
                               onClick={() => remove(idx)}
-                              className="text-red-500 hover:text-red-700 p-2"
+                              className="text-slate-300 hover:text-red-500 p-1.5 transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1362,85 +1619,57 @@ function NewOrderModal({
                         );
                       })}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        append({ productId: "", quantity: 1, unitPrice: 0 });
-                        setProductInputValues((prev) => ({
-                          ...prev,
-                          [fields.length]: "",
-                        }));
-                      }}
-                      className="mt-2 flex items-center gap-2 text-primary-600 hover:text-primary-700 font-semibold text-sm"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Adicionar Item
-                    </button>
-                    <div className="mt-3 p-3 bg-brand-bg rounded-xl border border-brand-border">
-                      <p className="text-sm text-brand-text-secondary mb-1">
-                        Subtotal
-                      </p>
-                      <p className="text-2xl font-bold text-brand-text-primary">
-                        {formatBRLFromCents(subtotal)}
-                      </p>
-                    </div>
+                    {fields.length === 0 && (
+                      <div className="text-center py-6 text-sm text-slate-400">
+                        Nenhum item adicionado
+                      </div>
+                    )}
                   </div>
 
-                  {/* Notes */}
-                  <textarea
-                    {...register("notes")}
-                    placeholder="Observações (opcional)"
-                    rows={3}
-                    className="w-full bg-slate-50 border border-brand-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-primary-500"
-                  />
+                  <div>
+                    <label className={labelClass}>Observações</label>
+                    <textarea
+                      {...register("notes")}
+                      placeholder="Observações (opcional)"
+                      rows={2}
+                      className={cn(inputClass, "resize-none")}
+                    />
+                  </div>
                 </div>
 
-                <aside className="border-t border-brand-border bg-brand-bg/60 p-6 md:col-span-4 md:border-l md:border-t-0">
-                  <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-brand-text-secondary">
-                    Resumo da Venda
+                {/* Summary sidebar */}
+                <aside className="border-t border-slate-200 bg-slate-50 p-5 md:col-span-4 md:border-l md:border-t-0 flex flex-col">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
+                    Resumo
                   </h3>
-                  <div className="space-y-3 rounded-2xl border border-brand-border bg-white p-4">
+                  <div className="space-y-3 bg-white rounded-xl border border-slate-200 p-4 flex-1">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-brand-text-secondary">Itens</span>
-                      <span className="font-semibold text-brand-text-primary">
+                      <span className="text-slate-500">Itens</span>
+                      <span className="font-semibold text-slate-800">
                         {fields.length}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-brand-text-secondary">
-                        Quantidade total
-                      </span>
-                      <span className="font-semibold text-brand-text-primary">
+                      <span className="text-slate-500">Quantidade</span>
+                      <span className="font-semibold text-slate-800">
                         {itemsValue.reduce(
                           (sum, item) => sum + (item.quantity || 0),
                           0,
                         )}
                       </span>
                     </div>
-                    <div className="h-px bg-brand-border" />
+                    <div className="h-px bg-slate-100" />
                     <div className="flex items-center justify-between">
-                      <span className="text-brand-text-secondary">
-                        Subtotal
-                      </span>
-                      <span className="text-xl font-black text-brand-text-primary">
+                      <span className="text-sm text-slate-500">Subtotal</span>
+                      <span className="text-xl font-bold text-slate-900">
                         {formatBRLFromCents(subtotal)}
                       </span>
                     </div>
                   </div>
-
-                  <div className="mt-4 rounded-2xl border border-brand-border bg-white p-4 text-sm text-brand-text-secondary">
-                    <p className="font-semibold text-brand-text-primary">
-                      Dica
-                    </p>
-                    <p className="mt-1">
-                      Clique fora deste painel para fechar sem salvar.
-                    </p>
-                  </div>
-
                   <button
                     type="submit"
                     disabled={createOrderMutation.isPending}
-                    className="mt-6 w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-xl py-3 font-semibold transition-colors flex items-center justify-center gap-2"
+                    className="mt-4 w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-xl py-3 font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
                   >
                     {createOrderMutation.isPending ? (
                       <>
@@ -1475,142 +1704,137 @@ export default function SalesPage() {
   const [isNewOrderOpen, setIsNewOrderOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<SaleOrder | null>(null);
 
-  // Fetch data
   const { data: stats = {} as DashboardStats, isLoading: statsLoading } =
     useQuery({
       queryKey: ["dashboard-stats"],
       queryFn: async () => {
-        const response = await api.get("/sale-orders/dashboard");
-        return response.data;
+        const r = await api.get("/sale-orders/dashboard");
+        return r.data;
       },
     });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["sales-orders"],
     queryFn: async () => {
-      const response = await api.get("/sale-orders");
-      return response.data;
+      const r = await api.get("/sale-orders");
+      return r.data;
     },
   });
 
   const { data: sellers = [] } = useQuery({
     queryKey: ["sellers"],
     queryFn: async () => {
-      const response = await api.get("/sellers");
-      return response.data;
+      const r = await api.get("/sellers");
+      return r.data;
     },
   });
 
   const { data: sellers_performance = [] } = useQuery({
     queryKey: ["sellers-performance"],
     queryFn: async () => {
-      const response = await api.get("/sellers/dashboard");
-      return response.data;
+      const r = await api.get("/sellers/dashboard");
+      return r.data;
     },
   });
 
   const { data: suppliers = [] } = useQuery({
     queryKey: ["suppliers"],
     queryFn: async () => {
-      const response = await api.get("/suppliers");
-      return response.data;
+      const r = await api.get("/suppliers");
+      return r.data;
     },
   });
 
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const response = await api.get("/products");
-      return response.data;
+      const r = await api.get("/products");
+      return r.data;
     },
   });
 
   const isLoading = statsLoading || ordersLoading;
 
+  const tabs = [
+    { value: "pipeline" as const, label: "Pipeline", icon: TrendingUp },
+    { value: "lista" as const, label: "Lista", icon: FileText },
+    { value: "vendedores" as const, label: "Vendedores", icon: User },
+  ];
+
   return (
     <div className="min-h-screen bg-brand-bg">
       <Header title="Vendas" />
-
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header with Title and CTA */}
-        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-4xl font-bold text-brand-text-primary">
-              Vendas
-            </h1>
-            <p className="text-brand-text-secondary mt-1">
-              Gerencie seus pedidos de vendas de forma eficiente
+            <p className="text-sm text-slate-500">
+              Gerencie seus pedidos de vendas
             </p>
           </div>
           <button
             onClick={() => setIsNewOrderOpen(true)}
-            className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-6 py-3 font-semibold flex items-center gap-2 transition-colors"
+            className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-5 py-2.5 font-semibold flex items-center gap-2 transition-all shadow-sm hover:shadow-md text-sm"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             Novo Pedido
           </button>
         </div>
 
-        {/* KPI Cards */}
         {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+          <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+              <p className="text-sm text-slate-500">Carregando dados...</p>
+            </div>
           </div>
         ) : (
           <>
             <KPICards stats={stats} />
-
-            {/* Tabs */}
-            <div className="mt-8">
-              <div className="flex gap-2 mb-6 bg-white border border-brand-border rounded-2xl p-1 w-fit">
-                {[
-                  { value: "pipeline", label: "Pipeline" },
-                  { value: "lista", label: "Lista" },
-                  { value: "vendedores", label: "Vendedores" },
-                ].map((tab) => (
-                  <button
-                    key={tab.value}
-                    onClick={() =>
-                      setActiveTab(
-                        tab.value as "pipeline" | "lista" | "vendedores",
-                      )
-                    }
-                    className={cn(
-                      "px-4 py-2.5 rounded-xl font-semibold text-sm transition-all",
-                      activeTab === tab.value
-                        ? "bg-primary-600 text-white"
-                        : "text-brand-text-secondary hover:text-brand-text-primary",
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+            <div className="mt-6">
+              <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit mb-5">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.value}
+                      onClick={() => setActiveTab(tab.value)}
+                      className={cn(
+                        "flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-sm transition-all",
+                        activeTab === tab.value
+                          ? "bg-primary-600 text-white shadow-sm"
+                          : "text-slate-500 hover:text-slate-700 hover:bg-slate-50",
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Tab Content */}
               <AnimatePresence mode="wait">
                 {activeTab === "pipeline" && (
                   <motion.div
                     key="pipeline"
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
                   >
                     <PipelineTab
                       orders={orders}
+                      selectedOrderId={selectedOrder?.id}
                       onSelectOrder={setSelectedOrder}
                     />
                   </motion.div>
                 )}
-
                 {activeTab === "lista" && (
                   <motion.div
                     key="lista"
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
                   >
                     <ListaTab
                       orders={orders}
@@ -1621,14 +1845,13 @@ export default function SalesPage() {
                     />
                   </motion.div>
                 )}
-
                 {activeTab === "vendedores" && (
                   <motion.div
                     key="vendedores"
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
                   >
                     <VendedoresTab
                       sellers={sellers}
@@ -1642,19 +1865,15 @@ export default function SalesPage() {
         )}
       </main>
 
-      {/* New Order Modal */}
       <NewOrderModal
         isOpen={isNewOrderOpen}
         onClose={() => setIsNewOrderOpen(false)}
         sellers={sellers}
         suppliers={suppliers}
         products={products}
-        onSuccess={() => {
-          // Optional: Can add additional success handling here
-        }}
+        onSuccess={() => {}}
       />
-
-      <SaleOrderDetailPanel
+      <OrderDetail
         order={selectedOrder}
         onClose={() => setSelectedOrder(null)}
       />
