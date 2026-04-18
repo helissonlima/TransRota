@@ -636,6 +636,9 @@ export default function FleetPage() {
   const [headerSearch, setHeaderSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [vehicleSortBy, setVehicleSortBy] = useState<
+    "plate-asc" | "plate-desc" | "km-desc" | "maintenance-asc"
+  >("plate-asc");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [vehicleModal, setVehicleModal] = useState(false);
   const [oilModal, setOilModal] = useState(false);
@@ -644,6 +647,26 @@ export default function FleetPage() {
   const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
   const [detailOil, setDetailOil] = useState<OilChangeRecord | null>(null);
   const [heavyMachinesEnabled, setHeavyMachinesEnabled] = useState(false);
+
+  useEffect(() => {
+    const tenantId = localStorage.getItem("tenantId") ?? "";
+    const sortKey = tenantId ? `sort:fleet:${tenantId}` : "sort:fleet";
+    const savedSort = localStorage.getItem(sortKey);
+    if (
+      savedSort === "plate-asc" ||
+      savedSort === "plate-desc" ||
+      savedSort === "km-desc" ||
+      savedSort === "maintenance-asc"
+    ) {
+      setVehicleSortBy(savedSort);
+    }
+  }, []);
+
+  useEffect(() => {
+    const tenantId = localStorage.getItem("tenantId") ?? "";
+    const sortKey = tenantId ? `sort:fleet:${tenantId}` : "sort:fleet";
+    localStorage.setItem(sortKey, vehicleSortBy);
+  }, [vehicleSortBy]);
 
   useEffect(() => {
     const tenantId = localStorage.getItem("tenantId") ?? "";
@@ -850,6 +873,31 @@ export default function FleetPage() {
     return [v.plate, v.model, v.brand, String(v.tag ?? "")].some((s) =>
       s.toLowerCase().includes(headerSearch.toLowerCase()),
     );
+  });
+
+  const sortedVehicles = [...filtered].sort((a, b) => {
+    switch (vehicleSortBy) {
+      case "plate-desc":
+        return vehicleCode(b).localeCompare(vehicleCode(a), "pt-BR", {
+          numeric: true,
+        });
+      case "km-desc":
+        return b.currentKm - a.currentKm;
+      case "maintenance-asc": {
+        const aTime = a.nextMaintenanceDate
+          ? new Date(a.nextMaintenanceDate).getTime()
+          : Number.POSITIVE_INFINITY;
+        const bTime = b.nextMaintenanceDate
+          ? new Date(b.nextMaintenanceDate).getTime()
+          : Number.POSITIVE_INFINITY;
+        return aTime - bTime;
+      }
+      case "plate-asc":
+      default:
+        return vehicleCode(a).localeCompare(vehicleCode(b), "pt-BR", {
+          numeric: true,
+        });
+    }
   });
 
   const filteredOil = oilRecords.filter((r) => {
@@ -1087,10 +1135,40 @@ export default function FleetPage() {
 
                 <ViewToggle mode={viewMode} onChange={setViewMode} />
 
+                <div className="flex items-center gap-2 bg-white border border-brand-border rounded-xl px-3 py-1.5">
+                  <label
+                    htmlFor="fleet-sort"
+                    className="text-xs font-medium text-brand-text-secondary"
+                  >
+                    Ordenar:
+                  </label>
+                  <select
+                    id="fleet-sort"
+                    value={vehicleSortBy}
+                    onChange={(e) =>
+                      setVehicleSortBy(
+                        e.target.value as
+                          | "plate-asc"
+                          | "plate-desc"
+                          | "km-desc"
+                          | "maintenance-asc",
+                      )
+                    }
+                    className="bg-transparent text-sm font-medium text-brand-text-primary outline-none"
+                  >
+                    <option value="plate-asc">Código/Placa (A-Z)</option>
+                    <option value="plate-desc">Código/Placa (Z-A)</option>
+                    <option value="km-desc">Maior KM</option>
+                    <option value="maintenance-asc">
+                      Manutenção mais próxima
+                    </option>
+                  </select>
+                </div>
+
                 {!loadingVehicles && (
                   <span className="text-sm text-brand-text-secondary">
                     <span className="font-semibold text-brand-text-primary">
-                      {filtered.length}
+                      {sortedVehicles.length}
                     </span>{" "}
                     veículos
                   </span>
@@ -1099,7 +1177,7 @@ export default function FleetPage() {
 
               {/* Maintenance alert */}
               {!loadingVehicles &&
-                filtered.some(
+                sortedVehicles.some(
                   (v) =>
                     v.nextMaintenanceDate &&
                     new Date(v.nextMaintenanceDate) <=
@@ -1144,7 +1222,7 @@ export default function FleetPage() {
                     ))}
                   </div>
                 )
-              ) : filtered.length === 0 ? (
+              ) : sortedVehicles.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -1161,7 +1239,7 @@ export default function FleetPage() {
               ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                   <AnimatePresence>
-                    {filtered.map((v, i) => (
+                    {sortedVehicles.map((v, i) => (
                       <motion.div
                         key={v.id}
                         initial={{ opacity: 0, y: 16 }}
@@ -1198,7 +1276,7 @@ export default function FleetPage() {
                     <span className="text-right">Rotas</span>
                   </div>
                   <AnimatePresence>
-                    {filtered.map((v, i) => {
+                    {sortedVehicles.map((v, i) => {
                       const fuelInfo = FUEL_LABELS[v.fuelType ?? ""];
                       const heavyMachine = isHeavyMachine(v);
                       return (

@@ -234,6 +234,29 @@ export default function DriversPage() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [sortBy, setSortBy] = useState<
+    "name-asc" | "name-desc" | "expiry-asc" | "routes-desc"
+  >("name-asc");
+
+  useEffect(() => {
+    const tenantId = localStorage.getItem("tenantId") ?? "";
+    const sortKey = tenantId ? `sort:drivers:${tenantId}` : "sort:drivers";
+    const savedSort = localStorage.getItem(sortKey);
+    if (
+      savedSort === "name-asc" ||
+      savedSort === "name-desc" ||
+      savedSort === "expiry-asc" ||
+      savedSort === "routes-desc"
+    ) {
+      setSortBy(savedSort);
+    }
+  }, []);
+
+  useEffect(() => {
+    const tenantId = localStorage.getItem("tenantId") ?? "";
+    const sortKey = tenantId ? `sort:drivers:${tenantId}` : "sort:drivers";
+    localStorage.setItem(sortKey, sortBy);
+  }, [sortBy]);
 
   useEffect(() => {
     const tenantId = localStorage.getItem("tenantId") ?? "";
@@ -309,6 +332,23 @@ export default function DriversPage() {
       s.toLowerCase().includes(headerSearch.toLowerCase()),
     ),
   );
+
+  const sortedFiltered = [...filtered].sort((a, b) => {
+    switch (sortBy) {
+      case "name-desc":
+        return b.name.localeCompare(a.name, "pt-BR");
+      case "expiry-asc":
+        return (
+          parseISO(a.licenseExpiry).getTime() -
+          parseISO(b.licenseExpiry).getTime()
+        );
+      case "routes-desc":
+        return b._count.routes - a._count.routes;
+      case "name-asc":
+      default:
+        return a.name.localeCompare(b.name, "pt-BR");
+    }
+  });
 
   const expiringDrivers = drivers.filter((d) => {
     const days = differenceInDays(parseISO(d.licenseExpiry), new Date());
@@ -445,6 +485,34 @@ export default function DriversPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white border border-brand-border rounded-xl px-3 py-1.5">
+              <label
+                htmlFor="drivers-sort"
+                className="text-xs font-medium text-brand-text-secondary"
+              >
+                Ordenar:
+              </label>
+              <select
+                id="drivers-sort"
+                value={sortBy}
+                onChange={(e) =>
+                  setSortBy(
+                    e.target.value as
+                      | "name-asc"
+                      | "name-desc"
+                      | "expiry-asc"
+                      | "routes-desc",
+                  )
+                }
+                className="bg-transparent text-sm font-medium text-brand-text-primary outline-none"
+              >
+                <option value="name-asc">Nome (A-Z)</option>
+                <option value="name-desc">Nome (Z-A)</option>
+                <option value="expiry-asc">CNH vencendo primeiro</option>
+                <option value="routes-desc">Mais rotas</option>
+              </select>
+            </div>
+
             <ViewToggle mode={viewMode} onChange={setViewMode} />
 
             {selected && (
@@ -524,7 +592,7 @@ export default function DriversPage() {
               ))}
             </div>
           )
-        ) : filtered.length === 0 ? (
+        ) : sortedFiltered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -541,7 +609,7 @@ export default function DriversPage() {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             <AnimatePresence>
-              {filtered.map((driver, i) => {
+              {sortedFiltered.map((driver, i) => {
                 const days = differenceInDays(
                   parseISO(driver.licenseExpiry),
                   new Date(),
@@ -648,7 +716,7 @@ export default function DriversPage() {
               <span className="text-right">Validade</span>
             </div>
             <AnimatePresence>
-              {filtered.map((driver, i) => {
+              {sortedFiltered.map((driver, i) => {
                 const days = differenceInDays(
                   parseISO(driver.licenseExpiry),
                   new Date(),
