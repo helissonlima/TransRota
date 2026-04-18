@@ -22,6 +22,9 @@ import { BillingModule } from "./billing/billing.module";
 import { CommissionsModule } from "./commissions/commissions.module";
 import { FinancialModule } from "./financial/financial.module";
 import { ProductsModule } from "./products/products.module";
+import { SuppliersModule } from "./suppliers/suppliers.module";
+import { PurchasesModule } from "./purchases/purchases.module";
+import { SellersModule } from "./sellers/sellers.module";
 
 @Module({
   imports: [
@@ -59,6 +62,9 @@ import { ProductsModule } from "./products/products.module";
     CommissionsModule,
     FinancialModule,
     ProductsModule,
+    SuppliersModule,
+    PurchasesModule,
+    SellersModule,
   ],
 })
 export class AppModule {

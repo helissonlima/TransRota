@@ -9,10 +9,18 @@ export class SalesService {
     return `PV-${String(count + 1).padStart(5, '0')}`;
   }
 
-  async list(prisma: TenantPrismaService, status?: string) {
+  async list(prisma: TenantPrismaService, status?: string, sellerId?: string, supplierId?: string) {
     return prisma.saleOrder.findMany({
-      where: { ...(status && { status: status as any }) },
-      include: { items: { include: { product: { select: { id: true, name: true, sku: true, unit: true } } } } },
+      where: {
+        ...(status && { status: status as any }),
+        ...(sellerId && { sellerId }),
+        ...(supplierId && { supplierId }),
+      },
+      include: {
+        items: { include: { product: { select: { id: true, name: true, sku: true, unit: true } } } },
+        seller: { select: { id: true, name: true } },
+        supplier: { select: { id: true, name: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -20,7 +28,11 @@ export class SalesService {
   async findOne(prisma: TenantPrismaService, id: string) {
     const order = await prisma.saleOrder.findUnique({
       where: { id },
-      include: { items: { include: { product: { select: { id: true, name: true, sku: true, unit: true } } } } },
+      include: {
+        items: { include: { product: { select: { id: true, name: true, sku: true, unit: true } } } },
+        seller: { select: { id: true, name: true } },
+        supplier: { select: { id: true, name: true } },
+      },
     });
     if (!order) throw new NotFoundException('Pedido de venda não encontrado');
     return order;
@@ -51,6 +63,14 @@ export class SalesService {
         clientDoc: dto.clientDoc,
         clientEmail: dto.clientEmail,
         clientPhone: dto.clientPhone,
+        clientAddress: dto.clientAddress,
+        sellerId: dto.sellerId,
+        supplierId: dto.supplierId,
+        isPriceLocked: dto.isPriceLocked ?? false,
+        isSafra: dto.isSafra ?? false,
+        safra: dto.safra,
+        invoiceNumber: dto.invoiceNumber,
+        paymentMethod: dto.paymentMethod,
         notes: dto.notes,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
         subtotal,
@@ -58,7 +78,11 @@ export class SalesService {
         total,
         items: { create: processedItems },
       },
-      include: { items: { include: { product: { select: { id: true, name: true, sku: true, unit: true } } } } },
+      include: {
+        items: { include: { product: { select: { id: true, name: true, sku: true, unit: true } } } },
+        seller: { select: { id: true, name: true } },
+        supplier: { select: { id: true, name: true } },
+      },
     });
   }
 
@@ -77,7 +101,6 @@ export class SalesService {
     if (order.status !== 'CONFIRMED') throw new BadRequestException('Apenas pedidos CONFIRMED podem ser entregues');
 
     await prisma.$transaction(async (tx) => {
-      // Baixa o estoque de cada item
       for (const item of order.items) {
         const stock = await tx.stockItem.findFirst({ where: { productId: item.productId } });
         if (!stock || stock.quantity.toNumber() < item.quantity.toNumber()) {
@@ -100,15 +123,53 @@ export class SalesService {
           },
         });
       }
-      await tx.saleOrder.update({ where: { id }, data: { status: 'DELIVERED', deliveredAt: new Date() } });
+      await tx.saleOrder.update({ where: { id }, data: { status: 'DELIVERED', deliveryStatus: 'DELIVERED', deliveredAt: new Date() } });
     });
 
     return this.findOne(prisma, id);
+  }
+
+  async updateDeliveryStatus(prisma: TenantPrismaService, id: string, deliveryStatus: string, notes?: string) {
+    const order = await this.findOne(prisma, id);
+    const data: any = { deliveryStatus: deliveryStatus as any };
+    if (notes) data.notes = notes;
+    if (deliveryStatus === 'DELIVERED') data.deliveredAt = new Date();
+    return prisma.saleOrder.update({ where: { id }, data });
   }
 
   async cancel(prisma: TenantPrismaService, id: string) {
     const order = await this.findOne(prisma, id);
     if (order.status === 'DELIVERED') throw new BadRequestException('Pedidos entregues não podem ser cancelados');
     return prisma.saleOrder.update({ where: { id }, data: { status: 'CANCELLED' } });
+  }
+
+  async dashboard(prisma: TenantPrismaService) {
+    const [total, pending, delivered, cancelled, revenue, byStatus, bySeller] = await Promise.all([
+      prisma.saleOrder.count(),
+      prisma.saleOrder.count({ where: { status: { in: ['DRAFT', 'CONFIRMED'] } } }),
+      prisma.saleOrder.count({ where: { status: 'DELIVERED' } }),
+      prisma.saleOrder.count({ where: { status: 'CANCELLED' } }),
+      prisma.saleOrder.aggregate({ _sum: { total: true }, where: { status: { not: 'CANCELLED' } } }),
+      prisma.saleOrder.groupBy({ by: ['deliveryStatus'], _count: true }),
+      prisma.saleOrder.groupBy({ by: ['sellerId'], _count: true, _sum: { total: true }, where: { status: { not: 'CANCELLED' } } }),
+    ]);
+    return {
+      total, pending, delivered, cancelled,
+      totalRevenue: revenue._sum.total ?? 0,
+      byDeliveryStatus: byStatus,
+      bySeller,
+    };
+  }
+
+  async listBySeller(prisma: TenantPrismaService, sellerId: string) {
+    return prisma.saleOrder.findMany({
+      where: { sellerId },
+      include: {
+        items: { include: { product: { select: { id: true, name: true, sku: true, unit: true } } } },
+        seller: { select: { id: true, name: true } },
+        supplier: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 }

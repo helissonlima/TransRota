@@ -9,8 +9,8 @@ import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Package, Plus, Search, AlertTriangle, ArrowUpCircle, ArrowDownCircle,
-  BarChart2, Layers, ClipboardList, ShoppingCart, X, CheckCircle2,
-  Truck, ChevronRight, RefreshCw, Wrench,
+  BarChart2, Layers, ClipboardList, X, CheckCircle2,
+  Truck, ChevronRight, RefreshCw, Wrench, Warehouse, FileBarChart,
 } from 'lucide-react';
 import api from '@/lib/api';
 import { cn } from '@/lib/cn';
@@ -33,16 +33,17 @@ interface Product {
 interface StockItem { id: string; quantity: number; product: Product; location?: { name: string } }
 interface StockMovement { id: string; type: string; quantity: number; product: Product; createdAt: string; reason?: string }
 interface ProductionOrder { id: string; number: string; product: Product; quantity: number; status: string; createdAt: string; items: any[] }
-interface SaleOrder { id: string; number: string; clientName: string; total: number; status: string; createdAt: string; items: any[] }
+interface Supplier { id: string; name: string; color?: string }
 
-type Tab = 'catalog' | 'stock' | 'bom' | 'production' | 'sales' | 'movements';
+type Tab = 'catalog' | 'stock' | 'warehouse' | 'report' | 'bom' | 'production' | 'movements';
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: 'catalog',    label: 'Catálogo',      icon: Package },
-  { id: 'stock',      label: 'Estoque',        icon: Layers },
-  { id: 'bom',        label: 'Ficha Técnica',  icon: Wrench },
+  { id: 'catalog',    label: 'Catálogo',        icon: Package },
+  { id: 'stock',      label: 'Estoque',         icon: Layers },
+  { id: 'warehouse',  label: 'Armazém',         icon: Warehouse },
+  { id: 'report',     label: 'Relatório',       icon: FileBarChart },
+  { id: 'bom',        label: 'Ficha Técnica',   icon: Wrench },
   { id: 'production', label: 'Produção',        icon: RefreshCw },
-  { id: 'sales',      label: 'Vendas',          icon: ShoppingCart },
   { id: 'movements',  label: 'Movimentações',   icon: BarChart2 },
 ];
 
@@ -110,14 +111,6 @@ const prodOrderSchema = z.object({
 });
 type ProdOrderForm = z.infer<typeof prodOrderSchema>;
 
-const saleSchema = z.object({
-  clientName: z.string().min(1, 'Nome do cliente obrigatório'),
-  clientDoc: z.string().optional(),
-  clientEmail: z.string().email().optional().or(z.literal('')),
-  clientPhone: z.string().optional(),
-  notes: z.string().optional(),
-});
-type SaleForm = z.infer<typeof saleSchema>;
 
 // ───────────────────────────────────────────────────────────────
 // Page
@@ -128,7 +121,6 @@ export default function ProductsPage() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [showMovModal, setShowMovModal] = useState(false);
   const [showProdModal, setShowProdModal] = useState(false);
-  const [showSaleModal, setShowSaleModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [bomProductId, setBomProductId] = useState<string>('');
   const qc = useQueryClient();
@@ -140,11 +132,16 @@ export default function ProductsPage() {
   const { data: stock = [] } = useQuery<StockItem[]>({
     queryKey: ['inventory-stock'],
     queryFn: () => api.get('/inventory/stock').then(r => r.data),
-    enabled: tab === 'stock',
+    enabled: tab === 'stock' || tab === 'warehouse' || tab === 'report',
   });
   const { data: alerts = [] } = useQuery<StockItem[]>({
     queryKey: ['stock-alerts'],
     queryFn: () => api.get('/inventory/stock/alerts').then(r => r.data),
+  });
+  const { data: suppliers = [] } = useQuery<Supplier[]>({
+    queryKey: ['suppliers'],
+    queryFn: () => api.get('/suppliers').then(r => r.data),
+    enabled: tab === 'warehouse' || tab === 'report',
   });
   const { data: movements = [] } = useQuery<StockMovement[]>({
     queryKey: ['inventory-movements'],
@@ -155,11 +152,6 @@ export default function ProductsPage() {
     queryKey: ['production-orders'],
     queryFn: () => api.get('/production-orders').then(r => r.data),
     enabled: tab === 'production',
-  });
-  const { data: saleOrders = [] } = useQuery<SaleOrder[]>({
-    queryKey: ['sale-orders'],
-    queryFn: () => api.get('/sale-orders').then(r => r.data),
-    enabled: tab === 'sales',
   });
   const { data: bom, isLoading: bomLoading } = useQuery({
     queryKey: ['bom', bomProductId],
@@ -192,30 +184,16 @@ export default function ProductsPage() {
     onError: (e: any) => toast.error(e.response?.data?.message ?? 'Erro'),
   });
 
-  const createSale = useMutation({
-    mutationFn: (data: SaleForm & { items: { productId: string; quantity: number; unitPrice: number }[] }) => api.post('/sale-orders', data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['sale-orders'] }); setShowSaleModal(false); toast.success('Pedido de venda criado'); },
-    onError: (e: any) => toast.error(e.response?.data?.message ?? 'Erro'),
-  });
-
   const advanceOrder = useMutation({
     mutationFn: ({ id, action }: { id: string; action: string }) => api.patch(`/production-orders/${id}/${action}`),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['production-orders'] }); toast.success('Ordem atualizada'); },
     onError: (e: any) => toast.error(e.response?.data?.message ?? 'Erro ao avançar ordem'),
   });
 
-  const advanceSale = useMutation({
-    mutationFn: ({ id, action }: { id: string; action: string }) => api.patch(`/sale-orders/${id}/${action}`),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['sale-orders'] }); toast.success('Pedido atualizado'); },
-    onError: (e: any) => toast.error(e.response?.data?.message ?? 'Erro'),
-  });
-
   // ──── Forms ────
   const productForm = useForm<ProductForm>({ resolver: zodResolver(productSchema), defaultValues: { type: 'FINISHED_GOOD', unit: 'UN' } });
   const movForm = useForm<MovementForm>({ resolver: zodResolver(movementSchema), defaultValues: { type: 'ENTRY' } });
   const prodForm = useForm<ProdOrderForm>({ resolver: zodResolver(prodOrderSchema) });
-  const saleForm = useForm<SaleForm>({ resolver: zodResolver(saleSchema) });
-  const [saleItems, setSaleItems] = useState<{ productId: string; quantity: number; unitPrice: number }[]>([]);
 
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -276,11 +254,6 @@ export default function ProductsPage() {
                 <Plus className="w-4 h-4" /> Nova Ordem
               </button>
             )}
-            {tab === 'sales' && (
-              <button onClick={() => setShowSaleModal(true)} className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white transition-colors">
-                <Plus className="w-4 h-4" /> Novo Pedido
-              </button>
-            )}
           </div>
         </div>
 
@@ -337,6 +310,28 @@ export default function ProductsPage() {
         {/* ── STOCK ── */}
         {tab === 'stock' && (
           <div>
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white border border-brand-border rounded-2xl p-4 shadow-card">
+                <p className="text-xs text-brand-text-secondary uppercase tracking-wide mb-1">Total de Itens</p>
+                <p className="text-2xl font-bold text-brand-text-primary">{stock.length}</p>
+              </div>
+              <div className="bg-white border border-brand-border rounded-2xl p-4 shadow-card">
+                <p className="text-xs text-brand-text-secondary uppercase tracking-wide mb-1">Valor Total</p>
+                <p className="text-2xl font-bold text-emerald-600">
+                  {stock.reduce((sum, s) => sum + (Number(s.quantity) * Number(s.product.costPrice)), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </p>
+              </div>
+              <div className="bg-white border border-brand-border rounded-2xl p-4 shadow-card">
+                <p className="text-xs text-brand-text-secondary uppercase tracking-wide mb-1">Alertas Baixo Estoque</p>
+                <p className="text-2xl font-bold text-amber-600">{alerts.length}</p>
+              </div>
+              <div className="bg-white border border-brand-border rounded-2xl p-4 shadow-card">
+                <p className="text-xs text-brand-text-secondary uppercase tracking-wide mb-1">Localizações</p>
+                <p className="text-2xl font-bold text-blue-600">{new Set(stock.map(s => s.location?.name ?? 'Principal')).size}</p>
+              </div>
+            </div>
+
             {alerts.length > 0 && (
               <div className="mb-5 p-4 rounded-2xl bg-amber-50 border border-amber-200">
                 <p className="text-sm font-semibold text-amber-700 mb-2 flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Estoque Baixo</p>
@@ -387,6 +382,117 @@ export default function ProductsPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* ── WAREHOUSE ── */}
+        {tab === 'warehouse' && (
+          <div>
+            {suppliers.length === 0 ? (
+              <div className="text-center py-16 text-brand-text-secondary">
+                <Warehouse className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>Nenhum fornecedor cadastrado</p>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {suppliers.map(supplier => {
+                  const supplierStock = stock.filter(s => s.product.category?.id === supplier.id);
+                  return (
+                    <div key={supplier.id} className="rounded-2xl border border-brand-border overflow-hidden shadow-card">
+                      <div className={cn('px-5 py-3 border-b border-brand-border font-semibold text-sm', supplier.color ? `text-white ${supplier.color}` : 'bg-slate-100 text-brand-text-primary')}>
+                        {supplier.name}
+                      </div>
+                      {supplierStock.length === 0 ? (
+                        <div className="p-6 text-center text-brand-text-secondary text-sm">Nenhum produto deste fornecedor</div>
+                      ) : (
+                        <table className="w-full text-sm">
+                          <thead className="bg-slate-50 text-brand-text-secondary text-xs uppercase tracking-wide">
+                            <tr>
+                              {['Fórmula', 'Quantidade', 'Safra', 'Preço'].map(h => (
+                                <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {supplierStock.map(s => (
+                              <tr key={s.id} className="hover:bg-slate-50 transition-colors">
+                                <td className="px-5 py-3.5 font-medium">{s.product.name}</td>
+                                <td className="px-5 py-3.5">{Number(s.quantity).toLocaleString('pt-BR', { maximumFractionDigits: 3 })} {s.product.unit}</td>
+                                <td className="px-5 py-3.5"><span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-brand-text-secondary">Atual</span></td>
+                                <td className="px-5 py-3.5 font-semibold text-emerald-600">{Number(s.product.costPrice).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── REPORT ── */}
+        {tab === 'report' && (
+          <div>
+            {suppliers.length === 0 ? (
+              <div className="text-center py-16 text-brand-text-secondary">
+                <FileBarChart className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>Nenhum fornecedor cadastrado</p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-brand-border shadow-card overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 text-brand-text-secondary text-xs uppercase tracking-wide">
+                    <tr>
+                      {['Fornecedor', 'Fórmula', 'Normal', 'Preço', 'Trava', 'Total'].map(h => (
+                        <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {suppliers.flatMap(supplier => {
+                      const supplierStock = stock.filter(s => s.product.category?.id === supplier.id);
+                      if (supplierStock.length === 0) return [];
+
+                      return [
+                        ...supplierStock.map(s => (
+                          <tr key={s.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-5 py-3.5 text-brand-text-secondary text-xs">{supplier.name}</td>
+                            <td className="px-5 py-3.5 font-medium">{s.product.name}</td>
+                            <td className="px-5 py-3.5">{Number(s.quantity).toLocaleString('pt-BR', { maximumFractionDigits: 3 })}</td>
+                            <td className="px-5 py-3.5 font-semibold">{Number(s.product.costPrice).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                            <td className="px-5 py-3.5 text-brand-text-secondary">0</td>
+                            <td className="px-5 py-3.5 font-semibold text-emerald-600">
+                              {(Number(s.quantity) * Number(s.product.costPrice)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            </td>
+                          </tr>
+                        )),
+                        <tr key={`total-${supplier.id}`} className="bg-slate-50 border-t-2 border-slate-200 font-semibold">
+                          <td colSpan={2} className="px-5 py-3.5 text-brand-text-primary">Subtotal {supplier.name}</td>
+                          <td className="px-5 py-3.5 text-brand-text-primary">{supplierStock.reduce((sum, s) => sum + Number(s.quantity), 0).toLocaleString('pt-BR', { maximumFractionDigits: 3 })}</td>
+                          <td></td>
+                          <td></td>
+                          <td className="px-5 py-3.5 text-emerald-600">
+                            {supplierStock.reduce((sum, s) => sum + (Number(s.quantity) * Number(s.product.costPrice)), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          </td>
+                        </tr>,
+                      ];
+                    })}
+                    <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
+                      <td colSpan={2} className="px-5 py-3.5 text-brand-text-primary">TOTAL GERAL</td>
+                      <td className="px-5 py-3.5 text-brand-text-primary">{stock.reduce((sum, s) => sum + Number(s.quantity), 0).toLocaleString('pt-BR', { maximumFractionDigits: 3 })}</td>
+                      <td></td>
+                      <td></td>
+                      <td className="px-5 py-3.5 text-emerald-600">
+                        {stock.reduce((sum, s) => sum + (Number(s.quantity) * Number(s.product.costPrice)), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
@@ -479,48 +585,6 @@ export default function ProductsPage() {
                 ))}
                 {productionOrders.length === 0 && (
                   <tr><td colSpan={6} className="text-center py-16 text-brand-text-secondary">Nenhuma ordem de produção</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* ── SALES ── */}
-        {tab === 'sales' && (
-          <div className="rounded-2xl border border-brand-border shadow-card overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-brand-text-secondary text-xs uppercase tracking-wide">
-                <tr>
-                  {['Nº Pedido', 'Cliente', 'Total', 'Status', 'Data', 'Ações'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {saleOrders.map(o => (
-                  <tr key={o.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-5 py-3.5 font-mono text-xs text-brand-text-secondary">{o.number}</td>
-                    <td className="px-5 py-3.5 font-medium">{o.clientName}</td>
-                    <td className="px-5 py-3.5">{Number(o.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                    <td className="px-5 py-3.5"><span className={cn('text-xs px-2.5 py-1 rounded-full font-medium', STATUS_COLOR[o.status])}>{STATUS_LABEL[o.status]}</span></td>
-                    <td className="px-5 py-3.5 text-brand-text-secondary">{new Date(o.createdAt).toLocaleDateString('pt-BR')}</td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        {o.status === 'DRAFT' && (
-                          <button onClick={() => advanceSale.mutate({ id: o.id, action: 'confirm' })} className="text-xs px-2.5 py-1 rounded-lg text-blue-400 hover:bg-blue-900/20">Confirmar</button>
-                        )}
-                        {o.status === 'CONFIRMED' && (
-                          <button onClick={() => advanceSale.mutate({ id: o.id, action: 'deliver' })} className="text-xs px-2.5 py-1 rounded-lg text-emerald-400 hover:bg-emerald-900/20">Entregar</button>
-                        )}
-                        {(o.status === 'DRAFT' || o.status === 'CONFIRMED') && (
-                          <button onClick={() => advanceSale.mutate({ id: o.id, action: 'cancel' })} className="text-xs px-2.5 py-1 rounded-lg text-red-400 hover:bg-red-900/20">Cancelar</button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {saleOrders.length === 0 && (
-                  <tr><td colSpan={6} className="text-center py-16 text-brand-text-secondary">Nenhum pedido de venda</td></tr>
                 )}
               </tbody>
             </table>
@@ -685,58 +749,6 @@ export default function ProductsPage() {
         )}
       </AnimatePresence>
 
-      {/* Sale Order Modal */}
-      <AnimatePresence>
-        {showSaleModal && (
-          <Modal title="Novo Pedido de Venda" onClose={() => setShowSaleModal(false)}>
-            <form onSubmit={saleForm.handleSubmit(d => createSale.mutate({ ...d, items: saleItems }))} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Nome do cliente" error={saleForm.formState.errors.clientName?.message}>
-                  <input {...saleForm.register('clientName')} placeholder="Nome ou razão social" className={inputCls} />
-                </Field>
-                <Field label="CPF/CNPJ">
-                  <input {...saleForm.register('clientDoc')} placeholder="Opcional" className={inputCls} />
-                </Field>
-                <Field label="E-mail">
-                  <input {...saleForm.register('clientEmail')} type="email" placeholder="Opcional" className={inputCls} />
-                </Field>
-                <Field label="Telefone">
-                  <input {...saleForm.register('clientPhone')} placeholder="Opcional" className={inputCls} />
-                </Field>
-              </div>
-
-              <div>
-                <p className="text-xs text-brand-text-secondary mb-2 font-medium uppercase tracking-wide">Itens do pedido</p>
-                {saleItems.map((item, idx) => {
-                  const p = products.find(x => x.id === item.productId);
-                  return (
-                    <div key={idx} className="flex items-center gap-2 mb-2 text-sm">
-                      <span className="flex-1 text-brand-text-primary">{p?.name ?? item.productId}</span>
-                      <span className="text-brand-text-secondary">{item.quantity} × {item.unitPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                      <button type="button" onClick={() => setSaleItems(s => s.filter((_, i) => i !== idx))} className="text-red-500 hover:text-red-700"><X className="w-3.5 h-3.5" /></button>
-                    </div>
-                  );
-                })}
-                <button type="button"
-                  onClick={() => {
-                    const p = products[0];
-                    if (p) setSaleItems(s => [...s, { productId: p.id, quantity: 1, unitPrice: Number(p.salePrice) }]);
-                  }}
-                  className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 mt-1">
-                  <Plus className="w-3.5 h-3.5" /> Adicionar item
-                </button>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => { setShowSaleModal(false); setSaleItems([]); }} className="px-4 py-2 text-sm text-brand-text-secondary">Cancelar</button>
-                <button type="submit" disabled={createSale.isPending || saleItems.length === 0} className="px-5 py-2 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-xl disabled:opacity-50">
-                  {createSale.isPending ? 'Criando...' : 'Criar Pedido'}
-                </button>
-              </div>
-            </form>
-          </Modal>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

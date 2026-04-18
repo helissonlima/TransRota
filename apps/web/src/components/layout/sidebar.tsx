@@ -22,12 +22,16 @@ import {
   Wallet,
   UserPen,
   ChevronUp,
+  Package,
+  ShoppingCart,
+  ShoppingBag,
+  Factory,
+  UserCheck,
 } from "lucide-react";
 import { logout } from "@/lib/auth";
 import { cn } from "@/lib/cn";
 import { useFeatures } from "@/lib/features-context";
 import { useBrandSettings } from "@/lib/branding";
-import { Package } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -86,6 +90,29 @@ const navGroups: { label?: string; items: NavItem[] }[] = [
         href: "/fiscal",
         icon: Receipt,
         feature: "fiscal",
+      },
+    ],
+  },
+  {
+    label: "Comercial",
+    items: [
+      {
+        label: "Vendas",
+        href: "/sales",
+        icon: ShoppingCart,
+        feature: "products",
+      },
+      {
+        label: "Compras",
+        href: "/purchases",
+        icon: ShoppingBag,
+        feature: "products",
+      },
+      {
+        label: "Fornecedores",
+        href: "/suppliers",
+        icon: Factory,
+        feature: "products",
       },
     ],
   },

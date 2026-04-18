@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/tenant"
+  output   = "../generated/tenant"
 }
 
 datasource db {
@@ -26,11 +26,13 @@ model Branch {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users      User[]
-  vehicles   Vehicle[]
-  drivers    Driver[]
-  routes     Route[]
-  checklists Checklist[]
+  users           User[]
+  vehicles        Vehicle[]
+  drivers         Driver[]
+  routes          Route[]
+  checklists      Checklist[]
+  equipments      Equipment[]
+  vehicleBookings VehicleBooking[]
 }
 
 // ─── Usuários & Roles ─────────────────────────────────────────────────────────
@@ -49,8 +51,11 @@ model User {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  driver    Driver?
-  auditLogs TenantAuditLog[]
+  driver               Driver?
+  auditLogs            TenantAuditLog[]
+  vehicleBookings      VehicleBooking[]
+  checklistInspections ChecklistExecution[] @relation("InspectorRelation")
+  checklistResolutions ChecklistExecution[] @relation("ResolverRelation")
 }
 
 enum UserRole {
@@ -69,22 +74,52 @@ model Vehicle {
   model               String
   brand               String
   year                Int
+  manufacturingYear   Int? // Ano de fabricação (separado do ano modelo)
   type                VehicleType
   fuelType            FuelType
   status              VehicleStatus @default(ACTIVE)
   currentKm           Float         @default(0)
   nextMaintenanceKm   Float?
   nextMaintenanceDate DateTime?
-  branchId            String
-  branch              Branch        @relation(fields: [branchId], references: [id])
-  isActive            Boolean       @default(true)
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+
+  // Identificação e documentação (dados do CRLV/DETRAN)
+  tag               Int? // Número TAG interno da frota
+  renavam           String? // Código RENAVAM
+  crvNumber         String? // Número do CRV
+  chassisNumber     String? // Número do chassi
+  securityCode      String? // Código de segurança CLA
+  engineCode        String? // Código do motor
+  documentExpiry    DateTime? // Vigência do CRLV
+  responsiblePerson String? // Responsável designado pelo veículo
+
+  // Especificações técnicas
+  tankCapacity Float? // Capacidade do tanque em litros
+  horsepower   String? // Potência/cilindrada (ex: "75 CV / 999")
+  grossWeight  String? // Peso bruto total (ex: "1.47 t")
+  axles        String? // Eixos (ex: "2" ou "6x2")
+  cmt          String? // Capacidade máxima de tração
+  seats        String? // Lotação (ex: "05P")
+  category     String? // Categoria (PARTICULAR, COMERCIAL, etc.)
+
+  // Controle de óleo
+  oilChangeIntervalKm Float? // Intervalo de troca de óleo em km (padrão 10000)
+
+  branchId  String
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   maintenanceRecords  MaintenanceRecord[]
   fuelRecords         FuelRecord[]
   routes              Route[]
   checklistExecutions ChecklistExecution[]
+  oilChangeRecords    OilChangeRecord[]
+  vehicleTaxes        VehicleTax[]
+  vehicleBookings     VehicleBooking[]
+  dailyKmLogs         DailyKmLog[]
+  vehicleMovements    VehicleMovement[]
+  financialEntries    FinancialEntry[]
 }
 
 enum VehicleType {
@@ -113,19 +148,23 @@ enum FuelType {
 // ─── Manutenção ───────────────────────────────────────────────────────────────
 
 model MaintenanceRecord {
-  id          String    @id @default(uuid())
-  vehicleId   String
-  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
-  type        String // preventiva, corretiva, revisão
-  description String
-  cost        Decimal   @db.Decimal(10, 2)
-  km          Float
-  performedAt DateTime
-  nextDueKm   Float?
-  nextDueDate DateTime?
-  provider    String
-  notes       String?
-  createdAt   DateTime  @default(now())
+  id            String    @id @default(uuid())
+  vehicleId     String
+  vehicle       Vehicle   @relation(fields: [vehicleId], references: [id])
+  type          String // preventiva, corretiva, revisão
+  description   String
+  cost          Decimal   @db.Decimal(10, 2) // total (mantido por compatibilidade)
+  partsCost     Decimal?  @db.Decimal(10, 2) // custo somente das peças
+  laborCost     Decimal?  @db.Decimal(10, 2) // custo somente da mão de obra
+  km            Float
+  performedAt   DateTime
+  nextDueKm     Float?
+  nextDueDate   DateTime?
+  provider      String // local/oficina
+  workshopName  String? // nome específico da oficina/mecânica
+  invoiceNumber String? // número da nota fiscal
+  notes         String?
+  createdAt     DateTime  @default(now())
 }
 
 // ─── Abastecimento ────────────────────────────────────────────────────────────
@@ -143,8 +182,34 @@ model FuelRecord {
   fuelType      FuelType
   isFullTank    Boolean  @default(true)
   station       String?
+  invoiceNumber String? // número da nota fiscal
   performedAt   DateTime
   createdAt     DateTime @default(now())
+}
+
+// ─── Troca de Óleo (módulo dedicado) ─────────────────────────────────────────
+
+model OilChangeRecord {
+  id              String          @id @default(uuid())
+  vehicleId       String
+  vehicle         Vehicle         @relation(fields: [vehicleId], references: [id])
+  changeDate      DateTime? // data da última troca
+  changeKm        Float? // km quando foi feita a troca
+  currentKm       Float? // km atual no momento do registro
+  nextChangeKm    Float? // km prevista para próxima troca
+  status          OilChangeStatus @default(UP_TO_DATE)
+  kmDriven        Float? // km percorridos desde a última troca
+  oilType         String? // tipo de óleo utilizado (ex: 0W20)
+  responsibleName String? // nome do responsável pela troca
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+enum OilChangeStatus {
+  UP_TO_DATE // EM DIA
+  OVERDUE // ATRASADO
+  DUE_SOON // PRÓXIMO
 }
 
 // ─── Motoristas ───────────────────────────────────────────────────────────────
@@ -159,17 +224,37 @@ model Driver {
   licenseNumber   String          @unique
   licenseCategory LicenseCategory
   licenseExpiry   DateTime
-  status          DriverStatus    @default(ACTIVE)
-  branchId        String
-  branch          Branch          @relation(fields: [branchId], references: [id])
-  isActive        Boolean         @default(true)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+
+  // Dados pessoais adicionais
+  birthDate      DateTime? // Data de nascimento
+  rg             String? // Número do RG / Documento de identidade
+  rgIssuingOrg   String? // Órgão emissor do RG (ex: SSP, PCE)
+  rgIssuingState String?   @db.Char(2) // UF do órgão emissor
+  nationality    String? // Nacionalidade
+  filiation      String? // Filiação (nomes dos pais)
+
+  // Dados da CNH
+  licenseFirstDate          DateTime? // Data da 1ª habilitação
+  licenseIssueDate          DateTime? // Data de emissão da CNH atual
+  licenseIssuingOrg         String? // Órgão emissor da CNH
+  licenseIssuingState       String?   @db.Char(2) // Estado de emissão da CNH
+  licenseRegistrationNumber String? // Número de registro da CNH
+
+  status    DriverStatus @default(ACTIVE)
+  branchId  String
+  branch    Branch       @relation(fields: [branchId], references: [id])
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   documents           DriverDocument[]
   fuelRecords         FuelRecord[]
   routes              Route[]
   checklistExecutions ChecklistExecution[]
+  dailyKmLogs         DailyKmLog[]
+  vehicleMovements    VehicleMovement[]
+  financialEntries    FinancialEntry[]
+  commissions         DriverCommission[]
 }
 
 enum LicenseCategory {
@@ -199,6 +284,141 @@ model DriverDocument {
   description String
   fileUrl     String
   expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+// ─── Log de KM Diário ─────────────────────────────────────────────────────────
+
+model DailyKmLog {
+  id                String        @id @default(uuid())
+  vehicleId         String
+  vehicle           Vehicle       @relation(fields: [vehicleId], references: [id])
+  driverId          String
+  driver            Driver        @relation(fields: [driverId], references: [id])
+  date              DateTime
+  dayOfWeek         String? // Segunda-feira, Terça-feira, etc.
+  initialKm         Float
+  finalKm           Float
+  personalInitialKm Float? // KM inicial uso pessoal
+  personalFinalKm   Float? // KM final uso pessoal
+  personalKm        Float         @default(0) // Total KM pessoal (calculado)
+  workKm            Float         @default(0) // Total KM trabalho (calculado)
+  totalKm           Float         @default(0) // Total KM do dia (calculado)
+  status            DailyKmStatus @default(OK)
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+enum DailyKmStatus {
+  OK
+  NOK
+}
+
+// ─── Controle de Movimentação/Condução ────────────────────────────────────────
+
+model VehicleMovement {
+  id              String   @id @default(uuid())
+  vehicleId       String
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [id])
+  driverId        String
+  driver          Driver   @relation(fields: [driverId], references: [id])
+  timestamp       DateTime @default(now())
+  km              Float?
+  movementType    String? // Entrega, Visita, Transporte, Inspeção, etc.
+  destinationUnit String? // Unidade/filial destino
+  notes           String?
+  createdAt       DateTime @default(now())
+}
+
+// ─── Agendamento de Veículos ──────────────────────────────────────────────────
+
+model VehicleBooking {
+  id          String        @id @default(uuid())
+  vehicleId   String
+  vehicle     Vehicle       @relation(fields: [vehicleId], references: [id])
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  branchId    String?
+  branch      Branch?       @relation(fields: [branchId], references: [id])
+  date        DateTime
+  timeSlot    String // MANHÃ, TARDE, DIA TODO, ou horário específico
+  purpose     String? // Finalidade do agendamento
+  status      BookingStatus @default(PENDING)
+  confirmedBy String? // ID do usuário que confirmou
+  confirmedAt DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// ─── Obrigações Fiscais / Financeiro Veicular ─────────────────────────────────
+
+model VehicleTax {
+  id            String        @id @default(uuid())
+  vehicleId     String
+  vehicle       Vehicle       @relation(fields: [vehicleId], references: [id])
+  type          TaxType
+  year          Int? // Ano de referência
+  dueDate       DateTime? // Data de vencimento
+  value         Decimal?      @db.Decimal(10, 2)
+  paymentStatus PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+  paidValue     Decimal?      @db.Decimal(10, 2)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum TaxType {
+  IPVA
+  LICENSING // Licenciamento/CRLV
+  INSURANCE // Seguro
+  FINE // Multa
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  EXEMPT
+}
+
+// ─── Equipamentos (Drone, Gerador, etc.) ──────────────────────────────────────
+
+model Equipment {
+  id         String   @id @default(uuid())
+  tag        Int? // TAG numérico de identificação
+  name       String
+  type       String // DRONE, GERADOR, OUTRO
+  identifier String? // Placa ou ID específico do equipamento
+  isActive   Boolean  @default(true)
+  branchId   String?
+  branch     Branch?  @relation(fields: [branchId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  usageLogs EquipmentUsageLog[]
+}
+
+model EquipmentUsageLog {
+  id          String    @id @default(uuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  date        DateTime
+  initialKm   Float? // KM/Hr saída (ou leitura de horímetro)
+  finalKm     Float? // KM/Hr chegada
+  totalKm     Float? // Total percorrido/utilizado
+  totalCost   Decimal?  @db.Decimal(10, 2)
+  notes       String?
   createdAt   DateTime  @default(now())
 }
 
@@ -310,7 +530,7 @@ model DeliveryProof {
   createdAt        DateTime  @default(now())
 }
 
-// ─── Checklists ───────────────────────────────────────────────────────────────
+// ─── Checklists / Inspeções ───────────────────────────────────────────────────
 
 model Checklist {
   id        String        @id @default(uuid())
@@ -358,7 +578,28 @@ model ChecklistExecution {
   executedAt  DateTime  @default(now())
   hasIssues   Boolean   @default(false)
 
+  // Campos adicionados (PCM)
+  inspectorId    String? // Inspetor (pode ser diferente do condutor)
+  inspector      User?    @relation("InspectorRelation", fields: [inspectorId], references: [id])
+  fuelLevel      String? // Nível do tanque (ex: "2/4 DE TANQUE")
+  externalDamage String? // Descrição de avarias externas
+  internalDamage String? // Descrição de avarias internas
+  unitLocation   String? // Unidade/local da inspeção
+  attachments    String[] // URLs de fotos/anexos
+
+  // Status de resolução de pendências
+  resolutionStatus InspectionStatus @default(PENDING)
+  resolvedById     String?
+  resolvedBy       User?            @relation("ResolverRelation", fields: [resolvedById], references: [id])
+  resolvedAt       DateTime?
+
   responses ChecklistResponse[]
+}
+
+enum InspectionStatus {
+  PENDING // PENDENTE
+  RESOLVED // REALIZADO/RESOLVIDO
+  APPROVED // APROVADO
 }
 
 model ChecklistResponse {
@@ -393,4 +634,467 @@ model TenantAuditLog {
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
+}
+
+// ─── Módulo Financeiro ────────────────────────────────────────────────────────
+
+model CostCenter {
+  id          String   @id @default(uuid())
+  name        String
+  code        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  entries FinancialEntry[]
+}
+
+model FinancialEntry {
+  id             String            @id @default(uuid())
+  type           FinancialType
+  category       FinancialCategory
+  description    String
+  amount         Decimal           @db.Decimal(12, 2)
+  dueDate        DateTime
+  paymentDate    DateTime?
+  status         FinancialStatus   @default(PENDING)
+  paymentMethod  PaymentMethod?
+  documentNumber String?
+  costCenterId   String?
+  costCenter     CostCenter?       @relation(fields: [costCenterId], references: [id])
+  vehicleId      String?
+  vehicle        Vehicle?          @relation(fields: [vehicleId], references: [id])
+  driverId       String?
+  driver         Driver?           @relation(fields: [driverId], references: [id])
+  recurrence     Recurrence?
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+enum FinancialType {
+  PAYABLE
+  RECEIVABLE
+}
+
+enum FinancialCategory {
+  // PAYABLE
+  FUEL
+  MAINTENANCE
+  INSURANCE
+  TAX
+  TOLL
+  SALARY
+  COMMISSION
+  SUPPLIER
+  RENT
+  UTILITIES
+  // RECEIVABLE
+  SERVICE
+  CONTRACT
+  BONUS
+  REIMBURSEMENT
+  // BOTH
+  OTHER
+}
+
+enum FinancialStatus {
+  PENDING
+  PAID
+  RECEIVED
+  OVERDUE
+  CANCELLED
+  PARTIAL
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  PIX
+  CREDIT_CARD
+  DEBIT_CARD
+  BOLETO
+  CHECK
+}
+
+enum Recurrence {
+  NONE
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+model DriverCommission {
+  id         String           @id @default(uuid())
+  driverId   String
+  driver     Driver           @relation(fields: [driverId], references: [id])
+  period     String // formato: YYYY-MM
+  routeCount Int              @default(0)
+  baseAmount Decimal          @db.Decimal(12, 2)
+  percentage Decimal          @db.Decimal(5, 2)
+  amount     Decimal          @db.Decimal(12, 2)
+  bonus      Decimal?         @db.Decimal(12, 2)
+  deductions Decimal?         @db.Decimal(12, 2) // Descontos (faltas, etc.)
+  netAmount  Decimal          @db.Decimal(12, 2)
+  status     CommissionStatus @default(PENDING)
+  paidAt     DateTime?
+  notes      String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([driverId, period])
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// ============================================================
+// PRODUTOS, ESTOQUE E PRODUÇÃO
+// ============================================================
+
+enum ProductType {
+  RAW_MATERIAL // Matéria-prima
+  SEMI_FINISHED // Produto semiacabado
+  FINISHED_GOOD // Produto acabado
+  SERVICE // Serviço (não tem estoque físico)
+}
+
+enum UnitOfMeasure {
+  UN // Unidade
+  KG // Quilograma
+  G // Grama
+  L // Litro
+  ML // Mililitro
+  M // Metro
+  CM // Centímetro
+  M2 // Metro quadrado
+  M3 // Metro cúbico
+  CX // Caixa
+  PC // Peça
+  PR // Par
+  FD // Fardo
+  SC // Saco
+}
+
+enum StockMovementType {
+  ENTRY // Entrada manual / compra
+  EXIT // Saída manual / consumo
+  ADJUSTMENT // Ajuste de inventário
+  PRODUCTION_IN // Entrada de produção (produto acabado)
+  PRODUCTION_OUT // Saída de produção (matéria-prima consumida)
+  SALE_OUT // Saída por venda
+  TRANSFER_IN // Transferência entrando
+  TRANSFER_OUT // Transferência saindo
+  LOSS // Perda / avaria
+}
+
+enum ProductionOrderStatus {
+  DRAFT
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum SaleOrderStatus {
+  DRAFT
+  CONFIRMED
+  PARTIALLY_DELIVERED
+  DELIVERED
+  CANCELLED
+  INVOICED
+}
+
+model ProductCategory {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  color       String?   @default("#6366f1")
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          String           @id @default(uuid())
+  sku         String           @unique
+  name        String
+  description String?
+  type        ProductType      @default(FINISHED_GOOD)
+  unit        UnitOfMeasure    @default(UN)
+  categoryId  String?
+  category    ProductCategory? @relation(fields: [categoryId], references: [id])
+  costPrice   Decimal          @default(0) @db.Decimal(12, 2)
+  salePrice   Decimal          @default(0) @db.Decimal(12, 2)
+  minStock    Decimal          @default(0) @db.Decimal(12, 3)
+  maxStock    Decimal?         @db.Decimal(12, 3)
+  imageUrl    String?
+  barcode     String?
+  isActive    Boolean          @default(true)
+  notes       String?
+
+  // Relações
+  bom                BOM?
+  stockItems         StockItem[]
+  stockMovements     StockMovement[]
+  bomComponents      BOMItem[]              @relation("ComponentProduct")
+  productionOrders   ProductionOrder[]
+  saleOrderItems     SaleOrderItem[]
+  supplierProducts   SupplierProduct[]
+  purchaseOrderItems PurchaseOrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Bill of Materials — ficha técnica de um produto acabado
+model BOM {
+  id        String    @id @default(uuid())
+  productId String    @unique
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  yield     Decimal   @default(1) @db.Decimal(12, 3) // quantidade produzida por ciclo
+  notes     String?
+  items     BOMItem[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model BOMItem {
+  id          String        @id @default(uuid())
+  bomId       String
+  bom         BOM           @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  componentId String
+  component   Product       @relation("ComponentProduct", fields: [componentId], references: [id])
+  quantity    Decimal       @db.Decimal(12, 3)
+  unit        UnitOfMeasure @default(UN)
+  lossPercent Decimal       @default(0) @db.Decimal(5, 2) // % de perda para calcular quantidade real
+  notes       String?
+
+  @@unique([bomId, componentId])
+}
+
+// Localização de estoque (prateleira, galpão, etc.)
+model StockLocation {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  isDefault   Boolean     @default(false)
+  items       StockItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// Quantidade atual por produto por localização
+model StockItem {
+  id         String         @id @default(uuid())
+  productId  String
+  product    Product        @relation(fields: [productId], references: [id])
+  locationId String?
+  location   StockLocation? @relation(fields: [locationId], references: [id])
+  quantity   Decimal        @default(0) @db.Decimal(12, 3)
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([productId, locationId])
+}
+
+// Registro de todas as movimentações de estoque
+model StockMovement {
+  id            String            @id @default(uuid())
+  productId     String
+  product       Product           @relation(fields: [productId], references: [id])
+  type          StockMovementType
+  quantity      Decimal           @db.Decimal(12, 3)
+  unitCost      Decimal?          @db.Decimal(12, 2)
+  totalCost     Decimal?          @db.Decimal(12, 2)
+  locationId    String?
+  reason        String?
+  referenceId   String? // ID do pedido/ordem relacionado
+  referenceType String? // "PRODUCTION_ORDER" | "SALE_ORDER" | "MANUAL"
+  performedById String? // userId
+  createdAt     DateTime          @default(now())
+}
+
+model ProductionOrder {
+  id          String                @id @default(uuid())
+  number      String                @unique
+  productId   String
+  product     Product               @relation(fields: [productId], references: [id])
+  quantity    Decimal               @db.Decimal(12, 3)
+  status      ProductionOrderStatus @default(DRAFT)
+  startedAt   DateTime?
+  completedAt DateTime?
+  notes       String?
+  items       ProductionOrderItem[]
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+}
+
+model ProductionOrderItem {
+  id                String          @id @default(uuid())
+  productionOrderId String
+  productionOrder   ProductionOrder @relation(fields: [productionOrderId], references: [id], onDelete: Cascade)
+  componentName     String
+  requiredQty       Decimal         @db.Decimal(12, 3)
+  consumedQty       Decimal         @default(0) @db.Decimal(12, 3)
+}
+
+model SaleOrder {
+  id              String              @id @default(uuid())
+  number          String              @unique
+  clientName      String
+  clientDoc       String? // CPF ou CNPJ
+  clientEmail     String?
+  clientPhone     String?
+  clientAddress   String? // Endereço do cliente
+  sellerId        String? // Vendedor responsável
+  seller          Seller?             @relation(fields: [sellerId], references: [id])
+  supplierId      String? // Fornecedor vinculado
+  supplier        Supplier?           @relation(fields: [supplierId], references: [id])
+  status          SaleOrderStatus     @default(DRAFT)
+  deliveryStatus  DeliveryStatus      @default(PENDING)
+  isPriceLocked   Boolean             @default(false) // TRAVA de preço
+  isSafra         Boolean             @default(false) // Vinculado à safra
+  safra           String? // Período da safra (ex: "2025/2026")
+  subtotal        Decimal             @default(0) @db.Decimal(12, 2)
+  discount        Decimal             @default(0) @db.Decimal(12, 2)
+  total           Decimal             @default(0) @db.Decimal(12, 2)
+  notes           String?
+  dueDate         DateTime?
+  deliveredAt     DateTime?
+  invoiceNumber   String? // Número da nota fiscal
+  paymentMethod   String? // Método de pagamento
+  items           SaleOrderItem[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model SaleOrderItem {
+  id          String    @id @default(uuid())
+  saleOrderId String
+  saleOrder   SaleOrder @relation(fields: [saleOrderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  quantity    Decimal   @db.Decimal(12, 3)
+  unitPrice   Decimal   @db.Decimal(12, 2)
+  discount    Decimal   @default(0) @db.Decimal(12, 2)
+  total       Decimal   @db.Decimal(12, 2)
+}
+
+// ============================================================
+// FORNECEDORES
+// ============================================================
+
+model Supplier {
+  id          String   @id @default(uuid())
+  name        String   @unique // Ex: HERINGER, FERTIPAR, REAL, EQUILÍBRIO, DIVERSOS
+  tradeName   String? // Nome fantasia
+  cnpj        String?
+  phone       String?
+  email       String?
+  address     String?
+  city        String?
+  state       String?  @db.Char(2)
+  contactName String? // Pessoa de contato
+  isActive    Boolean  @default(true)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products       SupplierProduct[]
+  purchaseOrders PurchaseOrder[]
+  saleOrders     SaleOrder[]
+}
+
+// Vínculo produto × fornecedor (fórmulas por fornecedor, como na planilha)
+model SupplierProduct {
+  id         String   @id @default(uuid())
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  supplierSku String? // Código do produto no fornecedor
+  lastPrice  Decimal? @db.Decimal(12, 2)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([supplierId, productId])
+}
+
+// ============================================================
+// VENDEDORES
+// ============================================================
+
+model Seller {
+  id          String   @id @default(uuid())
+  name        String   @unique // Ex: AQUILA, DAIANE, DALLYLLA
+  phone       String?
+  email       String?
+  commission  Decimal? @db.Decimal(5, 2) // % de comissão
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  saleOrders SaleOrder[]
+}
+
+// ============================================================
+// COMPRAS (ORDENS DE COMPRA)
+// ============================================================
+
+enum PurchaseOrderStatus {
+  DRAFT
+  CONFIRMED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  PENDING // PENDENTE
+  IN_TRANSIT // EM TRÂNSITO
+  DELIVERED // ENTREGUE
+  RETURNED // DEVOLVIDA
+  TO_VERIFY // A VERIFICAR
+  PARTIAL // PARCIAL
+}
+
+model PurchaseOrder {
+  id              String              @id @default(uuid())
+  number          String              @unique
+  supplierId      String
+  supplier        Supplier            @relation(fields: [supplierId], references: [id])
+  invoiceNumber   String? // Número da nota fiscal (NOTA)
+  status          PurchaseOrderStatus @default(DRAFT)
+  isPriceLocked   Boolean             @default(false) // TRAVA de preço
+  isSafra         Boolean             @default(false) // Vinculado à safra
+  safra           String? // Período safra
+  subtotal        Decimal             @default(0) @db.Decimal(12, 2)
+  discount        Decimal             @default(0) @db.Decimal(12, 2)
+  total           Decimal             @default(0) @db.Decimal(12, 2)
+  dueDate         DateTime? // VENCIMENTO
+  receivedAt      DateTime?
+  notes           String?
+  items           PurchaseOrderItem[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(uuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  quantity        Decimal       @db.Decimal(12, 3)
+  unitPrice       Decimal       @db.Decimal(12, 2)
+  receivedQty     Decimal       @default(0) @db.Decimal(12, 3) // Quantidade já recebida
+  discount        Decimal       @default(0) @db.Decimal(12, 2)
+  total           Decimal       @db.Decimal(12, 2)
 }

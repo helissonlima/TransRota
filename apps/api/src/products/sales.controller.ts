@@ -9,7 +9,7 @@ import { TenantPrisma } from '../tenant/tenant.decorator';
 import { TenantPrismaService } from '../core/prisma/tenant-prisma.service';
 import { UserRole } from '@transrota/shared';
 import { SalesService } from './sales.service';
-import { CreateSaleOrderDto } from './dto/sale.dto';
+import { CreateSaleOrderDto, UpdateSaleDeliveryDto } from './dto/sale.dto';
 
 @ApiTags('Vendas')
 @ApiBearerAuth()
@@ -20,8 +20,19 @@ export class SalesController {
 
   @Get()
   @ApiOperation({ summary: 'Listar pedidos de venda' })
-  list(@TenantPrisma() prisma: TenantPrismaService, @Query('status') status?: string) {
-    return this.salesService.list(prisma, status);
+  list(
+    @TenantPrisma() prisma: TenantPrismaService,
+    @Query('status') status?: string,
+    @Query('sellerId') sellerId?: string,
+    @Query('supplierId') supplierId?: string,
+  ) {
+    return this.salesService.list(prisma, status, sellerId, supplierId);
+  }
+
+  @Get('dashboard')
+  @ApiOperation({ summary: 'Dashboard de vendas' })
+  dashboard(@TenantPrisma() prisma: TenantPrismaService) {
+    return this.salesService.dashboard(prisma);
   }
 
   @Get(':id')
@@ -49,6 +60,17 @@ export class SalesController {
   @ApiOperation({ summary: 'Entregar pedido (baixa de estoque automática)' })
   deliver(@TenantPrisma() prisma: TenantPrismaService, @Param('id') id: string) {
     return this.salesService.deliver(prisma, id);
+  }
+
+  @Patch(':id/delivery-status')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @ApiOperation({ summary: 'Atualizar status de entrega' })
+  updateDeliveryStatus(
+    @TenantPrisma() prisma: TenantPrismaService,
+    @Param('id') id: string,
+    @Body() dto: UpdateSaleDeliveryDto,
+  ) {
+    return this.salesService.updateDeliveryStatus(prisma, id, dto.deliveryStatus, dto.notes);
   }
 
   @Patch(':id/cancel')
