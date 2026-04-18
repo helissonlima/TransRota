@@ -32,8 +32,14 @@ import { Button } from "@/components/ui/button";
 import { Badge, RouteStatusBadge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import { DetailPanel } from "@/components/ui/detail-panel";
+import { EmptyStateCard } from "@/components/ui/state-feedback";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ViewModeToggle,
+  VIEW_TOGGLE_PRESETS,
+} from "@/components/ui/view-toggle";
 import { cn } from "@/lib/cn";
+import { usePersistedViewMode } from "@/lib/use-persisted-view-mode";
 
 type RouteStatus =
   | "DRAFT"
@@ -259,6 +265,93 @@ function RouteCard({
   );
 }
 
+function RouteListRow({
+  route,
+  onClick,
+  selected,
+}: {
+  route: Route;
+  onClick: () => void;
+  selected?: boolean;
+}) {
+  const config = STATUS_CONFIG[route.status];
+  const progress =
+    route._count.stops > 0
+      ? ((route.completedStops ?? 0) / route._count.stops) * 100
+      : 0;
+
+  return (
+    <motion.button
+      type="button"
+      layout
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClick}
+      className={cn(
+        "w-full text-left bg-white rounded-xl border shadow-card px-4 py-3.5 transition-all",
+        "hover:shadow-card-hover hover:border-primary-200",
+        selected
+          ? "ring-2 ring-primary-200 border-primary-400"
+          : "border-brand-border",
+      )}
+    >
+      <div className="grid grid-cols-12 gap-3 items-center">
+        <div className="col-span-4 min-w-0">
+          <p className="text-sm font-semibold text-brand-text-primary truncate">
+            {route.name}
+          </p>
+          <p className="text-xs text-brand-text-secondary mt-0.5">
+            {format(parseISO(route.scheduledDate), "dd/MM/yyyy", {
+              locale: ptBR,
+            })}
+          </p>
+        </div>
+        <div className="col-span-2">
+          {route.vehicle ? (
+            <p className="text-xs font-plate font-semibold text-brand-text-primary truncate">
+              {route.vehicle.plate}
+            </p>
+          ) : (
+            <p className="text-xs text-brand-text-secondary">Sem veículo</p>
+          )}
+        </div>
+        <div className="col-span-2">
+          <p className="text-xs text-brand-text-secondary truncate">
+            {route.driver?.name ?? "Sem motorista"}
+          </p>
+        </div>
+        <div className="col-span-2">
+          <div className="text-xs text-brand-text-secondary">
+            <span className="font-semibold text-brand-text-primary">
+              {route.completedStops ?? 0}/{route._count.stops}
+            </span>{" "}
+            paradas
+          </div>
+          <div className="progress-bar mt-1">
+            <div
+              className={cn(
+                "progress-fill",
+                progress === 100
+                  ? "progress-fill-success"
+                  : progress > 50
+                    ? ""
+                    : "progress-fill-warning",
+              )}
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+        <div className="col-span-2 flex items-center justify-end gap-2">
+          <RouteStatusBadge status={route.status} />
+          <ChevronRight className="w-4 h-4 text-brand-text-secondary" />
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
 function KanbanColumn({
   status,
   routes,
@@ -340,6 +433,11 @@ export default function RoutesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [viewMode, setViewMode] = usePersistedViewMode<"cards" | "list">({
+    defaultMode: "cards",
+    allowedModes: ["cards", "list"],
+    storageKeyBase: "view-mode:routes",
+  });
 
   const { data: routes = [], isLoading } = useQuery<Route[]>({
     queryKey: ["routes"],
@@ -533,6 +631,12 @@ export default function RoutesPage() {
               >
                 Excluir
               </Button>
+
+              <ViewModeToggle
+                mode={viewMode}
+                onChange={setViewMode}
+                options={VIEW_TOGGLE_PRESETS.cardsList}
+              />
             </div>
           </div>
 
@@ -543,35 +647,74 @@ export default function RoutesPage() {
           </div>
         </div>
 
-        {/* Kanban board */}
-        <div className="flex-1 flex gap-4 overflow-x-auto pb-4 scrollbar-thin rounded-2xl bg-gradient-to-b from-slate-50 to-white p-2 border border-brand-border/60">
-          {KANBAN_COLUMNS.map((status) => (
-            <KanbanColumn
-              key={status}
-              status={status}
-              routes={grouped[status]}
-              loading={isLoading}
-              onSelectRoute={(route) => {
-                setSelectedRoute(route);
-                setDetailOpen(true);
-              }}
-              selectedRouteId={selectedRouteResolved?.id}
-            />
-          ))}
+        {viewMode === "cards" ? (
+          <div className="flex-1 flex gap-4 overflow-x-auto pb-4 scrollbar-thin rounded-2xl bg-gradient-to-b from-slate-50 to-white p-2 border border-brand-border/60">
+            {KANBAN_COLUMNS.map((status) => (
+              <KanbanColumn
+                key={status}
+                status={status}
+                routes={grouped[status]}
+                loading={isLoading}
+                onSelectRoute={(route) => {
+                  setSelectedRoute(route);
+                  setDetailOpen(true);
+                }}
+                selectedRouteId={selectedRouteResolved?.id}
+              />
+            ))}
 
-          {/* Empty state overlay */}
-          {!isLoading && routes.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center text-brand-text-secondary">
-                <Navigation className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                <p className="font-semibold">Nenhuma rota cadastrada</p>
-                <p className="text-sm mt-1 opacity-60">
-                  Crie a primeira rota para começar
-                </p>
+            {!isLoading && routes.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center text-brand-text-secondary">
+                  <Navigation className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                  <p className="font-semibold">Nenhuma rota cadastrada</p>
+                  <p className="text-sm mt-1 opacity-60">
+                    Crie a primeira rota para começar
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex-1 rounded-2xl bg-white border border-brand-border shadow-card p-3 overflow-y-auto">
+            {isLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-xl border border-brand-border p-3"
+                  >
+                    <Skeleton className="h-4 w-48 mb-2" />
+                    <Skeleton className="h-3 w-full" />
+                  </div>
+                ))}
+              </div>
+            ) : filteredRoutes.length === 0 ? (
+              <EmptyStateCard
+                icon={Navigation}
+                title="Nenhuma rota cadastrada"
+                description="Crie a primeira rota para começar"
+                className="py-20"
+              />
+            ) : (
+              <div className="space-y-2">
+                <AnimatePresence>
+                  {filteredRoutes.map((route) => (
+                    <RouteListRow
+                      key={route.id}
+                      route={route}
+                      selected={selectedRouteResolved?.id === route.id}
+                      onClick={() => {
+                        setSelectedRoute(route);
+                        setDetailOpen(true);
+                      }}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Create Route Modal */}

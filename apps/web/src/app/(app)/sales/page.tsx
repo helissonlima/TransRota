@@ -35,8 +35,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { usePersistedViewMode } from "@/lib/use-persisted-view-mode";
 import { Header } from "@/components/layout/header";
 import { DetailPanel } from "@/components/ui/detail-panel";
+import {
+  ViewModeToggle,
+  VIEW_TOGGLE_PRESETS,
+} from "@/components/ui/view-toggle";
+import { EmptyStateCard } from "@/components/ui/state-feedback";
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -340,54 +346,73 @@ function PipelineCard({
       transition={{ delay, duration: 0.2 }}
       onClick={() => onClick(order)}
       className={cn(
-        "w-full text-left rounded-xl border-l-[3px] bg-white p-3.5 shadow-sm transition-all duration-150",
-        "hover:shadow-md hover:translate-y-[-1px]",
-        STATUS_ACCENT[order.status],
+        "w-full text-left rounded-xl border bg-white p-4 shadow-sm transition-all duration-150",
+        "hover:shadow-lg hover:translate-y-[-2px] hover:border-slate-300",
         selected
-          ? "ring-2 ring-primary-400 ring-offset-1 border-l-primary-500"
-          : "border-r border-t border-b border-slate-200/80",
+          ? "ring-2 ring-primary-400 ring-offset-1 border-primary-300 shadow-md"
+          : "border-slate-200/80",
       )}
     >
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-[11px] font-mono font-semibold text-slate-400">
-          #{order.orderNumber}
-        </span>
-        <span className="text-sm font-bold text-slate-900">
-          {formatBRLFromCents(order.totalAmount)}
+      {/* Status accent bar */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <div
+            className={cn(
+              "w-2 h-2 rounded-full flex-shrink-0 bg-gradient-to-br",
+              STATUS_HEADER_BG[order.status],
+            )}
+          />
+          <span className="text-[11px] font-mono font-semibold text-slate-400">
+            #{order.orderNumber}
+          </span>
+        </div>
+        <span
+          className={cn(
+            "inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-md border flex-shrink-0",
+            STATUS_COLOR[order.status],
+          )}
+        >
+          {STATUS_LABEL[order.status]}
         </span>
       </div>
-      <p className="text-sm font-semibold text-slate-800 truncate mb-2">
+
+      <p className="text-sm font-bold text-slate-900 truncate mb-1">
         {order.clientName}
       </p>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
-          <span className="text-[11px] text-slate-500 truncate">
-            {order.sellerName || "—"}
-          </span>
-        </div>
-        <span className="text-[11px] text-slate-400 flex-shrink-0">
-          {formatDate(order.createdAt)}
+
+      <div className="flex items-center gap-1.5 mb-3">
+        <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
+        <span className="text-xs text-slate-500 truncate">
+          {order.sellerName || "—"}
         </span>
       </div>
-      {order.deliveryStatus && order.deliveryStatus !== "PENDING" && (
-        <div className="mt-2 pt-2 border-t border-slate-100">
-          <span
-            className={cn(
-              "inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded",
-              DELIVERY_STATUS_COLOR[order.deliveryStatus],
-            )}
-          >
-            {DELIVERY_STATUS_LABEL[order.deliveryStatus]}
+
+      <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
+        <span className="text-lg font-bold text-slate-900">
+          {formatBRLFromCents(order.totalAmount)}
+        </span>
+        <div className="flex items-center gap-2">
+          {order.deliveryStatus && order.deliveryStatus !== "PENDING" && (
+            <span
+              className={cn(
+                "inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded",
+                DELIVERY_STATUS_COLOR[order.deliveryStatus],
+              )}
+            >
+              {DELIVERY_STATUS_LABEL[order.deliveryStatus]}
+            </span>
+          )}
+          <span className="text-[11px] text-slate-400">
+            {formatDate(order.createdAt)}
           </span>
         </div>
-      )}
+      </div>
     </motion.button>
   );
 }
 
 // ============================================================================
-// COMPONENT: PIPELINE TAB (Kanban redesenhado)
+// COMPONENT: PIPELINE TAB (Grade com filtros por status)
 // ============================================================================
 
 function PipelineTab({
@@ -399,6 +424,14 @@ function PipelineTab({
   selectedOrderId?: string | null;
   onSelectOrder: (order: SaleOrder) => void;
 }) {
+  const [activeFilter, setActiveFilter] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = usePersistedViewMode<"cards" | "list">({
+    defaultMode: "cards",
+    allowedModes: ["cards", "list"],
+    storageKeyBase: "view-mode:sales-pipeline",
+  });
+
   const statuses = Object.keys(STATUS_LABEL) as Array<
     keyof typeof STATUS_LABEL
   >;
@@ -413,86 +446,186 @@ function PipelineTab({
     );
   }, [orders]);
 
+  const filteredOrders = useMemo(() => {
+    let result =
+      activeFilter === "ALL"
+        ? orders
+        : orders.filter((o) => o.status === activeFilter);
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (o) =>
+          o.orderNumber.toLowerCase().includes(q) ||
+          o.clientName.toLowerCase().includes(q) ||
+          o.sellerName?.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [orders, activeFilter, searchQuery]);
+
+  const totalFiltered = filteredOrders.reduce(
+    (s, o) => s + (o.totalAmount || 0),
+    0,
+  );
+
   return (
     <div className="space-y-4">
-      {/* Pipeline summary bar */}
-      <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-thin">
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <input
+          type="text"
+          placeholder="Buscar por pedido, cliente ou vendedor..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
+        />
+      </div>
+
+      {/* Status filter tags */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <button
+          onClick={() => setActiveFilter("ALL")}
+          className={cn(
+            "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium border transition-all duration-150",
+            activeFilter === "ALL"
+              ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+              : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50",
+          )}
+        >
+          <span>Todos</span>
+          <span
+            className={cn(
+              "text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center",
+              activeFilter === "ALL"
+                ? "bg-white/20 text-white"
+                : "bg-slate-100 text-slate-600",
+            )}
+          >
+            {orders.length}
+          </span>
+        </button>
         {statuses.map((status) => {
-          const count = ordersByStatus[status].length;
-          const statusValue = ordersByStatus[status].reduce(
-            (s, o) => s + (o.totalAmount || 0),
-            0,
-          );
+          const count = ordersByStatus[status]?.length || 0;
+          const isActive = activeFilter === status;
+          const statusValue =
+            ordersByStatus[status]?.reduce(
+              (s, o) => s + (o.totalAmount || 0),
+              0,
+            ) || 0;
           return (
-            <div
+            <button
               key={status}
-              className="flex items-center gap-2 bg-white rounded-lg border border-slate-200/80 px-3 py-1.5 flex-shrink-0"
+              onClick={() => setActiveFilter(isActive ? "ALL" : status)}
+              className={cn(
+                "flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium border transition-all duration-150",
+                isActive
+                  ? "shadow-sm " +
+                      STATUS_COLOR[status]
+                        .replace("bg-", "bg-")
+                        .replace(/border-\S+/, "border-transparent")
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50",
+              )}
             >
               <div
                 className={cn(
-                  "w-2 h-2 rounded-full bg-gradient-to-br",
+                  "w-2 h-2 rounded-full bg-gradient-to-br flex-shrink-0",
                   STATUS_HEADER_BG[status],
                 )}
               />
-              <span className="text-xs font-medium text-slate-600">
-                {STATUS_LABEL[status]}
+              <span>{STATUS_LABEL[status]}</span>
+              <span
+                className={cn(
+                  "text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center",
+                  isActive
+                    ? "bg-white/60 text-current"
+                    : "bg-slate-100 text-slate-500",
+                )}
+              >
+                {count}
               </span>
-              <span className="text-xs font-bold text-slate-900">{count}</span>
-              <span className="text-[10px] text-slate-400">
-                {formatBRLFromCents(statusValue)}
-              </span>
-            </div>
+            </button>
           );
         })}
       </div>
 
-      {/* Kanban columns */}
-      <div className="flex gap-3 overflow-x-auto pb-4 -mx-1 px-1 scrollbar-thin">
-        {statuses.map((status) => (
-          <div
-            key={status}
-            className="flex-shrink-0 w-[280px] flex flex-col max-h-[72vh]"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div
-                  className={cn(
-                    "w-1.5 h-6 rounded-full bg-gradient-to-b",
-                    STATUS_HEADER_BG[status],
-                  )}
-                />
-                <h3 className="text-sm font-semibold text-slate-700">
-                  {STATUS_LABEL[status]}
-                </h3>
-              </div>
-              <span className="text-xs font-bold text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">
-                {ordersByStatus[status].length}
+      {/* Summary bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+        <div>
+          <p className="text-sm text-slate-500">
+            <span className="font-semibold text-slate-800">
+              {filteredOrders.length}
+            </span>{" "}
+            pedido{filteredOrders.length !== 1 ? "s" : ""}
+            {activeFilter !== "ALL" && (
+              <span>
+                {" "}
+                em{" "}
+                <span className="font-medium">
+                  {STATUS_LABEL[activeFilter]}
+                </span>
               </span>
-            </div>
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin rounded-xl bg-slate-50/50 p-2 border border-slate-200/50">
-              <AnimatePresence>
-                {ordersByStatus[status].map((order, idx) => (
-                  <PipelineCard
-                    key={order.id}
-                    order={order}
-                    onClick={onSelectOrder}
-                    selected={selectedOrderId === order.id}
-                    delay={idx * 0.02}
-                  />
-                ))}
-              </AnimatePresence>
-              {ordersByStatus[status].length === 0 && (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <div className="w-8 h-8 rounded-full bg-slate-200/60 flex items-center justify-center mb-2">
-                    <Package className="w-4 h-4 text-slate-400" />
-                  </div>
-                  <p className="text-xs text-slate-400">Nenhum pedido</p>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+            )}
+          </p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Clique em um item para abrir os detalhes
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <ViewModeToggle
+            mode={viewMode}
+            onChange={setViewMode}
+            options={VIEW_TOGGLE_PRESETS.cardsList}
+            className="border-slate-200"
+          />
+          <p className="text-sm font-bold text-slate-700">
+            {formatBRLFromCents(totalFiltered)}
+          </p>
+        </div>
       </div>
+
+      {viewMode === "cards" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <AnimatePresence>
+            {filteredOrders.map((order, idx) => (
+              <PipelineCard
+                key={order.id}
+                order={order}
+                onClick={onSelectOrder}
+                selected={selectedOrderId === order.id}
+                delay={idx * 0.015}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <AnimatePresence>
+            {filteredOrders.map((order, idx) => (
+              <ListOrderRow
+                key={order.id}
+                order={order}
+                onClick={onSelectOrder}
+                selected={selectedOrderId === order.id}
+                delay={idx * 0.01}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {filteredOrders.length === 0 && (
+        <EmptyStateCard
+          icon={Package}
+          title="Nenhum pedido encontrado"
+          description={
+            searchQuery
+              ? "Tente ajustar a busca"
+              : "Nenhum pedido nesta categoria"
+          }
+          className="bg-white border-slate-200"
+        />
+      )}
     </div>
   );
 }
@@ -789,15 +922,12 @@ function ListaTab({
           ))}
         </AnimatePresence>
         {filteredOrders.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
-            <Search className="w-8 h-8 text-slate-300 mb-3" />
-            <p className="text-sm font-medium text-slate-500">
-              Nenhum pedido encontrado
-            </p>
-            <p className="text-xs text-slate-400 mt-1">
-              Tente ajustar os filtros
-            </p>
-          </div>
+          <EmptyStateCard
+            icon={Search}
+            title="Nenhum pedido encontrado"
+            description="Tente ajustar os filtros"
+            className="bg-white border-slate-200"
+          />
         )}
       </div>
     </div>
@@ -896,12 +1026,11 @@ function VendedoresTab({
         })}
       </AnimatePresence>
       {performance.length === 0 && (
-        <div className="col-span-full flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
-          <BarChart3 className="w-8 h-8 text-slate-300 mb-3" />
-          <p className="text-sm font-medium text-slate-500">
-            Nenhum vendedor com dados
-          </p>
-        </div>
+        <EmptyStateCard
+          icon={BarChart3}
+          title="Nenhum vendedor com dados"
+          className="col-span-full bg-white border-slate-200"
+        />
       )}
     </div>
   );

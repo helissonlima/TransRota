@@ -30,14 +30,18 @@ import { Button } from "@/components/ui/button";
 import { DriverStatusBadge, LicenseCategoryBadge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import { DetailPanel } from "@/components/ui/detail-panel";
+import { EmptyStateCard } from "@/components/ui/state-feedback";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { cn } from "@/lib/cn";
+import { usePersistedViewMode } from "@/lib/use-persisted-view-mode";
+import { PhotoUpload } from "@/components/ui/photo-upload";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Driver {
   id: string;
+  photoUrl?: string;
   name: string;
   cpf: string;
   phone: string;
@@ -201,6 +205,7 @@ function FormSection({
 const driverSchema = z.object({
   // Obrigatórios
   name: z.string().min(3, "Nome obrigatório"),
+  photoUrl: z.string().optional(),
   cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF inválido"),
   phone: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Telefone inválido"),
   licenseNumber: z
@@ -234,7 +239,12 @@ export default function DriversPage() {
   const [selected, setSelected] = useState<Driver | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [viewMode, setViewMode] = usePersistedViewMode<ViewMode>({
+    defaultMode: "grid",
+    allowedModes: ["grid", "list"],
+    storageKeyBase: "view-mode:fleet-drivers",
+    legacyKeyBases: ["view-mode:drivers"],
+  });
   const [sortBy, setSortBy] = useState<
     "name-asc" | "name-desc" | "expiry-asc" | "routes-desc"
   >("name-asc");
@@ -258,29 +268,6 @@ export default function DriversPage() {
     const sortKey = tenantId ? `sort:drivers:${tenantId}` : "sort:drivers";
     localStorage.setItem(sortKey, sortBy);
   }, [sortBy]);
-
-  useEffect(() => {
-    const tenantId = localStorage.getItem("tenantId") ?? "";
-    const sharedKey = tenantId
-      ? `view-mode:fleet-drivers:${tenantId}`
-      : "view-mode:fleet-drivers";
-    const legacyKey = tenantId
-      ? `view-mode:drivers:${tenantId}`
-      : "view-mode:drivers";
-    const saved =
-      localStorage.getItem(sharedKey) ?? localStorage.getItem(legacyKey);
-    if (saved === "grid" || saved === "list")
-      localStorage.setItem(sharedKey, saved);
-    if (saved === "grid" || saved === "list") setViewMode(saved);
-  }, []);
-
-  useEffect(() => {
-    const tenantId = localStorage.getItem("tenantId") ?? "";
-    const sharedKey = tenantId
-      ? `view-mode:fleet-drivers:${tenantId}`
-      : "view-mode:fleet-drivers";
-    localStorage.setItem(sharedKey, viewMode);
-  }, [viewMode]);
 
   const { data: drivers = [], isLoading } = useQuery<Driver[]>({
     queryKey: ["drivers", statusFilter],
@@ -597,15 +584,14 @@ export default function DriversPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-24 text-brand-text-secondary"
+            className="py-8"
           >
-            <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-              <Users className="w-10 h-10 opacity-30" />
-            </div>
-            <p className="font-semibold">Nenhum motorista encontrado</p>
-            <p className="text-sm mt-1 opacity-70">
-              Tente ajustar os filtros ou cadastre um novo motorista.
-            </p>
+            <EmptyStateCard
+              icon={Users}
+              title="Nenhum motorista encontrado"
+              description="Tente ajustar os filtros ou cadastre um novo motorista."
+              className="py-24"
+            />
           </motion.div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
@@ -822,6 +808,19 @@ export default function DriversPage() {
         <form className="space-y-3 max-h-[62vh] overflow-y-auto pr-1 scrollbar-thin">
           {/* ── Dados Principais ── */}
           <FormSection title="Dados Principais" icon={User} defaultOpen>
+            <Field label="Foto" span2>
+              <PhotoUpload
+                entity="driver"
+                title="Foto do motorista"
+                value={watch("photoUrl") || ""}
+                onChange={(photoUrl) =>
+                  setValue("photoUrl", photoUrl, {
+                    shouldValidate: true,
+                  })
+                }
+              />
+            </Field>
+
             <Field label="Nome Completo" required span2>
               <input
                 {...register("name")}

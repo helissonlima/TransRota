@@ -21,8 +21,14 @@ import { toast } from "sonner";
 
 import api from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { usePersistedViewMode } from "@/lib/use-persisted-view-mode";
+import { UX_CARD_SECTION, uxSelectableCardClass } from "@/lib/ux-card-presets";
 import { Header } from "@/components/layout/header";
 import { DetailPanel } from "@/components/ui/detail-panel";
+import {
+  ViewModeToggle,
+  VIEW_TOGGLE_PRESETS,
+} from "@/components/ui/view-toggle";
 
 // Types and Schemas
 interface PurchaseOrder {
@@ -118,6 +124,13 @@ export default function PurchasesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [supplierFilter, setSupplierFilter] = useState<string>("");
+  const [ordersViewMode, setOrdersViewMode] = usePersistedViewMode<
+    "list" | "cards"
+  >({
+    defaultMode: "list",
+    allowedModes: ["list", "cards"],
+    storageKeyBase: "view-mode:purchases-orders",
+  });
 
   // Queries
   const { data: dashboard, isLoading: dashboardLoading } =
@@ -406,146 +419,236 @@ export default function PurchasesPage() {
               ))}
             </select>
           </div>
-        </motion.div>
 
-        {/* Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="overflow-hidden rounded-2xl border border-brand-border bg-white shadow-card"
-        >
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-brand-border bg-slate-50">
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-brand-text-primary">
-                    Nº Ordem
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-brand-text-primary">
-                    Fornecedor
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-brand-text-primary">
-                    Nota Fiscal
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-brand-text-primary">
-                    Vencimento
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-brand-text-primary">
-                    Trava
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-brand-text-primary">
-                    Safra
-                  </th>
-                  <th className="px-6 py-3 text-right text-sm font-semibold text-brand-text-primary">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-brand-text-primary">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-brand-text-primary">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence mode="popLayout">
-                  {ordersLoading ? (
-                    <tr>
-                      <td colSpan={9} className="px-6 py-8 text-center">
-                        <motion.div
-                          animate={{ opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                          className="text-brand-text-secondary"
-                        >
-                          Carregando...
-                        </motion.div>
-                      </td>
-                    </tr>
-                  ) : filteredOrders.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={9}
-                        className="px-6 py-8 text-center text-brand-text-secondary"
-                      >
-                        Nenhuma ordem encontrada
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredOrders.map((order, index) => (
-                      <motion.tr
-                        key={order.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ delay: index * 0.05 }}
-                        onClick={() => setSelectedOrder(order)}
-                        className="cursor-pointer border-b border-brand-border hover:bg-slate-50"
-                      >
-                        <td className="px-6 py-4 text-sm font-mono font-semibold text-brand-text-primary">
-                          {order.id.slice(0, 8)}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-brand-text-primary">
-                          {order.supplierName}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-brand-text-primary">
-                          {order.invoiceNumber}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-brand-text-secondary">
-                          {formatDate(order.dueDate)}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span
-                            className={cn(
-                              "inline-block rounded-full px-2.5 py-1 text-xs font-semibold",
-                              order.isPriceLocked
-                                ? "bg-emerald-100 text-emerald-700"
-                                : "bg-gray-100 text-gray-700",
-                            )}
-                          >
-                            {order.isPriceLocked ? "SIM" : "NÃO"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          {order.isSafra && (
-                            <span className="inline-block rounded-full bg-purple-100 px-2.5 py-1 text-xs font-semibold text-purple-700">
-                              {order.safra}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm font-semibold text-brand-text-primary">
-                          {formatCurrency(order.total)}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span
-                            className={cn(
-                              "inline-block rounded-full px-2.5 py-1 text-xs font-semibold",
-                              STATUS_COLOR[order.status],
-                            )}
-                          >
-                            {STATUS_LABEL[order.status]}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedOrder(order);
-                            }}
-                            className="text-brand-text-secondary hover:text-brand-text-primary"
-                          >
-                            <MoreVertical size={18} />
-                          </motion.button>
-                        </td>
-                      </motion.tr>
-                    ))
-                  )}
-                </AnimatePresence>
-              </tbody>
-            </table>
+          <div className="mt-3 flex items-center justify-end">
+            <ViewModeToggle
+              mode={ordersViewMode}
+              onChange={setOrdersViewMode}
+              options={VIEW_TOGGLE_PRESETS.listCards}
+            />
           </div>
         </motion.div>
+
+        {ordersViewMode === "list" ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="overflow-hidden rounded-2xl border border-brand-border bg-white shadow-card"
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-brand-border bg-slate-50">
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-brand-text-primary">
+                      Nº Ordem
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-brand-text-primary">
+                      Fornecedor
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-brand-text-primary">
+                      Nota Fiscal
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-brand-text-primary">
+                      Vencimento
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-brand-text-primary">
+                      Trava
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-brand-text-primary">
+                      Safra
+                    </th>
+                    <th className="px-6 py-3 text-right text-sm font-semibold text-brand-text-primary">
+                      Total
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-brand-text-primary">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-brand-text-primary">
+                      Ações
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence mode="popLayout">
+                    {ordersLoading ? (
+                      <tr>
+                        <td colSpan={9} className="px-6 py-8 text-center">
+                          <motion.div
+                            animate={{ opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                            className="text-brand-text-secondary"
+                          >
+                            Carregando...
+                          </motion.div>
+                        </td>
+                      </tr>
+                    ) : filteredOrders.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={9}
+                          className="px-6 py-8 text-center text-brand-text-secondary"
+                        >
+                          Nenhuma ordem encontrada
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredOrders.map((order, index) => (
+                        <motion.tr
+                          key={order.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ delay: index * 0.05 }}
+                          onClick={() => setSelectedOrder(order)}
+                          className="cursor-pointer border-b border-brand-border hover:bg-slate-50"
+                        >
+                          <td className="px-6 py-4 text-sm font-mono font-semibold text-brand-text-primary">
+                            {order.id.slice(0, 8)}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-brand-text-primary">
+                            {order.supplierName}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-brand-text-primary">
+                            {order.invoiceNumber}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-brand-text-secondary">
+                            {formatDate(order.dueDate)}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span
+                              className={cn(
+                                "inline-block rounded-full px-2.5 py-1 text-xs font-semibold",
+                                order.isPriceLocked
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-gray-100 text-gray-700",
+                              )}
+                            >
+                              {order.isPriceLocked ? "SIM" : "NÃO"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            {order.isSafra && (
+                              <span className="inline-block rounded-full bg-purple-100 px-2.5 py-1 text-xs font-semibold text-purple-700">
+                                {order.safra}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm font-semibold text-brand-text-primary">
+                            {formatCurrency(order.total)}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span
+                              className={cn(
+                                "inline-block rounded-full px-2.5 py-1 text-xs font-semibold",
+                                STATUS_COLOR[order.status],
+                              )}
+                            >
+                              {STATUS_LABEL[order.status]}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedOrder(order);
+                              }}
+                              className="text-brand-text-secondary hover:text-brand-text-primary"
+                            >
+                              <MoreVertical size={18} />
+                            </motion.button>
+                          </td>
+                        </motion.tr>
+                      ))
+                    )}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+          >
+            {ordersLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-brand-border bg-white p-4 shadow-card"
+                >
+                  <div className="h-4 w-24 bg-slate-100 rounded animate-pulse mb-2" />
+                  <div className="h-3 w-40 bg-slate-100 rounded animate-pulse mb-2" />
+                  <div className="h-3 w-32 bg-slate-100 rounded animate-pulse" />
+                </div>
+              ))
+            ) : filteredOrders.length === 0 ? (
+              <div className="col-span-full rounded-2xl border border-brand-border bg-white p-10 text-center text-brand-text-secondary shadow-card">
+                Nenhuma ordem encontrada
+              </div>
+            ) : (
+              filteredOrders.map((order, index) => (
+                <motion.button
+                  key={order.id}
+                  type="button"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.04 }}
+                  onClick={() => setSelectedOrder(order)}
+                  className={uxSelectableCardClass()}
+                >
+                  <div className={UX_CARD_SECTION.header}>
+                    <div>
+                      <p className="text-xs text-brand-text-secondary">Ordem</p>
+                      <p className="text-sm font-mono font-semibold text-brand-text-primary">
+                        {order.id.slice(0, 8)}
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        "inline-block rounded-full px-2.5 py-1 text-xs font-semibold",
+                        STATUS_COLOR[order.status],
+                      )}
+                    >
+                      {STATUS_LABEL[order.status]}
+                    </span>
+                  </div>
+
+                  <div className={UX_CARD_SECTION.infoStack}>
+                    <p className="text-sm font-semibold text-brand-text-primary truncate">
+                      {order.supplierName}
+                    </p>
+                    <p className="text-xs text-brand-text-secondary">
+                      NF: {order.invoiceNumber}
+                    </p>
+                    <p className="text-xs text-brand-text-secondary">
+                      Vencimento: {formatDate(order.dueDate)}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-brand-border flex items-center justify-between">
+                    <span
+                      className={cn(
+                        "inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                        order.isPriceLocked
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-gray-100 text-gray-700",
+                      )}
+                    >
+                      {order.isPriceLocked ? "TRAVA" : "Sem trava"}
+                    </span>
+                    <span className="text-sm font-bold text-brand-text-primary">
+                      {formatCurrency(order.total)}
+                    </span>
+                  </div>
+                </motion.button>
+              ))
+            )}
+          </motion.div>
+        )}
       </main>
 
       {/* Create Modal */}

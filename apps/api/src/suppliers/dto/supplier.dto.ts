@@ -1,7 +1,8 @@
-import { IsString, IsOptional, IsBoolean, IsEmail } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsEmail } from "class-validator";
 
 export class CreateSupplierDto {
   @IsString() name: string;
+  @IsOptional() @IsString() photoUrl?: string;
   @IsOptional() @IsString() tradeName?: string;
   @IsOptional() @IsString() cnpj?: string;
   @IsOptional() @IsString() phone?: string;
@@ -15,6 +16,7 @@ export class CreateSupplierDto {
 
 export class UpdateSupplierDto {
   @IsOptional() @IsString() name?: string;
+  @IsOptional() @IsString() photoUrl?: string;
   @IsOptional() @IsString() tradeName?: string;
   @IsOptional() @IsString() cnpj?: string;
   @IsOptional() @IsString() phone?: string;

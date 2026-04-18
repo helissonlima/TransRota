@@ -9,9 +9,11 @@ import { cn } from "@/lib/cn";
 import { toast } from "sonner";
 import { DetailPanel } from "@/components/ui/detail-panel";
 import { Button } from "@/components/ui/button";
+import { PhotoUpload } from "@/components/ui/photo-upload";
 
 interface Client {
   id: string;
+  photoUrl?: string;
   name: string;
   doc?: string;
   email?: string;
@@ -23,6 +25,7 @@ interface Client {
 
 interface ClientFormState {
   id?: string;
+  photoUrl?: string;
   name: string;
   doc: string;
   email: string;
@@ -31,6 +34,7 @@ interface ClientFormState {
 }
 
 const emptyForm: ClientFormState = {
+  photoUrl: "",
   name: "",
   doc: "",
   email: "",
@@ -73,6 +77,7 @@ export default function ClientsPage() {
     mutationFn: async (payload: ClientFormState) => {
       const body = {
         name: payload.name,
+        photoUrl: payload.photoUrl || undefined,
         doc: payload.doc || undefined,
         email: payload.email || undefined,
         phone: payload.phone || undefined,
@@ -104,6 +109,7 @@ export default function ClientsPage() {
   const openEdit = (client: Client) => {
     setForm({
       id: client.id,
+      photoUrl: client.photoUrl || "",
       name: client.name || "",
       doc: client.doc || "",
       email: client.email || "",
@@ -253,6 +259,15 @@ export default function ClientsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <PhotoUpload
+                  entity="client"
+                  title="Foto do cliente"
+                  value={form.photoUrl}
+                  onChange={(photoUrl) => setForm((p) => ({ ...p, photoUrl }))}
+                />
+              </div>
+
               <input
                 value={form.name}
                 onChange={(e) =>

@@ -28,7 +28,7 @@ export class TenantMiddleware implements NestMiddleware {
   async use(req: TenantRequest, res: Response, next: NextFunction) {
     // Rotas de admin não precisam de tenant
     const fullPath = req.originalUrl || req.url || req.path;
-    if (fullPath.includes("/admin/")) {
+    if (fullPath.includes("/admin/") || fullPath.includes("/media/")) {
       return next();
     }
 

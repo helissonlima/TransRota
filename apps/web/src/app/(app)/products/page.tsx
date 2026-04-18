@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +29,7 @@ import {
 import api from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { Header } from "@/components/layout/header";
+import { EmptyStateCard } from "@/components/ui/state-feedback";
 
 // ───────────────────────────────────────────────────────────────
 // Types
@@ -82,6 +83,17 @@ interface Supplier {
   id: string;
   name: string;
   color?: string;
+  products?: Array<{
+    product: {
+      id: string;
+      name: string;
+      sku: string;
+      unit: string;
+      costPrice?: number | string;
+    };
+    supplierSku?: string | null;
+    lastPrice?: number | string | null;
+  }>;
 }
 
 type Tab =
@@ -290,6 +302,80 @@ export default function ProductsPage() {
       p.sku.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const stockByProductId = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        product: Product;
+        quantity: number;
+      }
+    >();
+
+    for (const item of stock) {
+      const current = map.get(item.product.id);
+      if (current) {
+        current.quantity += Number(item.quantity) || 0;
+      } else {
+        map.set(item.product.id, {
+          product: item.product,
+          quantity: Number(item.quantity) || 0,
+        });
+      }
+    }
+
+    return map;
+  }, [stock]);
+
+  const supplierWarehouseRows = useMemo(() => {
+    return suppliers.map((supplier) => {
+      const uniqueByProductId = new Map<
+        string,
+        {
+          supplierSku?: string | null;
+          lastPrice?: number | string | null;
+          product: {
+            id: string;
+            name: string;
+            sku: string;
+            unit: string;
+            costPrice?: number | string;
+          };
+        }
+      >();
+
+      for (const link of supplier.products ?? []) {
+        if (!uniqueByProductId.has(link.product.id)) {
+          uniqueByProductId.set(link.product.id, link);
+        }
+      }
+
+      const rows = Array.from(uniqueByProductId.values())
+        .map((link) => {
+          const stockInfo = stockByProductId.get(link.product.id);
+          const quantity = stockInfo?.quantity ?? 0;
+          const unitPrice =
+            Number(link.lastPrice ?? link.product.costPrice ?? 0) || 0;
+
+          return {
+            productId: link.product.id,
+            formula: link.product.name,
+            sku: link.product.sku,
+            supplierSku: link.supplierSku ?? null,
+            unit: link.product.unit,
+            quantity,
+            unitPrice,
+            total: quantity * unitPrice,
+          };
+        })
+        .sort((a, b) => a.formula.localeCompare(b.formula, "pt-BR"));
+
+      return {
+        supplier,
+        rows,
+      };
+    });
+  }, [suppliers, stockByProductId]);
+
   const totalQty = (p: Product) =>
     (p.stockItems ?? []).reduce((acc, s) => acc + (Number(s.quantity) || 0), 0);
 
@@ -454,10 +540,11 @@ export default function ProductsPage() {
                   );
                 })}
                 {filteredProducts.length === 0 && (
-                  <div className="col-span-full text-center py-20 text-brand-text-secondary">
-                    <Package className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                    <p>Nenhum produto encontrado</p>
-                  </div>
+                  <EmptyStateCard
+                    icon={Package}
+                    title="Nenhum produto encontrado"
+                    className="col-span-full py-20"
+                  />
                 )}
               </div>
             </div>
@@ -644,10 +731,7 @@ export default function ProductsPage() {
                 </div>
               ) : (
                 <div className="space-y-5">
-                  {suppliers.map((supplier) => {
-                    const supplierStock = stock.filter(
-                      (s) => s.product.category?.id === supplier.id,
-                    );
+                  {supplierWarehouseRows.map(({ supplier, rows }) => {
                     return (
                       <div
                         key={supplier.id}
@@ -663,7 +747,7 @@ export default function ProductsPage() {
                         >
                           {supplier.name}
                         </div>
-                        {supplierStock.length === 0 ? (
+                        {rows.length === 0 ? (
                           <div className="p-6 text-center text-brand-text-secondary text-sm">
                             Nenhum produto deste fornecedor
                           </div>
@@ -687,20 +771,28 @@ export default function ProductsPage() {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                              {supplierStock.map((s) => (
+                              {rows.map((row) => (
                                 <tr
-                                  key={s.id}
+                                  key={`${supplier.id}-${row.productId}`}
                                   className="hover:bg-slate-50 transition-colors"
                                 >
                                   <td className="px-5 py-3.5 font-medium">
-                                    {s.product.name}
+                                    <div className="flex flex-col">
+                                      <span>{row.formula}</span>
+                                      <span className="text-xs text-brand-text-secondary font-mono">
+                                        {row.sku}
+                                        {row.supplierSku
+                                          ? ` • Ref: ${row.supplierSku}`
+                                          : ""}
+                                      </span>
+                                    </div>
                                   </td>
                                   <td className="px-5 py-3.5">
-                                    {Number(s.quantity).toLocaleString(
+                                    {Number(row.quantity).toLocaleString(
                                       "pt-BR",
                                       { maximumFractionDigits: 3 },
                                     )}{" "}
-                                    {s.product.unit}
+                                    {row.unit}
                                   </td>
                                   <td className="px-5 py-3.5">
                                     <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-brand-text-secondary">
@@ -708,7 +800,7 @@ export default function ProductsPage() {
                                     </span>
                                   </td>
                                   <td className="px-5 py-3.5 font-semibold text-emerald-600">
-                                    {Number(s.product.costPrice).toLocaleString(
+                                    {Number(row.unitPrice).toLocaleString(
                                       "pt-BR",
                                       { style: "currency", currency: "BRL" },
                                     )}
@@ -757,43 +849,37 @@ export default function ProductsPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {suppliers.flatMap((supplier) => {
-                        const supplierStock = stock.filter(
-                          (s) => s.product.category?.id === supplier.id,
-                        );
-                        if (supplierStock.length === 0) return [];
+                      {supplierWarehouseRows.flatMap(({ supplier, rows }) => {
+                        if (rows.length === 0) return [];
 
                         return [
-                          ...supplierStock.map((s) => (
+                          ...rows.map((row) => (
                             <tr
-                              key={s.id}
+                              key={`${supplier.id}-${row.productId}`}
                               className="hover:bg-slate-50 transition-colors"
                             >
                               <td className="px-5 py-3.5 text-brand-text-secondary text-xs">
                                 {supplier.name}
                               </td>
                               <td className="px-5 py-3.5 font-medium">
-                                {s.product.name}
+                                {row.formula}
                               </td>
                               <td className="px-5 py-3.5">
-                                {Number(s.quantity).toLocaleString("pt-BR", {
+                                {Number(row.quantity).toLocaleString("pt-BR", {
                                   maximumFractionDigits: 3,
                                 })}
                               </td>
                               <td className="px-5 py-3.5 font-semibold">
-                                {Number(s.product.costPrice).toLocaleString(
-                                  "pt-BR",
-                                  { style: "currency", currency: "BRL" },
-                                )}
+                                {Number(row.unitPrice).toLocaleString("pt-BR", {
+                                  style: "currency",
+                                  currency: "BRL",
+                                })}
                               </td>
                               <td className="px-5 py-3.5 text-brand-text-secondary">
                                 0
                               </td>
                               <td className="px-5 py-3.5 font-semibold text-emerald-600">
-                                {(
-                                  Number(s.quantity) *
-                                  Number(s.product.costPrice)
-                                ).toLocaleString("pt-BR", {
+                                {Number(row.total).toLocaleString("pt-BR", {
                                   style: "currency",
                                   currency: "BRL",
                                 })}
@@ -811,8 +897,11 @@ export default function ProductsPage() {
                               Subtotal {supplier.name}
                             </td>
                             <td className="px-5 py-3.5 text-brand-text-primary">
-                              {supplierStock
-                                .reduce((sum, s) => sum + Number(s.quantity), 0)
+                              {rows
+                                .reduce(
+                                  (sum, row) => sum + Number(row.quantity),
+                                  0,
+                                )
                                 .toLocaleString("pt-BR", {
                                   maximumFractionDigits: 3,
                                 })}
@@ -820,12 +909,9 @@ export default function ProductsPage() {
                             <td></td>
                             <td></td>
                             <td className="px-5 py-3.5 text-emerald-600">
-                              {supplierStock
+                              {rows
                                 .reduce(
-                                  (sum, s) =>
-                                    sum +
-                                    Number(s.quantity) *
-                                      Number(s.product.costPrice),
+                                  (sum, row) => sum + Number(row.total),
                                   0,
                                 )
                                 .toLocaleString("pt-BR", {
@@ -844,8 +930,8 @@ export default function ProductsPage() {
                           TOTAL GERAL
                         </td>
                         <td className="px-5 py-3.5 text-brand-text-primary">
-                          {stock
-                            .reduce((sum, s) => sum + Number(s.quantity), 0)
+                          {Array.from(stockByProductId.values())
+                            .reduce((sum, row) => sum + Number(row.quantity), 0)
                             .toLocaleString("pt-BR", {
                               maximumFractionDigits: 3,
                             })}
@@ -853,12 +939,12 @@ export default function ProductsPage() {
                         <td></td>
                         <td></td>
                         <td className="px-5 py-3.5 text-emerald-600">
-                          {stock
+                          {Array.from(stockByProductId.values())
                             .reduce(
-                              (sum, s) =>
+                              (sum, row) =>
                                 sum +
-                                Number(s.quantity) *
-                                  Number(s.product.costPrice),
+                                Number(row.quantity) *
+                                  Number(row.product.costPrice),
                               0,
                             )
                             .toLocaleString("pt-BR", {

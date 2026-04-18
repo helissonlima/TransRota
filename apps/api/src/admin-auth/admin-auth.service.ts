@@ -22,6 +22,7 @@ import { UserRole } from "@transrota/shared";
 import { CreatePlanDto, UpdatePlanDto } from "./dto/plan.dto";
 import { UpdateCompanyDto } from "./dto/update-company.dto";
 import { UpdatePaymentSettingsDto } from "./dto/payment-settings.dto";
+import { StorageService } from "../storage/storage.service";
 
 const execFileAsync = promisify(execFile);
 
@@ -32,6 +33,7 @@ export class AdminAuthService {
     private readonly tenantFactory: TenantPrismaFactory,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    private readonly storageService: StorageService,
   ) {}
 
   async listCompanies() {
@@ -537,6 +539,8 @@ export class AdminAuthService {
       }
     }
 
+    await this.appendStorageObjectsToZip(zip);
+
     const backupDir = "/tmp/transrota-backups";
     await mkdir(backupDir, { recursive: true });
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -670,6 +674,8 @@ export class AdminAuthService {
       );
     }
 
+    await this.restoreStorageObjectsFromZip(zip);
+
     return {
       message: "Backup completo restaurado com sucesso",
       tenantsRestored: manifest.tenants.length,
@@ -742,6 +748,8 @@ export class AdminAuthService {
         Buffer.from(JSON.stringify(rows, null, 2), "utf8"),
       );
     }
+
+    await this.appendStorageObjectsToZip(zip, [company.id]);
 
     const backupDir = "/tmp/transrota-backups";
     await mkdir(backupDir, { recursive: true });
@@ -905,11 +913,73 @@ export class AdminAuthService {
       { timeout: 120_000 },
     );
 
+    await this.restoreStorageObjectsFromZip(zip);
+
     return {
       message: "Empresa restaurada com sucesso",
       companyId: companyData.id,
       schemaName,
     };
+  }
+
+  private async appendStorageObjectsToZip(zip: AdmZip, tenantIds?: string[]) {
+    const allObjects = await this.storageService.listObjects();
+    const selected =
+      tenantIds && tenantIds.length > 0
+        ? allObjects.filter((obj) =>
+            tenantIds.some((tenantId) =>
+              obj.key.startsWith(`tenants/${tenantId}/`),
+            ),
+          )
+        : allObjects;
+
+    const objectsManifest: Array<{
+      key: string;
+      contentType?: string;
+      size?: number;
+    }> = [];
+
+    for (const obj of selected) {
+      const data = await this.storageService.getObject({ key: obj.key });
+      zip.addFile(`storage/files/${obj.key}`, data.buffer);
+      objectsManifest.push({
+        key: obj.key,
+        contentType: data.contentType,
+        size: obj.size,
+      });
+    }
+
+    zip.addFile(
+      "storage/manifest.json",
+      Buffer.from(JSON.stringify(objectsManifest, null, 2), "utf8"),
+    );
+  }
+
+  private async restoreStorageObjectsFromZip(zip: AdmZip) {
+    const manifestEntry = zip.getEntry("storage/manifest.json");
+    if (!manifestEntry) return;
+
+    let manifest: Array<{
+      key: string;
+      contentType?: string;
+      size?: number;
+    }>;
+
+    try {
+      manifest = JSON.parse(manifestEntry.getData().toString("utf8"));
+    } catch {
+      return;
+    }
+
+    for (const item of manifest) {
+      const entry = zip.getEntry(`storage/files/${item.key}`);
+      if (!entry) continue;
+      await this.storageService.putObjectFromBackup({
+        key: item.key,
+        buffer: entry.getData(),
+        contentType: item.contentType,
+      });
+    }
   }
 
   private provisionTenantSchemaStructure(schemaName: string): void {

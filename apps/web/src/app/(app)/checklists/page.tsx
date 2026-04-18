@@ -36,8 +36,15 @@ import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import { DetailPanel } from "@/components/ui/detail-panel";
 import { DataTable, type Column } from "@/components/ui/data-table";
+import { EmptyStateCard } from "@/components/ui/state-feedback";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ViewModeToggle,
+  VIEW_TOGGLE_PRESETS,
+} from "@/components/ui/view-toggle";
 import { cn } from "@/lib/cn";
+import { usePersistedViewMode } from "@/lib/use-persisted-view-mode";
+import { UX_CARD_SECTION, uxSelectableCardClass } from "@/lib/ux-card-presets";
 
 type ChecklistType = "PRE_TRIP" | "POST_TRIP" | "MAINTENANCE" | "PERIODIC";
 type ResolutionStatus = "PENDING" | "RESOLVED" | "APPROVED";
@@ -194,6 +201,20 @@ export default function ChecklistsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
     useState<ChecklistTemplate | null>(null);
+  const [templateViewMode, setTemplateViewMode] = usePersistedViewMode<
+    "cards" | "list"
+  >({
+    defaultMode: "cards",
+    allowedModes: ["cards", "list"],
+    storageKeyBase: "view-mode:checklists-templates",
+  });
+  const [executionViewMode, setExecutionViewMode] = usePersistedViewMode<
+    "table" | "cards"
+  >({
+    defaultMode: "table",
+    allowedModes: ["table", "cards"],
+    storageKeyBase: "view-mode:checklists-executions",
+  });
   const [executeModalOpen, setExecuteModalOpen] = useState(false);
   const [executingTemplate, setExecutingTemplate] =
     useState<ChecklistTemplate | null>(null);
@@ -555,7 +576,14 @@ export default function ChecklistsPage() {
             <h2 className="text-lg font-bold text-brand-text-primary">
               Templates de Checklist
             </h2>
-            <Badge variant="gray">{templates.length} totais</Badge>
+            <div className="flex items-center gap-2">
+              <ViewModeToggle
+                mode={templateViewMode}
+                onChange={setTemplateViewMode}
+                options={VIEW_TOGGLE_PRESETS.cardsList}
+              />
+              <Badge variant="gray">{templates.length} totais</Badge>
+            </div>
           </div>
 
           {loadingTemplates ? (
@@ -569,19 +597,20 @@ export default function ChecklistsPage() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-brand-text-secondary border-2 border-dashed border-brand-border rounded-2xl bg-slate-50/60">
-              <ClipboardList className="w-12 h-12 mb-3 opacity-20" />
-              <p className="font-semibold">Nenhum checklist encontrado</p>
-              <Button
-                className="mt-4"
-                size="sm"
-                leftIcon={<Plus className="w-4 h-4" />}
-                onClick={() => setModalOpen(true)}
-              >
-                Criar Checklist
-              </Button>
-            </div>
-          ) : (
+            <EmptyStateCard
+              icon={ClipboardList}
+              title="Nenhum checklist encontrado"
+              action={
+                <Button
+                  size="sm"
+                  leftIcon={<Plus className="w-4 h-4" />}
+                  onClick={() => setModalOpen(true)}
+                >
+                  Criar Checklist
+                </Button>
+              }
+            />
+          ) : templateViewMode === "cards" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               <AnimatePresence>
                 {filtered.map((template, i) => {
@@ -683,6 +712,62 @@ export default function ChecklistsPage() {
                 })}
               </AnimatePresence>
             </div>
+          ) : (
+            <div className="space-y-2">
+              <AnimatePresence>
+                {filtered.map((template, i) => {
+                  const config = TYPE_CONFIG[template.type];
+                  const Icon = config.icon;
+                  return (
+                    <motion.button
+                      key={template.id}
+                      type="button"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ delay: i * 0.03 }}
+                      onClick={() => setSelectedTemplate(template)}
+                      className="w-full text-left bg-white rounded-xl border border-brand-border shadow-card hover:shadow-card-hover transition-all px-4 py-3.5"
+                    >
+                      <div className="grid grid-cols-12 gap-3 items-center">
+                        <div className="col-span-5 min-w-0">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div
+                              className={cn(
+                                "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                                config.bg,
+                              )}
+                            >
+                              <Icon className={cn("w-4 h-4", config.text)} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-brand-text-primary truncate">
+                                {template.name}
+                              </p>
+                              <p className="text-xs text-brand-text-secondary truncate">
+                                {template.description || "Sem descrição"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <Badge variant={config.variant}>{config.label}</Badge>
+                        </div>
+                        <div className="col-span-2 text-xs text-brand-text-secondary">
+                          {template.items.length} itens
+                        </div>
+                        <div className="col-span-2 text-xs text-brand-text-secondary">
+                          {template._count?.executions ?? 0} exec.
+                        </div>
+                        <div className="col-span-1 flex justify-end">
+                          <ChevronRight className="w-4 h-4 text-brand-text-secondary" />
+                        </div>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
           )}
         </div>
 
@@ -692,19 +777,133 @@ export default function ChecklistsPage() {
             <h2 className="text-lg font-bold text-brand-text-primary">
               Execuções Recentes
             </h2>
-            <Badge variant="gray">{executions.length} registros</Badge>
+            <div className="flex items-center gap-2">
+              <ViewModeToggle
+                mode={executionViewMode}
+                onChange={setExecutionViewMode}
+                options={VIEW_TOGGLE_PRESETS.tableCards}
+              />
+              <Badge variant="gray">{executions.length} registros</Badge>
+            </div>
           </div>
-          <DataTable
-            columns={executionColumns}
-            data={executions}
-            loading={loadingExecutions}
-            rowKey={(r) => r.id}
-            onRowClick={(r) => setSelectedExecution(r)}
-            emptyIcon={ClipboardX}
-            emptyTitle="Nenhuma execução registrada"
-            emptyDescription="As execuções de checklist aparecerão aqui."
-            skeletonRows={5}
-          />
+
+          {executionViewMode === "table" ? (
+            <DataTable
+              columns={executionColumns}
+              data={executions}
+              loading={loadingExecutions}
+              rowKey={(r) => r.id}
+              onRowClick={(r) => setSelectedExecution(r)}
+              emptyIcon={ClipboardX}
+              emptyTitle="Nenhuma execução registrada"
+              emptyDescription="As execuções de checklist aparecerão aqui."
+              skeletonRows={5}
+            />
+          ) : loadingExecutions ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="card p-4 space-y-2">
+                  <Skeleton className="h-4 w-36" />
+                  <Skeleton className="h-3 w-28" />
+                  <Skeleton className="h-3 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : executions.length === 0 ? (
+            <EmptyStateCard
+              icon={ClipboardX}
+              title="Nenhuma execução registrada"
+              description="As execuções de checklist aparecerão aqui."
+              className="py-14"
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              <AnimatePresence>
+                {executions.map((execution, i) => {
+                  const typeConfig = TYPE_CONFIG[execution.checklist.type];
+                  const Icon = typeConfig.icon;
+                  const resolution =
+                    execution.resolutionStatus !== "PENDING"
+                      ? RESOLUTION_CONFIG[execution.resolutionStatus]
+                      : null;
+
+                  return (
+                    <motion.button
+                      key={execution.id}
+                      type="button"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ delay: i * 0.03 }}
+                      onClick={() => setSelectedExecution(execution)}
+                      className={cn(
+                        uxSelectableCardClass({
+                          selected: selectedExecution?.id === execution.id,
+                        }),
+                        "rounded-xl",
+                      )}
+                    >
+                      <div className={UX_CARD_SECTION.header}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div
+                            className={cn(
+                              "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                              typeConfig.bg,
+                            )}
+                          >
+                            <Icon className={cn("w-4 h-4", typeConfig.text)} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-brand-text-primary truncate">
+                              {execution.checklist.name}
+                            </p>
+                            <p className="text-xs text-brand-text-secondary">
+                              {execution.createdAt
+                                ? format(
+                                    parseISO(execution.createdAt),
+                                    "dd/MM 'às' HH:mm",
+                                    { locale: ptBR },
+                                  )
+                                : "—"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {resolution ? (
+                          <Badge variant={resolution.variant} dot>
+                            {resolution.label}
+                          </Badge>
+                        ) : execution.hasIssues ? (
+                          <Badge variant="danger" dot>
+                            Com Problemas
+                          </Badge>
+                        ) : (
+                          <Badge variant="success" dot>
+                            OK
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className={UX_CARD_SECTION.infoStack}>
+                        <p className="text-xs text-brand-text-secondary">
+                          Veículo:{" "}
+                          <span className="font-mono text-brand-text-primary">
+                            {execution.vehicle.plate}
+                          </span>
+                        </p>
+                        <p className="text-xs text-brand-text-secondary truncate">
+                          Motorista: {execution.driver.name}
+                        </p>
+                        <p className="text-xs text-brand-text-secondary">
+                          Combustível: {execution.fuelLevel || "—"}
+                        </p>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       </div>
 

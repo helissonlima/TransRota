@@ -1,9 +1,16 @@
 import {
-  IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, Matches, Length,
-} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { LicenseCategory, DriverStatus } from '@transrota/shared';
-import { Transform } from 'class-transformer';
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  Length,
+} from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { LicenseCategory, DriverStatus } from "@transrota/shared";
+import { Transform } from "class-transformer";
 
 export class CreateDriverDto {
   @ApiProperty()
@@ -11,30 +18,35 @@ export class CreateDriverDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: '123.456.789-09' })
-  @Transform(({ value }) => (value ? String(value).replace(/\D/g, '') : value))
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  @Length(11, 11, { message: 'CPF deve ter 11 dígitos' })
-  @Matches(/^\d{11}$/, { message: 'CPF inválido' })
+  photoUrl?: string;
+
+  @ApiProperty({ example: "123.456.789-09" })
+  @Transform(({ value }) => (value ? String(value).replace(/\D/g, "") : value))
+  @IsString()
+  @Length(11, 11, { message: "CPF deve ter 11 dígitos" })
+  @Matches(/^\d{11}$/, { message: "CPF inválido" })
   cpf: string;
 
-  @ApiProperty({ example: '(11) 99999-9999' })
+  @ApiProperty({ example: "(11) 99999-9999" })
   @IsString()
-  @Matches(/^\(\d{2}\) \d{4,5}-\d{4}$/, { message: 'Telefone inválido' })
+  @Matches(/^\(\d{2}\) \d{4,5}-\d{4}$/, { message: "Telefone inválido" })
   phone: string;
 
-  @ApiProperty({ example: '12345678901' })
-  @Transform(({ value }) => (value ? String(value).replace(/\D/g, '') : value))
+  @ApiProperty({ example: "12345678901" })
+  @Transform(({ value }) => (value ? String(value).replace(/\D/g, "") : value))
   @IsString()
-  @Length(11, 11, { message: 'CNH deve ter exatamente 11 dígitos' })
-  @Matches(/^\d{11}$/, { message: 'CNH deve conter apenas dígitos' })
+  @Length(11, 11, { message: "CNH deve ter exatamente 11 dígitos" })
+  @Matches(/^\d{11}$/, { message: "CNH deve conter apenas dígitos" })
   licenseNumber: string;
 
   @ApiProperty({ enum: LicenseCategory })
   @IsEnum(LicenseCategory)
   licenseCategory: LicenseCategory;
 
-  @ApiProperty({ example: '2026-03-15' })
+  @ApiProperty({ example: "2026-03-15" })
   @IsDateString()
   licenseExpiry: string;
 
@@ -49,27 +61,27 @@ export class CreateDriverDto {
 
   // --- New optional fields ---
 
-  @ApiProperty({ required: false, example: '1990-05-20' })
+  @ApiProperty({ required: false, example: "1990-05-20" })
   @IsOptional()
   @IsDateString()
   birthDate?: string;
 
-  @ApiProperty({ required: false, example: '12.345.678-9' })
+  @ApiProperty({ required: false, example: "12.345.678-9" })
   @IsOptional()
   @IsString()
   rg?: string;
 
-  @ApiProperty({ required: false, example: 'SSP' })
+  @ApiProperty({ required: false, example: "SSP" })
   @IsOptional()
   @IsString()
   rgIssuingOrg?: string;
 
-  @ApiProperty({ required: false, example: 'SP' })
+  @ApiProperty({ required: false, example: "SP" })
   @IsOptional()
   @IsString()
   rgIssuingState?: string;
 
-  @ApiProperty({ required: false, example: 'Brasileira' })
+  @ApiProperty({ required: false, example: "Brasileira" })
   @IsOptional()
   @IsString()
   nationality?: string;
@@ -79,22 +91,22 @@ export class CreateDriverDto {
   @IsString()
   filiation?: string;
 
-  @ApiProperty({ required: false, example: '2005-01-10' })
+  @ApiProperty({ required: false, example: "2005-01-10" })
   @IsOptional()
   @IsDateString()
   licenseFirstDate?: string;
 
-  @ApiProperty({ required: false, example: '2022-01-10' })
+  @ApiProperty({ required: false, example: "2022-01-10" })
   @IsOptional()
   @IsDateString()
   licenseIssueDate?: string;
 
-  @ApiProperty({ required: false, example: 'DETRAN' })
+  @ApiProperty({ required: false, example: "DETRAN" })
   @IsOptional()
   @IsString()
   licenseIssuingOrg?: string;
 
-  @ApiProperty({ required: false, example: 'SP' })
+  @ApiProperty({ required: false, example: "SP" })
   @IsOptional()
   @IsString()
   licenseIssuingState?: string;

@@ -31,8 +31,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import { DetailPanel } from "@/components/ui/detail-panel";
+import { EmptyStateCard } from "@/components/ui/state-feedback";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ViewModeToggle,
+  VIEW_TOGGLE_PRESETS,
+} from "@/components/ui/view-toggle";
 import { cn } from "@/lib/cn";
+import { usePersistedViewMode } from "@/lib/use-persisted-view-mode";
+import { UX_CARD_SECTION, uxSelectableCardClass } from "@/lib/ux-card-presets";
 
 type DailyKmStatus = "OK" | "NOK";
 
@@ -147,6 +154,13 @@ export default function DailyKmPage() {
   const [dateTo, setDateTo] = useState(() =>
     format(endOfMonth(new Date()), "yyyy-MM-dd"),
   );
+  const [recordsViewMode, setRecordsViewMode] = usePersistedViewMode<
+    "list" | "cards"
+  >({
+    defaultMode: "list",
+    allowedModes: ["list", "cards"],
+    storageKeyBase: "view-mode:daily-km-records",
+  });
   const summaryDate = parseISO(dateFrom);
   const summaryYear = String(summaryDate.getFullYear());
   const summaryMonth = String(summaryDate.getMonth() + 1);
@@ -447,6 +461,11 @@ export default function DailyKmPage() {
                   onChange={(e) => setDateTo(e.target.value)}
                   className="input-base py-1.5 text-sm w-40"
                 />
+                <ViewModeToggle
+                  mode={recordsViewMode}
+                  onChange={setRecordsViewMode}
+                  options={VIEW_TOGGLE_PRESETS.listCards}
+                />
                 <Badge variant="gray">{records.length} registros</Badge>
               </div>
 
@@ -464,23 +483,22 @@ export default function DailyKmPage() {
                   ))}
                 </div>
               ) : records.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-brand-border shadow-card">
-                  <Route className="w-12 h-12 text-slate-300 mb-3" />
-                  <p className="font-semibold text-brand-text-primary">
-                    Nenhum registro encontrado
-                  </p>
-                  <p className="text-sm text-brand-text-secondary mt-1 mb-4">
-                    Tente ajustar o período ou crie um novo registro.
-                  </p>
-                  <Button
-                    size="sm"
-                    leftIcon={<Plus className="w-4 h-4" />}
-                    onClick={() => setModalOpen(true)}
-                  >
-                    Novo Registro
-                  </Button>
-                </div>
-              ) : (
+                <EmptyStateCard
+                  icon={Route}
+                  title="Nenhum registro encontrado"
+                  description="Tente ajustar o período ou crie um novo registro."
+                  action={
+                    <Button
+                      size="sm"
+                      leftIcon={<Plus className="w-4 h-4" />}
+                      onClick={() => setModalOpen(true)}
+                    >
+                      Novo Registro
+                    </Button>
+                  }
+                  className="py-20 bg-white border-brand-border shadow-card border-solid"
+                />
+              ) : recordsViewMode === "list" ? (
                 <div className="bg-white rounded-2xl border border-brand-border shadow-card overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -581,6 +599,89 @@ export default function DailyKmPage() {
                     </table>
                   </div>
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  <AnimatePresence>
+                    {records.map((record, i) => (
+                      <motion.button
+                        key={record.id}
+                        type="button"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        transition={{ duration: 0.2, delay: i * 0.02 }}
+                        onClick={() => {
+                          setSelectedRecord(record);
+                          setDetailOpen(true);
+                        }}
+                        className={cn(
+                          uxSelectableCardClass({
+                            selected: selectedRecord?.id === record.id,
+                          }),
+                          "hover:border-primary-200",
+                        )}
+                      >
+                        <div className={UX_CARD_SECTION.header}>
+                          <div>
+                            <p className="text-xs text-brand-text-secondary">
+                              {format(parseISO(record.date), "dd/MM/yyyy", {
+                                locale: ptBR,
+                              })}
+                            </p>
+                            <p className="text-sm font-semibold text-brand-text-primary mt-0.5">
+                              {record.driver.name}
+                            </p>
+                            <p className="text-xs text-brand-text-secondary mt-0.5">
+                              {record.vehicle.plate} • {record.vehicle.brand}{" "}
+                              {record.vehicle.model}
+                            </p>
+                          </div>
+                          <StatusBadge status={record.status} />
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                          <div className={UX_CARD_SECTION.metricMutedCompact}>
+                            <p className="text-brand-text-secondary">
+                              KM Inicial
+                            </p>
+                            <p className="font-semibold text-brand-text-primary font-mono">
+                              {record.initialKm.toLocaleString("pt-BR")}
+                            </p>
+                          </div>
+                          <div className={UX_CARD_SECTION.metricMutedCompact}>
+                            <p className="text-brand-text-secondary">
+                              KM Final
+                            </p>
+                            <p className="font-semibold text-brand-text-primary font-mono">
+                              {record.finalKm.toLocaleString("pt-BR")}
+                            </p>
+                          </div>
+                          <div className={UX_CARD_SECTION.metricPrimary}>
+                            <p className="text-primary-700">Trabalho</p>
+                            <p className="font-semibold text-primary-700 font-mono">
+                              {record.workKm.toLocaleString("pt-BR")}
+                            </p>
+                          </div>
+                          <div className={UX_CARD_SECTION.metricSubtle}>
+                            <p className="text-brand-text-secondary">Pessoal</p>
+                            <p className="font-semibold text-brand-text-primary font-mono">
+                              {record.personalKm.toLocaleString("pt-BR")}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 pt-3 border-t border-brand-border flex items-center justify-between">
+                          <span className="text-xs text-brand-text-secondary">
+                            KM Total
+                          </span>
+                          <span className="text-sm font-bold text-brand-text-primary font-mono">
+                            {record.totalKm.toLocaleString("pt-BR")}
+                          </span>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </AnimatePresence>
+                </div>
               )}
             </motion.div>
           )}
@@ -606,16 +707,12 @@ export default function DailyKmPage() {
                   ))}
                 </div>
               ) : summary.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-brand-border shadow-card">
-                  <TrendingUp className="w-12 h-12 text-slate-300 mb-3" />
-                  <p className="font-semibold text-brand-text-primary">
-                    Nenhum resumo disponível
-                  </p>
-                  <p className="text-sm text-brand-text-secondary mt-1">
-                    Os resumos por condutor aparecerão aqui após registros serem
-                    criados.
-                  </p>
-                </div>
+                <EmptyStateCard
+                  icon={TrendingUp}
+                  title="Nenhum resumo disponível"
+                  description="Os resumos por condutor aparecerão aqui após registros serem criados."
+                  className="py-20 bg-white border-brand-border shadow-card border-solid"
+                />
               ) : (
                 <div className="bg-white rounded-2xl border border-brand-border shadow-card overflow-hidden">
                   <div className="overflow-x-auto">
@@ -713,16 +810,12 @@ export default function DailyKmPage() {
                   ))}
                 </div>
               ) : vehicleSummary.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-brand-border shadow-card">
-                  <Car className="w-12 h-12 text-slate-300 mb-3" />
-                  <p className="font-semibold text-brand-text-primary">
-                    Nenhum resumo disponível
-                  </p>
-                  <p className="text-sm text-brand-text-secondary mt-1">
-                    Os resumos por veículo aparecerão aqui após registros serem
-                    criados.
-                  </p>
-                </div>
+                <EmptyStateCard
+                  icon={Car}
+                  title="Nenhum resumo disponível"
+                  description="Os resumos por veículo aparecerão aqui após registros serem criados."
+                  className="py-20 bg-white border-brand-border shadow-card border-solid"
+                />
               ) : (
                 <div className="bg-white rounded-2xl border border-brand-border shadow-card overflow-hidden">
                   <div className="overflow-x-auto">

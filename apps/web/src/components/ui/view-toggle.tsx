@@ -1,10 +1,81 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List, Table2, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export type ViewMode = "grid" | "list";
+
+export type ToggleOption<T extends string> = {
+  key: T;
+  label: string;
+  icon: LucideIcon;
+};
+
+export const VIEW_TOGGLE_PRESETS = {
+  gridList: [
+    { key: "grid", icon: LayoutGrid, label: "Grade" },
+    { key: "list", icon: List, label: "Lista" },
+  ] as const,
+  cardsList: [
+    { key: "cards", icon: LayoutGrid, label: "Cards" },
+    { key: "list", icon: List, label: "Lista" },
+  ] as const,
+  listCards: [
+    { key: "list", icon: List, label: "Lista" },
+    { key: "cards", icon: LayoutGrid, label: "Cards" },
+  ] as const,
+  tableCards: [
+    { key: "table", icon: Table2, label: "Tabela" },
+    { key: "cards", icon: LayoutGrid, label: "Cards" },
+  ] as const,
+};
+
+interface ViewModeToggleProps<T extends string> {
+  mode: T;
+  onChange: (mode: T) => void;
+  options: readonly ToggleOption<T>[];
+  className?: string;
+}
+
+export function ViewModeToggle<T extends string>({
+  mode,
+  onChange,
+  options,
+  className,
+}: ViewModeToggleProps<T>) {
+  return (
+    <div
+      className={cn(
+        "flex items-center rounded-lg border border-brand-border bg-white p-1",
+        className,
+      )}
+    >
+      {options.map((opt) => {
+        const Icon = opt.icon;
+        const active = mode === opt.key;
+
+        return (
+          <button
+            key={opt.key}
+            type="button"
+            onClick={() => onChange(opt.key)}
+            title={opt.label}
+            aria-label={`Mudar visualizacao para ${opt.label}`}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
+              active
+                ? "bg-slate-900 text-white"
+                : "text-brand-text-secondary hover:bg-slate-100",
+            )}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 interface ViewToggleProps {
   mode: ViewMode;
@@ -17,33 +88,12 @@ export function ViewToggle({ mode, onChange }: ViewToggleProps) {
       <span className="text-xs font-medium text-brand-text-secondary pl-2 pr-1">
         Visualização:
       </span>
-      {[
-        { key: "grid" as const, icon: LayoutGrid, label: "Grade" },
-        { key: "list" as const, icon: List, label: "Lista" },
-      ].map((opt) => (
-        <button
-          key={opt.key}
-          onClick={() => onChange(opt.key)}
-          title={opt.label}
-          aria-label={`Mudar visualização para ${opt.label}`}
-          className={cn(
-            "relative px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-sm font-medium",
-            mode === opt.key
-              ? "text-white"
-              : "text-brand-text-secondary hover:text-brand-text-primary hover:bg-slate-50",
-          )}
-        >
-          {mode === opt.key && (
-            <motion.span
-              layoutId="view-toggle-bg"
-              className="absolute inset-0 bg-primary-600 rounded-lg shadow-sm"
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            />
-          )}
-          <opt.icon className="w-4 h-4 relative z-10" />
-          <span className="relative z-10">{opt.label}</span>
-        </button>
-      ))}
+      <ViewModeToggle
+        mode={mode}
+        onChange={onChange}
+        options={VIEW_TOGGLE_PRESETS.gridList}
+        className="border-0 bg-transparent p-0"
+      />
     </div>
   );
 }

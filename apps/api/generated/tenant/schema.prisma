@@ -71,6 +71,7 @@ enum UserRole {
 model Vehicle {
   id                  String        @id @default(uuid())
   plate               String        @unique
+  photoUrl            String?
   model               String
   brand               String
   year                Int
@@ -218,6 +219,7 @@ model Driver {
   id              String          @id @default(uuid())
   userId          String?         @unique
   user            User?           @relation(fields: [userId], references: [id])
+  photoUrl        String?
   name            String
   cpf             String          @unique
   phone           String
@@ -962,6 +964,7 @@ model Seller {
 
 model Client {
   id        String   @id @default(uuid())
+  photoUrl  String?
   name      String
   doc       String?
   email     String?
@@ -984,6 +987,7 @@ model Client {
 
 model Supplier {
   id        String   @id @default(uuid())
+  photoUrl  String?
   name      String   @unique
   tradeName String?
   cnpj      String?

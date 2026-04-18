@@ -153,6 +153,7 @@ exports.Prisma.UserScalarFieldEnum = {
 exports.Prisma.VehicleScalarFieldEnum = {
   id: 'id',
   plate: 'plate',
+  photoUrl: 'photoUrl',
   model: 'model',
   brand: 'brand',
   year: 'year',
@@ -239,6 +240,7 @@ exports.Prisma.OilChangeRecordScalarFieldEnum = {
 exports.Prisma.DriverScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  photoUrl: 'photoUrl',
   name: 'name',
   cpf: 'cpf',
   phone: 'phone',
@@ -646,6 +648,7 @@ exports.Prisma.SellerScalarFieldEnum = {
 
 exports.Prisma.ClientScalarFieldEnum = {
   id: 'id',
+  photoUrl: 'photoUrl',
   name: 'name',
   doc: 'doc',
   email: 'email',
@@ -661,6 +664,7 @@ exports.Prisma.ClientScalarFieldEnum = {
 
 exports.Prisma.SupplierScalarFieldEnum = {
   id: 'id',
+  photoUrl: 'photoUrl',
   name: 'name',
   tradeName: 'tradeName',
   cnpj: 'cnpj',

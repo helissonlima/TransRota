@@ -27,10 +27,12 @@ import api from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { Header } from "@/components/layout/header";
 import { DetailPanel } from "@/components/ui/detail-panel";
+import { PhotoUpload } from "@/components/ui/photo-upload";
 
 // Validation schemas
 const supplierFormSchema = z.object({
   name: z.string().min(2, "Nome é obrigatório"),
+  photoUrl: z.string().optional(),
   tradeName: z.string().optional(),
   cnpj: z.string().min(14, "CNPJ inválido"),
   phone: z.string().min(10, "Telefone inválido"),
@@ -53,6 +55,7 @@ type LinkProductData = z.infer<typeof linkProductSchema>;
 
 interface Supplier {
   id: string;
+  photoUrl?: string;
   name: string;
   tradeName?: string;
   cnpj: string;
@@ -321,6 +324,7 @@ function SupplierDetailModal({
     defaultValues: supplier
       ? {
           name: supplier.name,
+          photoUrl: supplier.photoUrl || "",
           tradeName: supplier.tradeName || "",
           cnpj: supplier.cnpj,
           phone: supplier.phone,
@@ -401,6 +405,25 @@ function SupplierDetailModal({
             >
               {!editMode ? (
                 <div className="space-y-6">
+                  {supplier.photoUrl && (
+                    <div className="bg-brand-bg p-4 rounded-xl flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={supplier.photoUrl}
+                        alt={supplier.name}
+                        className="w-14 h-14 rounded-full object-cover border border-brand-border"
+                      />
+                      <div>
+                        <p className="text-xs font-medium text-brand-text-secondary uppercase">
+                          Foto
+                        </p>
+                        <p className="text-sm text-brand-text-primary">
+                          Imagem cadastrada
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-brand-bg p-4 rounded-xl">
                       <p className="text-xs font-medium text-brand-text-secondary uppercase">
@@ -505,6 +528,19 @@ function SupplierDetailModal({
                 </div>
               ) : (
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  <Controller
+                    name="photoUrl"
+                    control={control}
+                    render={({ field }) => (
+                      <PhotoUpload
+                        entity="supplier"
+                        title="Foto do fornecedor"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-brand-text-primary mb-2">
@@ -889,6 +925,7 @@ function NewSupplierModal({
     resolver: zodResolver(supplierFormSchema),
     defaultValues: {
       name: "",
+      photoUrl: "",
       tradeName: "",
       cnpj: "",
       phone: "",
@@ -949,6 +986,19 @@ function NewSupplierModal({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            name="photoUrl"
+            control={control}
+            render={({ field }) => (
+              <PhotoUpload
+                entity="supplier"
+                title="Foto do fornecedor"
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-brand-text-primary mb-2">

@@ -5,6 +5,29 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
+export async function uploadPhoto(
+  file: File,
+  entity: "client" | "supplier" | "driver" | "vehicle",
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const { data } = await api.post(`/upload/photo?entity=${entity}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return data as {
+    key: string;
+    photoUrl: string;
+    contentType: string;
+    size: number;
+    width: number;
+    height: number;
+  };
+}
+
 // Injeta token e tenant em todas as requisições
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {

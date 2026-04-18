@@ -32,15 +32,19 @@ import { Button } from "@/components/ui/button";
 import { Badge, VehicleStatusBadge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import { DetailPanel } from "@/components/ui/detail-panel";
+import { EmptyStateCard, SkeletonRows } from "@/components/ui/state-feedback";
 import { Skeleton, SkeletonCard } from "@/components/ui/skeleton";
 import { ViewToggle, type ViewMode } from "@/components/ui/view-toggle";
 import { cn } from "@/lib/cn";
+import { usePersistedViewMode } from "@/lib/use-persisted-view-mode";
+import { PhotoUpload } from "@/components/ui/photo-upload";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Vehicle {
   id: string;
   plate: string;
+  photoUrl?: string;
   model: string;
   brand: string;
   year: number;
@@ -260,6 +264,7 @@ function vehicleCode(vehicle: Vehicle) {
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
 const vehicleSchema = z.object({
+  photoUrl: z.string().optional(),
   plate: z.string().optional(),
   withoutPlate: z.boolean().optional(),
   brand: z.string().min(1, "Marca obrigatória"),
@@ -640,7 +645,12 @@ export default function FleetPage() {
   const [vehicleSortBy, setVehicleSortBy] = useState<
     "plate-asc" | "plate-desc" | "km-desc" | "maintenance-asc"
   >("plate-asc");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [viewMode, setViewMode] = usePersistedViewMode<ViewMode>({
+    defaultMode: "grid",
+    allowedModes: ["grid", "list"],
+    storageKeyBase: "view-mode:fleet-drivers",
+    legacyKeyBases: ["view-mode:fleet"],
+  });
   const [vehicleModal, setVehicleModal] = useState(false);
   const [oilModal, setOilModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -668,29 +678,6 @@ export default function FleetPage() {
     const sortKey = tenantId ? `sort:fleet:${tenantId}` : "sort:fleet";
     localStorage.setItem(sortKey, vehicleSortBy);
   }, [vehicleSortBy]);
-
-  useEffect(() => {
-    const tenantId = localStorage.getItem("tenantId") ?? "";
-    const sharedKey = tenantId
-      ? `view-mode:fleet-drivers:${tenantId}`
-      : "view-mode:fleet-drivers";
-    const legacyKey = tenantId
-      ? `view-mode:fleet:${tenantId}`
-      : "view-mode:fleet";
-    const saved =
-      localStorage.getItem(sharedKey) ?? localStorage.getItem(legacyKey);
-    if (saved === "grid" || saved === "list")
-      localStorage.setItem(sharedKey, saved);
-    if (saved === "grid" || saved === "list") setViewMode(saved);
-  }, []);
-
-  useEffect(() => {
-    const tenantId = localStorage.getItem("tenantId") ?? "";
-    const sharedKey = tenantId
-      ? `view-mode:fleet-drivers:${tenantId}`
-      : "view-mode:fleet-drivers";
-    localStorage.setItem(sharedKey, viewMode);
-  }, [viewMode]);
 
   useEffect(() => {
     const tenantId = localStorage.getItem("tenantId") ?? "";
@@ -1211,31 +1198,23 @@ export default function FleetPage() {
                   </div>
                 ) : (
                   <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-4 px-5 py-4 border-b border-brand-border/50 last:border-b-0"
-                      >
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-4 w-20 ml-auto" />
-                      </div>
-                    ))}
+                    <div className="px-5 py-4">
+                      <SkeletonRows rows={6} rowClassName="h-4 w-full" />
+                    </div>
                   </div>
                 )
               ) : sortedVehicles.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex flex-col items-center justify-center py-24 text-brand-text-secondary"
+                  className="py-8"
                 >
-                  <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                    <Truck className="w-10 h-10 opacity-30" />
-                  </div>
-                  <p className="font-semibold">Nenhum veículo encontrado</p>
-                  <p className="text-sm mt-1 opacity-70">
-                    Tente ajustar os filtros ou cadastre um novo veículo.
-                  </p>
+                  <EmptyStateCard
+                    icon={Truck}
+                    title="Nenhum veículo encontrado"
+                    description="Tente ajustar os filtros ou cadastre um novo veículo."
+                    className="py-24"
+                  />
                 </motion.div>
               ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
@@ -1468,6 +1447,20 @@ export default function FleetPage() {
         <form className="space-y-3 max-h-[62vh] overflow-y-auto pr-1 scrollbar-thin">
           {/* ── Identificação ── */}
           <FormSection title="Identificação Básica" icon={Truck} defaultOpen>
+            <Field label="Foto" span2>
+              <PhotoUpload
+                entity="vehicle"
+                title="Foto do veículo"
+                rounded={false}
+                value={vw("photoUrl") || ""}
+                onChange={(photoUrl) =>
+                  vSv("photoUrl", photoUrl, {
+                    shouldValidate: true,
+                  })
+                }
+              />
+            </Field>
+
             {heavyMachinesEnabled && (
               <div className="col-span-2 -mt-1 mb-1 flex items-center justify-between rounded-lg border border-brand-border bg-slate-50 px-3 py-2">
                 <div>

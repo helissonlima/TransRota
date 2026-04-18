@@ -9018,6 +9018,7 @@ export namespace Prisma {
   export type VehicleMinAggregateOutputType = {
     id: string | null;
     plate: string | null;
+    photoUrl: string | null;
     model: string | null;
     brand: string | null;
     year: number | null;
@@ -9053,6 +9054,7 @@ export namespace Prisma {
   export type VehicleMaxAggregateOutputType = {
     id: string | null;
     plate: string | null;
+    photoUrl: string | null;
     model: string | null;
     brand: string | null;
     year: number | null;
@@ -9088,6 +9090,7 @@ export namespace Prisma {
   export type VehicleCountAggregateOutputType = {
     id: number;
     plate: number;
+    photoUrl: number;
     model: number;
     brand: number;
     year: number;
@@ -9144,6 +9147,7 @@ export namespace Prisma {
   export type VehicleMinAggregateInputType = {
     id?: true;
     plate?: true;
+    photoUrl?: true;
     model?: true;
     brand?: true;
     year?: true;
@@ -9179,6 +9183,7 @@ export namespace Prisma {
   export type VehicleMaxAggregateInputType = {
     id?: true;
     plate?: true;
+    photoUrl?: true;
     model?: true;
     brand?: true;
     year?: true;
@@ -9214,6 +9219,7 @@ export namespace Prisma {
   export type VehicleCountAggregateInputType = {
     id?: true;
     plate?: true;
+    photoUrl?: true;
     model?: true;
     brand?: true;
     year?: true;
@@ -9341,6 +9347,7 @@ export namespace Prisma {
   export type VehicleGroupByOutputType = {
     id: string;
     plate: string;
+    photoUrl: string | null;
     model: string;
     brand: string;
     year: number;
@@ -9397,6 +9404,7 @@ export namespace Prisma {
     {
       id?: boolean;
       plate?: boolean;
+      photoUrl?: boolean;
       model?: boolean;
       brand?: boolean;
       year?: boolean;
@@ -9449,6 +9457,7 @@ export namespace Prisma {
     {
       id?: boolean;
       plate?: boolean;
+      photoUrl?: boolean;
       model?: boolean;
       brand?: boolean;
       year?: boolean;
@@ -9487,6 +9496,7 @@ export namespace Prisma {
   export type VehicleSelectScalar = {
     id?: boolean;
     plate?: boolean;
+    photoUrl?: boolean;
     model?: boolean;
     brand?: boolean;
     year?: boolean;
@@ -9562,6 +9572,7 @@ export namespace Prisma {
       {
         id: string;
         plate: string;
+        photoUrl: string | null;
         model: string;
         brand: string;
         year: number;
@@ -10182,6 +10193,7 @@ export namespace Prisma {
   interface VehicleFieldRefs {
     readonly id: FieldRef<"Vehicle", "String">;
     readonly plate: FieldRef<"Vehicle", "String">;
+    readonly photoUrl: FieldRef<"Vehicle", "String">;
     readonly model: FieldRef<"Vehicle", "String">;
     readonly brand: FieldRef<"Vehicle", "String">;
     readonly year: FieldRef<"Vehicle", "Int">;
@@ -14724,6 +14736,7 @@ export namespace Prisma {
   export type DriverMinAggregateOutputType = {
     id: string | null;
     userId: string | null;
+    photoUrl: string | null;
     name: string | null;
     cpf: string | null;
     phone: string | null;
@@ -14751,6 +14764,7 @@ export namespace Prisma {
   export type DriverMaxAggregateOutputType = {
     id: string | null;
     userId: string | null;
+    photoUrl: string | null;
     name: string | null;
     cpf: string | null;
     phone: string | null;
@@ -14778,6 +14792,7 @@ export namespace Prisma {
   export type DriverCountAggregateOutputType = {
     id: number;
     userId: number;
+    photoUrl: number;
     name: number;
     cpf: number;
     phone: number;
@@ -14806,6 +14821,7 @@ export namespace Prisma {
   export type DriverMinAggregateInputType = {
     id?: true;
     userId?: true;
+    photoUrl?: true;
     name?: true;
     cpf?: true;
     phone?: true;
@@ -14833,6 +14849,7 @@ export namespace Prisma {
   export type DriverMaxAggregateInputType = {
     id?: true;
     userId?: true;
+    photoUrl?: true;
     name?: true;
     cpf?: true;
     phone?: true;
@@ -14860,6 +14877,7 @@ export namespace Prisma {
   export type DriverCountAggregateInputType = {
     id?: true;
     userId?: true;
+    photoUrl?: true;
     name?: true;
     cpf?: true;
     phone?: true;
@@ -14963,6 +14981,7 @@ export namespace Prisma {
   export type DriverGroupByOutputType = {
     id: string;
     userId: string | null;
+    photoUrl: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -15009,6 +15028,7 @@ export namespace Prisma {
     {
       id?: boolean;
       userId?: boolean;
+      photoUrl?: boolean;
       name?: boolean;
       cpf?: boolean;
       phone?: boolean;
@@ -15052,6 +15072,7 @@ export namespace Prisma {
     {
       id?: boolean;
       userId?: boolean;
+      photoUrl?: boolean;
       name?: boolean;
       cpf?: boolean;
       phone?: boolean;
@@ -15083,6 +15104,7 @@ export namespace Prisma {
   export type DriverSelectScalar = {
     id?: boolean;
     userId?: boolean;
+    photoUrl?: boolean;
     name?: boolean;
     cpf?: boolean;
     phone?: boolean;
@@ -15149,6 +15171,7 @@ export namespace Prisma {
       {
         id: string;
         userId: string | null;
+        photoUrl: string | null;
         name: string;
         cpf: string;
         phone: string;
@@ -15746,6 +15769,7 @@ export namespace Prisma {
   interface DriverFieldRefs {
     readonly id: FieldRef<"Driver", "String">;
     readonly userId: FieldRef<"Driver", "String">;
+    readonly photoUrl: FieldRef<"Driver", "String">;
     readonly name: FieldRef<"Driver", "String">;
     readonly cpf: FieldRef<"Driver", "String">;
     readonly phone: FieldRef<"Driver", "String">;
@@ -52586,6 +52610,7 @@ export namespace Prisma {
 
   export type ClientMinAggregateOutputType = {
     id: string | null;
+    photoUrl: string | null;
     name: string | null;
     doc: string | null;
     email: string | null;
@@ -52601,6 +52626,7 @@ export namespace Prisma {
 
   export type ClientMaxAggregateOutputType = {
     id: string | null;
+    photoUrl: string | null;
     name: string | null;
     doc: string | null;
     email: string | null;
@@ -52616,6 +52642,7 @@ export namespace Prisma {
 
   export type ClientCountAggregateOutputType = {
     id: number;
+    photoUrl: number;
     name: number;
     doc: number;
     email: number;
@@ -52632,6 +52659,7 @@ export namespace Prisma {
 
   export type ClientMinAggregateInputType = {
     id?: true;
+    photoUrl?: true;
     name?: true;
     doc?: true;
     email?: true;
@@ -52647,6 +52675,7 @@ export namespace Prisma {
 
   export type ClientMaxAggregateInputType = {
     id?: true;
+    photoUrl?: true;
     name?: true;
     doc?: true;
     email?: true;
@@ -52662,6 +52691,7 @@ export namespace Prisma {
 
   export type ClientCountAggregateInputType = {
     id?: true;
+    photoUrl?: true;
     name?: true;
     doc?: true;
     email?: true;
@@ -52753,6 +52783,7 @@ export namespace Prisma {
 
   export type ClientGroupByOutputType = {
     id: string;
+    photoUrl: string | null;
     name: string;
     doc: string | null;
     email: string | null;
@@ -52787,6 +52818,7 @@ export namespace Prisma {
   > = $Extensions.GetSelect<
     {
       id?: boolean;
+      photoUrl?: boolean;
       name?: boolean;
       doc?: boolean;
       email?: boolean;
@@ -52809,6 +52841,7 @@ export namespace Prisma {
   > = $Extensions.GetSelect<
     {
       id?: boolean;
+      photoUrl?: boolean;
       name?: boolean;
       doc?: boolean;
       email?: boolean;
@@ -52826,6 +52859,7 @@ export namespace Prisma {
 
   export type ClientSelectScalar = {
     id?: boolean;
+    photoUrl?: boolean;
     name?: boolean;
     doc?: boolean;
     email?: boolean;
@@ -52859,6 +52893,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<
       {
         id: string;
+        photoUrl: string | null;
         name: string;
         doc: string | null;
         email: string | null;
@@ -53367,6 +53402,7 @@ export namespace Prisma {
    */
   interface ClientFieldRefs {
     readonly id: FieldRef<"Client", "String">;
+    readonly photoUrl: FieldRef<"Client", "String">;
     readonly name: FieldRef<"Client", "String">;
     readonly doc: FieldRef<"Client", "String">;
     readonly email: FieldRef<"Client", "String">;
@@ -53768,6 +53804,7 @@ export namespace Prisma {
 
   export type SupplierMinAggregateOutputType = {
     id: string | null;
+    photoUrl: string | null;
     name: string | null;
     tradeName: string | null;
     cnpj: string | null;
@@ -53786,6 +53823,7 @@ export namespace Prisma {
 
   export type SupplierMaxAggregateOutputType = {
     id: string | null;
+    photoUrl: string | null;
     name: string | null;
     tradeName: string | null;
     cnpj: string | null;
@@ -53804,6 +53842,7 @@ export namespace Prisma {
 
   export type SupplierCountAggregateOutputType = {
     id: number;
+    photoUrl: number;
     name: number;
     tradeName: number;
     cnpj: number;
@@ -53823,6 +53862,7 @@ export namespace Prisma {
 
   export type SupplierMinAggregateInputType = {
     id?: true;
+    photoUrl?: true;
     name?: true;
     tradeName?: true;
     cnpj?: true;
@@ -53841,6 +53881,7 @@ export namespace Prisma {
 
   export type SupplierMaxAggregateInputType = {
     id?: true;
+    photoUrl?: true;
     name?: true;
     tradeName?: true;
     cnpj?: true;
@@ -53859,6 +53900,7 @@ export namespace Prisma {
 
   export type SupplierCountAggregateInputType = {
     id?: true;
+    photoUrl?: true;
     name?: true;
     tradeName?: true;
     cnpj?: true;
@@ -53955,6 +53997,7 @@ export namespace Prisma {
 
   export type SupplierGroupByOutputType = {
     id: string;
+    photoUrl: string | null;
     name: string;
     tradeName: string | null;
     cnpj: string | null;
@@ -53992,6 +54035,7 @@ export namespace Prisma {
   > = $Extensions.GetSelect<
     {
       id?: boolean;
+      photoUrl?: boolean;
       name?: boolean;
       tradeName?: boolean;
       cnpj?: boolean;
@@ -54019,6 +54063,7 @@ export namespace Prisma {
   > = $Extensions.GetSelect<
     {
       id?: boolean;
+      photoUrl?: boolean;
       name?: boolean;
       tradeName?: boolean;
       cnpj?: boolean;
@@ -54039,6 +54084,7 @@ export namespace Prisma {
 
   export type SupplierSelectScalar = {
     id?: boolean;
+    photoUrl?: boolean;
     name?: boolean;
     tradeName?: boolean;
     cnpj?: boolean;
@@ -54079,6 +54125,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<
       {
         id: string;
+        photoUrl: string | null;
         name: string;
         tradeName: string | null;
         cnpj: string | null;
@@ -54623,6 +54670,7 @@ export namespace Prisma {
    */
   interface SupplierFieldRefs {
     readonly id: FieldRef<"Supplier", "String">;
+    readonly photoUrl: FieldRef<"Supplier", "String">;
     readonly name: FieldRef<"Supplier", "String">;
     readonly tradeName: FieldRef<"Supplier", "String">;
     readonly cnpj: FieldRef<"Supplier", "String">;
@@ -61656,6 +61704,7 @@ export namespace Prisma {
   export const VehicleScalarFieldEnum: {
     id: "id";
     plate: "plate";
+    photoUrl: "photoUrl";
     model: "model";
     brand: "brand";
     year: "year";
@@ -61754,6 +61803,7 @@ export namespace Prisma {
   export const DriverScalarFieldEnum: {
     id: "id";
     userId: "userId";
+    photoUrl: "photoUrl";
     name: "name";
     cpf: "cpf";
     phone: "phone";
@@ -62251,6 +62301,7 @@ export namespace Prisma {
 
   export const ClientScalarFieldEnum: {
     id: "id";
+    photoUrl: "photoUrl";
     name: "name";
     doc: "doc";
     email: "email";
@@ -62269,6 +62320,7 @@ export namespace Prisma {
 
   export const SupplierScalarFieldEnum: {
     id: "id";
+    photoUrl: "photoUrl";
     name: "name";
     tradeName: "tradeName";
     cnpj: "cnpj";
@@ -63161,6 +63213,7 @@ export namespace Prisma {
     NOT?: VehicleWhereInput | VehicleWhereInput[];
     id?: StringFilter<"Vehicle"> | string;
     plate?: StringFilter<"Vehicle"> | string;
+    photoUrl?: StringNullableFilter<"Vehicle"> | string | null;
     model?: StringFilter<"Vehicle"> | string;
     brand?: StringFilter<"Vehicle"> | string;
     year?: IntFilter<"Vehicle"> | number;
@@ -63211,6 +63264,7 @@ export namespace Prisma {
   export type VehicleOrderByWithRelationInput = {
     id?: SortOrder;
     plate?: SortOrder;
+    photoUrl?: SortOrderInput | SortOrder;
     model?: SortOrder;
     brand?: SortOrder;
     year?: SortOrder;
@@ -63261,6 +63315,7 @@ export namespace Prisma {
       AND?: VehicleWhereInput | VehicleWhereInput[];
       OR?: VehicleWhereInput[];
       NOT?: VehicleWhereInput | VehicleWhereInput[];
+      photoUrl?: StringNullableFilter<"Vehicle"> | string | null;
       model?: StringFilter<"Vehicle"> | string;
       brand?: StringFilter<"Vehicle"> | string;
       year?: IntFilter<"Vehicle"> | number;
@@ -63313,6 +63368,7 @@ export namespace Prisma {
   export type VehicleOrderByWithAggregationInput = {
     id?: SortOrder;
     plate?: SortOrder;
+    photoUrl?: SortOrderInput | SortOrder;
     model?: SortOrder;
     brand?: SortOrder;
     year?: SortOrder;
@@ -63360,6 +63416,7 @@ export namespace Prisma {
       | VehicleScalarWhereWithAggregatesInput[];
     id?: StringWithAggregatesFilter<"Vehicle"> | string;
     plate?: StringWithAggregatesFilter<"Vehicle"> | string;
+    photoUrl?: StringNullableWithAggregatesFilter<"Vehicle"> | string | null;
     model?: StringWithAggregatesFilter<"Vehicle"> | string;
     brand?: StringWithAggregatesFilter<"Vehicle"> | string;
     year?: IntWithAggregatesFilter<"Vehicle"> | number;
@@ -63924,6 +63981,7 @@ export namespace Prisma {
     NOT?: DriverWhereInput | DriverWhereInput[];
     id?: StringFilter<"Driver"> | string;
     userId?: StringNullableFilter<"Driver"> | string | null;
+    photoUrl?: StringNullableFilter<"Driver"> | string | null;
     name?: StringFilter<"Driver"> | string;
     cpf?: StringFilter<"Driver"> | string;
     phone?: StringFilter<"Driver"> | string;
@@ -63963,6 +64021,7 @@ export namespace Prisma {
   export type DriverOrderByWithRelationInput = {
     id?: SortOrder;
     userId?: SortOrderInput | SortOrder;
+    photoUrl?: SortOrderInput | SortOrder;
     name?: SortOrder;
     cpf?: SortOrder;
     phone?: SortOrder;
@@ -64006,6 +64065,7 @@ export namespace Prisma {
       AND?: DriverWhereInput | DriverWhereInput[];
       OR?: DriverWhereInput[];
       NOT?: DriverWhereInput | DriverWhereInput[];
+      photoUrl?: StringNullableFilter<"Driver"> | string | null;
       name?: StringFilter<"Driver"> | string;
       phone?: StringFilter<"Driver"> | string;
       licenseCategory?:
@@ -64056,6 +64116,7 @@ export namespace Prisma {
   export type DriverOrderByWithAggregationInput = {
     id?: SortOrder;
     userId?: SortOrderInput | SortOrder;
+    photoUrl?: SortOrderInput | SortOrder;
     name?: SortOrder;
     cpf?: SortOrder;
     phone?: SortOrder;
@@ -64093,6 +64154,7 @@ export namespace Prisma {
       | DriverScalarWhereWithAggregatesInput[];
     id?: StringWithAggregatesFilter<"Driver"> | string;
     userId?: StringNullableWithAggregatesFilter<"Driver"> | string | null;
+    photoUrl?: StringNullableWithAggregatesFilter<"Driver"> | string | null;
     name?: StringWithAggregatesFilter<"Driver"> | string;
     cpf?: StringWithAggregatesFilter<"Driver"> | string;
     phone?: StringWithAggregatesFilter<"Driver"> | string;
@@ -67666,6 +67728,7 @@ export namespace Prisma {
     OR?: ClientWhereInput[];
     NOT?: ClientWhereInput | ClientWhereInput[];
     id?: StringFilter<"Client"> | string;
+    photoUrl?: StringNullableFilter<"Client"> | string | null;
     name?: StringFilter<"Client"> | string;
     doc?: StringNullableFilter<"Client"> | string | null;
     email?: StringNullableFilter<"Client"> | string | null;
@@ -67682,6 +67745,7 @@ export namespace Prisma {
 
   export type ClientOrderByWithRelationInput = {
     id?: SortOrder;
+    photoUrl?: SortOrderInput | SortOrder;
     name?: SortOrder;
     doc?: SortOrderInput | SortOrder;
     email?: SortOrderInput | SortOrder;
@@ -67702,6 +67766,7 @@ export namespace Prisma {
       AND?: ClientWhereInput | ClientWhereInput[];
       OR?: ClientWhereInput[];
       NOT?: ClientWhereInput | ClientWhereInput[];
+      photoUrl?: StringNullableFilter<"Client"> | string | null;
       name?: StringFilter<"Client"> | string;
       doc?: StringNullableFilter<"Client"> | string | null;
       email?: StringNullableFilter<"Client"> | string | null;
@@ -67720,6 +67785,7 @@ export namespace Prisma {
 
   export type ClientOrderByWithAggregationInput = {
     id?: SortOrder;
+    photoUrl?: SortOrderInput | SortOrder;
     name?: SortOrder;
     doc?: SortOrderInput | SortOrder;
     email?: SortOrderInput | SortOrder;
@@ -67745,6 +67811,7 @@ export namespace Prisma {
       | ClientScalarWhereWithAggregatesInput
       | ClientScalarWhereWithAggregatesInput[];
     id?: StringWithAggregatesFilter<"Client"> | string;
+    photoUrl?: StringNullableWithAggregatesFilter<"Client"> | string | null;
     name?: StringWithAggregatesFilter<"Client"> | string;
     doc?: StringNullableWithAggregatesFilter<"Client"> | string | null;
     email?: StringNullableWithAggregatesFilter<"Client"> | string | null;
@@ -67763,6 +67830,7 @@ export namespace Prisma {
     OR?: SupplierWhereInput[];
     NOT?: SupplierWhereInput | SupplierWhereInput[];
     id?: StringFilter<"Supplier"> | string;
+    photoUrl?: StringNullableFilter<"Supplier"> | string | null;
     name?: StringFilter<"Supplier"> | string;
     tradeName?: StringNullableFilter<"Supplier"> | string | null;
     cnpj?: StringNullableFilter<"Supplier"> | string | null;
@@ -67784,6 +67852,7 @@ export namespace Prisma {
 
   export type SupplierOrderByWithRelationInput = {
     id?: SortOrder;
+    photoUrl?: SortOrderInput | SortOrder;
     name?: SortOrder;
     tradeName?: SortOrderInput | SortOrder;
     cnpj?: SortOrderInput | SortOrder;
@@ -67810,6 +67879,7 @@ export namespace Prisma {
       AND?: SupplierWhereInput | SupplierWhereInput[];
       OR?: SupplierWhereInput[];
       NOT?: SupplierWhereInput | SupplierWhereInput[];
+      photoUrl?: StringNullableFilter<"Supplier"> | string | null;
       tradeName?: StringNullableFilter<"Supplier"> | string | null;
       cnpj?: StringNullableFilter<"Supplier"> | string | null;
       cpf?: StringNullableFilter<"Supplier"> | string | null;
@@ -67832,6 +67902,7 @@ export namespace Prisma {
 
   export type SupplierOrderByWithAggregationInput = {
     id?: SortOrder;
+    photoUrl?: SortOrderInput | SortOrder;
     name?: SortOrder;
     tradeName?: SortOrderInput | SortOrder;
     cnpj?: SortOrderInput | SortOrder;
@@ -67860,6 +67931,7 @@ export namespace Prisma {
       | SupplierScalarWhereWithAggregatesInput
       | SupplierScalarWhereWithAggregatesInput[];
     id?: StringWithAggregatesFilter<"Supplier"> | string;
+    photoUrl?: StringNullableWithAggregatesFilter<"Supplier"> | string | null;
     name?: StringWithAggregatesFilter<"Supplier"> | string;
     tradeName?: StringNullableWithAggregatesFilter<"Supplier"> | string | null;
     cnpj?: StringNullableWithAggregatesFilter<"Supplier"> | string | null;
@@ -68990,6 +69062,7 @@ export namespace Prisma {
   export type VehicleCreateInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -69035,6 +69108,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -69080,6 +69154,7 @@ export namespace Prisma {
   export type VehicleUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -69139,6 +69214,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -69198,6 +69274,7 @@ export namespace Prisma {
   export type VehicleCreateManyInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -69233,6 +69310,7 @@ export namespace Prisma {
   export type VehicleUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -69281,6 +69359,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -69850,6 +69929,7 @@ export namespace Prisma {
 
   export type DriverCreateInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -69886,6 +69966,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -69920,6 +70001,7 @@ export namespace Prisma {
 
   export type DriverUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -69979,6 +70061,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -70037,6 +70120,7 @@ export namespace Prisma {
   export type DriverCreateManyInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -70063,6 +70147,7 @@ export namespace Prisma {
 
   export type DriverUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -70112,6 +70197,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -73727,6 +73813,7 @@ export namespace Prisma {
 
   export type ClientCreateInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     doc?: string | null;
     email?: string | null;
@@ -73743,6 +73830,7 @@ export namespace Prisma {
 
   export type ClientUncheckedCreateInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     doc?: string | null;
     email?: string | null;
@@ -73759,6 +73847,7 @@ export namespace Prisma {
 
   export type ClientUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     doc?: NullableStringFieldUpdateOperationsInput | string | null;
     email?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -73775,6 +73864,7 @@ export namespace Prisma {
 
   export type ClientUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     doc?: NullableStringFieldUpdateOperationsInput | string | null;
     email?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -73791,6 +73881,7 @@ export namespace Prisma {
 
   export type ClientCreateManyInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     doc?: string | null;
     email?: string | null;
@@ -73806,6 +73897,7 @@ export namespace Prisma {
 
   export type ClientUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     doc?: NullableStringFieldUpdateOperationsInput | string | null;
     email?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -73821,6 +73913,7 @@ export namespace Prisma {
 
   export type ClientUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     doc?: NullableStringFieldUpdateOperationsInput | string | null;
     email?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -73836,6 +73929,7 @@ export namespace Prisma {
 
   export type SupplierCreateInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -73857,6 +73951,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedCreateInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -73878,6 +73973,7 @@ export namespace Prisma {
 
   export type SupplierUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -73899,6 +73995,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -73920,6 +74017,7 @@ export namespace Prisma {
 
   export type SupplierCreateManyInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -73938,6 +74036,7 @@ export namespace Prisma {
 
   export type SupplierUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -73956,6 +74055,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -75409,6 +75509,7 @@ export namespace Prisma {
   export type VehicleCountOrderByAggregateInput = {
     id?: SortOrder;
     plate?: SortOrder;
+    photoUrl?: SortOrder;
     model?: SortOrder;
     brand?: SortOrder;
     year?: SortOrder;
@@ -75454,6 +75555,7 @@ export namespace Prisma {
   export type VehicleMaxOrderByAggregateInput = {
     id?: SortOrder;
     plate?: SortOrder;
+    photoUrl?: SortOrder;
     model?: SortOrder;
     brand?: SortOrder;
     year?: SortOrder;
@@ -75489,6 +75591,7 @@ export namespace Prisma {
   export type VehicleMinOrderByAggregateInput = {
     id?: SortOrder;
     plate?: SortOrder;
+    photoUrl?: SortOrder;
     model?: SortOrder;
     brand?: SortOrder;
     year?: SortOrder;
@@ -76150,6 +76253,7 @@ export namespace Prisma {
   export type DriverCountOrderByAggregateInput = {
     id?: SortOrder;
     userId?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     cpf?: SortOrder;
     phone?: SortOrder;
@@ -76177,6 +76281,7 @@ export namespace Prisma {
   export type DriverMaxOrderByAggregateInput = {
     id?: SortOrder;
     userId?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     cpf?: SortOrder;
     phone?: SortOrder;
@@ -76204,6 +76309,7 @@ export namespace Prisma {
   export type DriverMinOrderByAggregateInput = {
     id?: SortOrder;
     userId?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     cpf?: SortOrder;
     phone?: SortOrder;
@@ -78595,6 +78701,7 @@ export namespace Prisma {
 
   export type ClientCountOrderByAggregateInput = {
     id?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     doc?: SortOrder;
     email?: SortOrder;
@@ -78610,6 +78717,7 @@ export namespace Prisma {
 
   export type ClientMaxOrderByAggregateInput = {
     id?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     doc?: SortOrder;
     email?: SortOrder;
@@ -78625,6 +78733,7 @@ export namespace Prisma {
 
   export type ClientMinOrderByAggregateInput = {
     id?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     doc?: SortOrder;
     email?: SortOrder;
@@ -78650,6 +78759,7 @@ export namespace Prisma {
 
   export type SupplierCountOrderByAggregateInput = {
     id?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     tradeName?: SortOrder;
     cnpj?: SortOrder;
@@ -78668,6 +78778,7 @@ export namespace Prisma {
 
   export type SupplierMaxOrderByAggregateInput = {
     id?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     tradeName?: SortOrder;
     cnpj?: SortOrder;
@@ -78686,6 +78797,7 @@ export namespace Prisma {
 
   export type SupplierMinOrderByAggregateInput = {
     id?: SortOrder;
+    photoUrl?: SortOrder;
     name?: SortOrder;
     tradeName?: SortOrder;
     cnpj?: SortOrder;
@@ -88011,6 +88123,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutBranchInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -88055,6 +88168,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutBranchInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -88111,6 +88225,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutBranchInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -88146,6 +88261,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutBranchInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -88431,6 +88547,7 @@ export namespace Prisma {
     NOT?: VehicleScalarWhereInput | VehicleScalarWhereInput[];
     id?: StringFilter<"Vehicle"> | string;
     plate?: StringFilter<"Vehicle"> | string;
+    photoUrl?: StringNullableFilter<"Vehicle"> | string | null;
     model?: StringFilter<"Vehicle"> | string;
     brand?: StringFilter<"Vehicle"> | string;
     year?: IntFilter<"Vehicle"> | number;
@@ -88501,6 +88618,7 @@ export namespace Prisma {
     NOT?: DriverScalarWhereInput | DriverScalarWhereInput[];
     id?: StringFilter<"Driver"> | string;
     userId?: StringNullableFilter<"Driver"> | string | null;
+    photoUrl?: StringNullableFilter<"Driver"> | string | null;
     name?: StringFilter<"Driver"> | string;
     cpf?: StringFilter<"Driver"> | string;
     phone?: StringFilter<"Driver"> | string;
@@ -88758,6 +88876,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutUserInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -88792,6 +88911,7 @@ export namespace Prisma {
 
   export type DriverUncheckedCreateWithoutUserInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -89104,6 +89224,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -89161,6 +89282,7 @@ export namespace Prisma {
 
   export type DriverUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -90448,6 +90570,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutMaintenanceRecordsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -90492,6 +90615,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutMaintenanceRecordsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -90564,6 +90688,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutMaintenanceRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -90622,6 +90747,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutMaintenanceRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -90680,6 +90806,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutFuelRecordsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -90724,6 +90851,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutFuelRecordsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -90775,6 +90903,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutFuelRecordsInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -90810,6 +90939,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutFuelRecordsInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -90872,6 +91002,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutFuelRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -90930,6 +91061,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutFuelRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -91007,6 +91139,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutFuelRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -91065,6 +91198,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutFuelRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -91122,6 +91256,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutOilChangeRecordsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -91166,6 +91301,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutOilChangeRecordsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -91238,6 +91374,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutOilChangeRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -91296,6 +91433,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutOilChangeRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -92225,6 +92363,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutDocumentsInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -92260,6 +92399,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutDocumentsInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -92321,6 +92461,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutDocumentsInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -92379,6 +92520,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutDocumentsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -92436,6 +92578,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutDailyKmLogsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -92480,6 +92623,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutDailyKmLogsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -92531,6 +92675,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutDailyKmLogsInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -92566,6 +92711,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutDailyKmLogsInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -92628,6 +92774,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutDailyKmLogsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -92686,6 +92833,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutDailyKmLogsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -92763,6 +92911,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutDailyKmLogsInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -92821,6 +92970,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutDailyKmLogsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -92878,6 +93028,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutVehicleMovementsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -92922,6 +93073,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutVehicleMovementsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -92973,6 +93125,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutVehicleMovementsInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -93008,6 +93161,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutVehicleMovementsInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -93070,6 +93224,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutVehicleMovementsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -93128,6 +93283,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutVehicleMovementsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -93205,6 +93361,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutVehicleMovementsInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -93263,6 +93420,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutVehicleMovementsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -93320,6 +93478,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutVehicleBookingsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -93364,6 +93523,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutVehicleBookingsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -93528,6 +93688,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutVehicleBookingsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -93586,6 +93747,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutVehicleBookingsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -93768,6 +93930,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutVehicleTaxesInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -93812,6 +93975,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutVehicleTaxesInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -93884,6 +94048,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutVehicleTaxesInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -93942,6 +94107,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutVehicleTaxesInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -94274,6 +94440,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutRoutesInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -94318,6 +94485,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutRoutesInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -94369,6 +94537,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutRoutesInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -94404,6 +94573,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutRoutesInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -94626,6 +94796,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutRoutesInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -94684,6 +94855,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutRoutesInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -94761,6 +94933,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutRoutesInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -94819,6 +94992,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutRoutesInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -96058,6 +96232,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutChecklistExecutionsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -96102,6 +96277,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutChecklistExecutionsInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -96153,6 +96329,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutChecklistExecutionsInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -96188,6 +96365,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutChecklistExecutionsInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -96453,6 +96631,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutChecklistExecutionsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -96511,6 +96690,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutChecklistExecutionsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -96588,6 +96768,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutChecklistExecutionsInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -96646,6 +96827,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutChecklistExecutionsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -97334,6 +97516,7 @@ export namespace Prisma {
   export type VehicleCreateWithoutFinancialEntriesInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -97378,6 +97561,7 @@ export namespace Prisma {
   export type VehicleUncheckedCreateWithoutFinancialEntriesInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -97429,6 +97613,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutFinancialEntriesInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -97464,6 +97649,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutFinancialEntriesInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -97566,6 +97752,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutFinancialEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -97624,6 +97811,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutFinancialEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -97701,6 +97889,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutFinancialEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -97759,6 +97948,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutFinancialEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -97815,6 +98005,7 @@ export namespace Prisma {
 
   export type DriverCreateWithoutCommissionsInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -97850,6 +98041,7 @@ export namespace Prisma {
   export type DriverUncheckedCreateWithoutCommissionsInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -97911,6 +98103,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutCommissionsInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -97969,6 +98162,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutCommissionsInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -100808,6 +101002,7 @@ export namespace Prisma {
 
   export type SupplierCreateWithoutProductsInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -100828,6 +101023,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedCreateWithoutProductsInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -100938,6 +101134,7 @@ export namespace Prisma {
 
   export type SupplierUpdateWithoutProductsInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -100958,6 +101155,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedUpdateWithoutProductsInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -101094,6 +101292,7 @@ export namespace Prisma {
 
   export type SupplierCreateWithoutPurchaseOrdersInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -101114,6 +101313,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedCreateWithoutPurchaseOrdersInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -101197,6 +101397,7 @@ export namespace Prisma {
 
   export type SupplierUpdateWithoutPurchaseOrdersInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -101217,6 +101418,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedUpdateWithoutPurchaseOrdersInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -101591,6 +101793,7 @@ export namespace Prisma {
 
   export type ClientCreateWithoutSaleOrdersInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     doc?: string | null;
     email?: string | null;
@@ -101606,6 +101809,7 @@ export namespace Prisma {
 
   export type ClientUncheckedCreateWithoutSaleOrdersInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     doc?: string | null;
     email?: string | null;
@@ -101661,6 +101865,7 @@ export namespace Prisma {
 
   export type SupplierCreateWithoutSaleOrdersInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -101681,6 +101886,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedCreateWithoutSaleOrdersInput = {
     id?: string;
+    photoUrl?: string | null;
     name: string;
     tradeName?: string | null;
     cnpj?: string | null;
@@ -101762,6 +101968,7 @@ export namespace Prisma {
 
   export type ClientUpdateWithoutSaleOrdersInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     doc?: NullableStringFieldUpdateOperationsInput | string | null;
     email?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -101777,6 +101984,7 @@ export namespace Prisma {
 
   export type ClientUncheckedUpdateWithoutSaleOrdersInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     doc?: NullableStringFieldUpdateOperationsInput | string | null;
     email?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -101866,6 +102074,7 @@ export namespace Prisma {
 
   export type SupplierUpdateWithoutSaleOrdersInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -101886,6 +102095,7 @@ export namespace Prisma {
 
   export type SupplierUncheckedUpdateWithoutSaleOrdersInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     tradeName?: NullableStringFieldUpdateOperationsInput | string | null;
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null;
@@ -102314,6 +102524,7 @@ export namespace Prisma {
   export type VehicleCreateManyBranchInput = {
     id?: string;
     plate: string;
+    photoUrl?: string | null;
     model: string;
     brand: string;
     year: number;
@@ -102348,6 +102559,7 @@ export namespace Prisma {
   export type DriverCreateManyBranchInput = {
     id?: string;
     userId?: string | null;
+    photoUrl?: string | null;
     name: string;
     cpf: string;
     phone: string;
@@ -102484,6 +102696,7 @@ export namespace Prisma {
   export type VehicleUpdateWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -102542,6 +102755,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -102600,6 +102814,7 @@ export namespace Prisma {
   export type VehicleUncheckedUpdateManyWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string;
     plate?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     model?: StringFieldUpdateOperationsInput | string;
     brand?: StringFieldUpdateOperationsInput | string;
     year?: IntFieldUpdateOperationsInput | number;
@@ -102647,6 +102862,7 @@ export namespace Prisma {
 
   export type DriverUpdateWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -102705,6 +102921,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;
@@ -102762,6 +102979,7 @@ export namespace Prisma {
   export type DriverUncheckedUpdateManyWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string;
     userId?: NullableStringFieldUpdateOperationsInput | string | null;
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null;
     name?: StringFieldUpdateOperationsInput | string;
     cpf?: StringFieldUpdateOperationsInput | string;
     phone?: StringFieldUpdateOperationsInput | string;

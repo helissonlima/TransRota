@@ -1,28 +1,51 @@
 import {
-  IsDateString, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional,
-  IsString, IsUUID, Matches, Max, Min, IsBoolean, ValidateIf,
-} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { VehicleType, FuelType } from '@transrota/shared';
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  Max,
+  Min,
+  IsBoolean,
+  ValidateIf,
+} from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { VehicleType, FuelType } from "@transrota/shared";
 
 export class CreateVehicleDto {
-  @ApiProperty({ example: 'ABC-1234', required: false })
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  photoUrl?: string;
+
+  @ApiProperty({ example: "ABC-1234", required: false })
   @ValidateIf((o) => !o.withoutPlate)
   @IsString()
-  @Matches(/^[A-Z]{3}-?\d{4}$|^[A-Z]{3}\d[A-Z]\d{2}$/, { message: 'Placa inválida' })
+  @Matches(/^[A-Z]{3}-?\d{4}$|^[A-Z]{3}\d[A-Z]\d{2}$/, {
+    message: "Placa inválida",
+  })
   plate?: string;
 
-  @ApiProperty({ required: false, default: false, description: 'Quando true, o sistema gera identificador interno para máquina sem placa' })
+  @ApiProperty({
+    required: false,
+    default: false,
+    description:
+      "Quando true, o sistema gera identificador interno para máquina sem placa",
+  })
   @IsOptional()
   @IsBoolean()
   withoutPlate?: boolean;
 
-  @ApiProperty({ example: 'Sprinter' })
+  @ApiProperty({ example: "Sprinter" })
   @IsString()
   @IsNotEmpty()
   model: string;
 
-  @ApiProperty({ example: 'Mercedes-Benz' })
+  @ApiProperty({ example: "Mercedes-Benz" })
   @IsString()
   @IsNotEmpty()
   brand: string;
@@ -62,12 +85,12 @@ export class CreateVehicleDto {
 
   // --- New optional fields ---
 
-  @ApiProperty({ required: false, example: 'TAG-001' })
+  @ApiProperty({ required: false, example: "TAG-001" })
   @IsOptional()
   @IsString()
   tag?: string;
 
-  @ApiProperty({ required: false, example: '12345678901' })
+  @ApiProperty({ required: false, example: "12345678901" })
   @IsOptional()
   @IsString()
   renavam?: string;
