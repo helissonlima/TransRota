@@ -30,7 +30,11 @@ import { StorageModule } from "./storage/storage.module";
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      // Permite rodar a API tanto pelo diretório apps/api quanto pela raiz do monorepo
+      envFilePath: ["apps/api/.env", ".env"],
+    }),
     LoggerModule.forRoot({
       pinoHttp: {
         transport:

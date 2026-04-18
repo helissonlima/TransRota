@@ -24,17 +24,30 @@ export function usePersistedViewMode<T extends string>({
   tenantScoped = true,
 }: PersistedViewModeOptions<T>) {
   const [mode, setMode] = useState<T>(defaultMode);
+  const legacySignature = legacyKeyBases.join("|");
 
   // Usar ref para evitar que arrays literais inline causem re-render infinito
   const validModesRef = useRef(new Set<string>(allowedModes));
+  const storageKeysRef = useRef<{
+    primaryKey: string;
+    legacyKeys: string[];
+  } | null>(null);
+
+  useEffect(() => {
+    validModesRef.current = new Set<string>(allowedModes);
+  }, [allowedModes]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const primaryKey = resolveStorageKey(storageKeyBase, tenantScoped);
-    const legacyKeys = (legacyKeyBases ?? []).map((base) =>
-      resolveStorageKey(base, tenantScoped),
-    );
+    storageKeysRef.current = {
+      primaryKey: resolveStorageKey(storageKeyBase, tenantScoped),
+      legacyKeys: (legacyKeyBases ?? []).map((base) =>
+        resolveStorageKey(base, tenantScoped),
+      ),
+    };
+
+    const { primaryKey, legacyKeys } = storageKeysRef.current;
 
     const candidates = [
       localStorage.getItem(primaryKey),
@@ -43,18 +56,22 @@ export function usePersistedViewMode<T extends string>({
 
     const saved = candidates.find((value) => validModesRef.current.has(value));
     if (saved) {
-      setMode(saved as T);
+      setMode((current) => (current === saved ? current : (saved as T)));
       localStorage.setItem(primaryKey, saved);
       return;
     }
 
     localStorage.setItem(primaryKey, defaultMode);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageKeyBase, tenantScoped]);
+    setMode((current) =>
+      current === defaultMode ? current : (defaultMode as T),
+    );
+  }, [defaultMode, legacySignature, storageKeyBase, tenantScoped]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const primaryKey = resolveStorageKey(storageKeyBase, tenantScoped);
+    const primaryKey =
+      storageKeysRef.current?.primaryKey ??
+      resolveStorageKey(storageKeyBase, tenantScoped);
     localStorage.setItem(primaryKey, mode);
   }, [mode, storageKeyBase, tenantScoped]);
 
