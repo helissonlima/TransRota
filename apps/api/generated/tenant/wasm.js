@@ -632,14 +632,111 @@ exports.Prisma.ProductionOrderItemScalarFieldEnum = {
   consumedQty: 'consumedQty'
 };
 
+exports.Prisma.SellerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  cpf: 'cpf',
+  commission: 'commission',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ClientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  doc: 'doc',
+  email: 'email',
+  phone: 'phone',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SupplierScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  tradeName: 'tradeName',
+  cnpj: 'cnpj',
+  cpf: 'cpf',
+  email: 'email',
+  phone: 'phone',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  zipCode: 'zipCode',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SupplierProductScalarFieldEnum = {
+  id: 'id',
+  supplierId: 'supplierId',
+  productId: 'productId',
+  supplierSku: 'supplierSku',
+  lastPrice: 'lastPrice',
+  leadTimeDays: 'leadTimeDays',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseOrderScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  supplierId: 'supplierId',
+  status: 'status',
+  isPriceLocked: 'isPriceLocked',
+  isSafra: 'isSafra',
+  safra: 'safra',
+  subtotal: 'subtotal',
+  discount: 'discount',
+  total: 'total',
+  notes: 'notes',
+  dueDate: 'dueDate',
+  receivedAt: 'receivedAt',
+  invoiceNumber: 'invoiceNumber',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseOrderItemScalarFieldEnum = {
+  id: 'id',
+  purchaseOrderId: 'purchaseOrderId',
+  productId: 'productId',
+  quantity: 'quantity',
+  receivedQty: 'receivedQty',
+  unitPrice: 'unitPrice',
+  discount: 'discount',
+  total: 'total'
+};
+
 exports.Prisma.SaleOrderScalarFieldEnum = {
   id: 'id',
   number: 'number',
+  clientId: 'clientId',
   clientName: 'clientName',
   clientDoc: 'clientDoc',
   clientEmail: 'clientEmail',
   clientPhone: 'clientPhone',
+  clientAddress: 'clientAddress',
+  sellerId: 'sellerId',
+  supplierId: 'supplierId',
   status: 'status',
+  deliveryStatus: 'deliveryStatus',
+  isPriceLocked: 'isPriceLocked',
+  isSafra: 'isSafra',
+  safra: 'safra',
+  invoiceNumber: 'invoiceNumber',
+  paymentMethod: 'paymentMethod',
   subtotal: 'subtotal',
   discount: 'discount',
   total: 'total',
@@ -913,6 +1010,14 @@ exports.ProductionOrderStatus = exports.$Enums.ProductionOrderStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
+  DRAFT: 'DRAFT',
+  CONFIRMED: 'CONFIRMED',
+  PARTIALLY_RECEIVED: 'PARTIALLY_RECEIVED',
+  RECEIVED: 'RECEIVED',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.SaleOrderStatus = exports.$Enums.SaleOrderStatus = {
   DRAFT: 'DRAFT',
   CONFIRMED: 'CONFIRMED',
@@ -920,6 +1025,13 @@ exports.SaleOrderStatus = exports.$Enums.SaleOrderStatus = {
   DELIVERED: 'DELIVERED',
   CANCELLED: 'CANCELLED',
   INVOICED: 'INVOICED'
+};
+
+exports.DeliveryStatus = exports.$Enums.DeliveryStatus = {
+  PENDING: 'PENDING',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERED: 'DELIVERED',
+  RETURNED: 'RETURNED'
 };
 
 exports.Prisma.ModelName = {
@@ -958,6 +1070,12 @@ exports.Prisma.ModelName = {
   StockMovement: 'StockMovement',
   ProductionOrder: 'ProductionOrder',
   ProductionOrderItem: 'ProductionOrderItem',
+  Seller: 'Seller',
+  Client: 'Client',
+  Supplier: 'Supplier',
+  SupplierProduct: 'SupplierProduct',
+  PurchaseOrder: 'PurchaseOrder',
+  PurchaseOrderItem: 'PurchaseOrderItem',
   SaleOrder: 'SaleOrder',
   SaleOrderItem: 'SaleOrderItem'
 };

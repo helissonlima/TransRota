@@ -1,0 +1,3282 @@
+{
+  "files": {
+    "apps/web/.next/static/chunks/app/(app)/daily-km/page-11f9edbcf9c5805e.js": {
+      "size": 45169,
+      "mtime_nanos": 1776519368538471662,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/layout-120e6c7acfb0f886.js": {
+      "size": 438,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/[id]/features": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/equipment.meta": {
+      "size": 153,
+      "mtime_nanos": 1776519383087322174,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/plans/page.js": {
+      "size": 15934,
+      "mtime_nanos": 1776519361784649065,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/dashboard.meta": {
+      "size": 153,
+      "mtime_nanos": 1776519384735278732,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/users/page.js.nft.json": {
+      "size": 9432,
+      "mtime_nanos": 1776519390370344555,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/dashboard": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/reports/page.js.nft.json": {
+      "size": 9300,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/dashboard.html": {
+      "size": 10467,
+      "mtime_nanos": 1776519384735086239,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/layout.ts": {
+      "size": 3540,
+      "mtime_nanos": 1776519361791294078,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/login/page.js": {
+      "size": 11909,
+      "mtime_nanos": 1776519361784420626,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin.meta": {
+      "size": 127,
+      "mtime_nanos": 1776519384515687690,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/drivers.html": {
+      "size": 10673,
+      "mtime_nanos": 1776519383146717516,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/pages/404.html": {
+      "size": 8203,
+      "mtime_nanos": 1776519384777327748,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/server-reference-manifest.js": {
+      "size": 123,
+      "mtime_nanos": 1776519361791498169,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/index.rsc": {
+      "size": 2922,
+      "mtime_nanos": 1776519384535786589,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/8375.js": {
+      "size": 33690,
+      "mtime_nanos": 1776519361785157324,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/settings.rsc": {
+      "size": 5117,
+      "mtime_nanos": 1776519384499109808,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(auth)/login": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/daily-km/page.ts": {
+      "size": 3561,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/fiscal/page-39949a9e782a7545.js": {
+      "size": 27098,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/fleet": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/features/page.js": {
+      "size": 14713,
+      "mtime_nanos": 1776519361784649065,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/3686.js": {
+      "size": 40926,
+      "mtime_nanos": 1776519361785000677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/plans.rsc": {
+      "size": 5008,
+      "mtime_nanos": 1776519384171892023,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/products/page_client-reference-manifest.js": {
+      "size": 14139,
+      "mtime_nanos": 1776519368550618726,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/settings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/plans.html": {
+      "size": 8878,
+      "mtime_nanos": 1776519384177155747,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/settings.meta": {
+      "size": 211,
+      "mtime_nanos": 1776519384501109888,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/settings/page.js": {
+      "size": 25887,
+      "mtime_nanos": 1776519361784649065,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/5291-7e281126bdab690a.js": {
+      "size": 126182,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/9371-120816e62f5af517.js": {
+      "size": 38150,
+      "mtime_nanos": 1776519368544471902,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/middleware-build-manifest.js": {
+      "size": 889,
+      "mtime_nanos": 1776519368549329992,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/pages/_document.js": {
+      "size": 385,
+      "mtime_nanos": 1776519361781930771,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/daily-km/page.js.nft.json": {
+      "size": 9352,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/financial/page.js": {
+      "size": 62074,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/routes/page.js.nft.json": {
+      "size": 9326,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/page_client-reference-manifest.js": {
+      "size": 14804,
+      "mtime_nanos": 1776519368551497556,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/8989-50706948cc3d42fa.js": {
+      "size": 9147,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(auth)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/tT99Eu7od3vWY65fs1cc8/_ssgManifest.js": {
+      "size": 80,
+      "mtime_nanos": 1776519384925126842,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/billing/page-a83382512bbe3f09.js": {
+      "size": 12835,
+      "mtime_nanos": 1776519368542471822,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/9099-cd1585dd0f64f95b.js": {
+      "size": 9626,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/next-minimal-server.js.nft.json": {
+      "size": 18184,
+      "mtime_nanos": 1776519390405345955,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/companies.meta": {
+      "size": 214,
+      "mtime_nanos": 1776519384186489724,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/4662-6ec9d1718ac80052.js": {
+      "size": 10021,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/6000-40adc134c49ba87d.js": {
+      "size": 15816,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/7356-f531af4c88b688b9.js": {
+      "size": 13486,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/dashboard.rsc": {
+      "size": 5980,
+      "mtime_nanos": 1776519384734649354,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/settings/page_client-reference-manifest.js": {
+      "size": 14187,
+      "mtime_nanos": 1776519368550943572,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/[id]": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/fleet.html": {
+      "size": 10497,
+      "mtime_nanos": 1776519384667707499,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/index.html": {
+      "size": 4975,
+      "mtime_nanos": 1776519384539639486,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/daily-km": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/pages/_app.js": {
+      "size": 3307,
+      "mtime_nanos": 1776519361781930771,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/profile": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/(app)/profile": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/users/page.js": {
+      "size": 13977,
+      "mtime_nanos": 1776519361784649065,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/fiscal.html": {
+      "size": 10502,
+      "mtime_nanos": 1776519383079367162,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/checklists.meta": {
+      "size": 156,
+      "mtime_nanos": 1776519383044296308,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/features": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/6320-c21b5296e5670e62.js": {
+      "size": 6496,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/5026.js": {
+      "size": 30253,
+      "mtime_nanos": 1776519361785157324,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/4926.js": {
+      "size": 7622,
+      "mtime_nanos": 1776519361785272755,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/fiscal/page.js": {
+      "size": 28339,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/settings/page_client-reference-manifest.js": {
+      "size": 14801,
+      "mtime_nanos": 1776519368551840373,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/drivers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/fleet/page.js.nft.json": {
+      "size": 9352,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/plans/page.js.nft.json": {
+      "size": 9432,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/export-marker.json": {
+      "size": 94,
+      "mtime_nanos": 1776519385013130360,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(auth)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/_not-found/page.js.nft.json": {
+      "size": 8838,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/app-path-routes-manifest.json": {
+      "size": 1236,
+      "mtime_nanos": 1776519381590993535,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/billing/page.ts": {
+      "size": 3600,
+      "mtime_nanos": 1776519361790778967,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/app-build-manifest.json": {
+      "size": 22800,
+      "mtime_nanos": 1776519368549589975,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/dashboard.html": {
+      "size": 8903,
+      "mtime_nanos": 1776519384174259344,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/companies/[id]/page.ts": {
+      "size": 3627,
+      "mtime_nanos": 1776519361790778967,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/page.ts": {
+      "size": 3528,
+      "mtime_nanos": 1776519361790279772,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(auth)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/fiscal": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/users": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/login.rsc": {
+      "size": 5063,
+      "mtime_nanos": 1776519384098063258,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/companies.rsc": {
+      "size": 5121,
+      "mtime_nanos": 1776519384185844592,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/1317-26b7aa6bdb6e55b7.js": {
+      "size": 19916,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/fiscal.rsc": {
+      "size": 6017,
+      "mtime_nanos": 1776519383077052951,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/reports": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/(protected)/dashboard": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/9850-e824fea1ba9a50a4.js": {
+      "size": 9205,
+      "mtime_nanos": 1776519368545471942,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/media/19cfc7226ec3afaa-s.woff2": {
+      "size": 19044,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/8561.js": {
+      "size": 21874,
+      "mtime_nanos": 1776519361785000677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/suppliers/page_client-reference-manifest.js": {
+      "size": 14142,
+      "mtime_nanos": 1776519368551220105,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/equipment/page.ts": {
+      "size": 3564,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/companies/page.ts": {
+      "size": 3606,
+      "mtime_nanos": 1776519361790778967,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/3576-a918649d9706e49b.js": {
+      "size": 11131,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/settings.html": {
+      "size": 9079,
+      "mtime_nanos": 1776519384499109808,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.turbo/turbo-build.log": {
+      "size": 2987,
+      "mtime_nanos": 1776519390454347914,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/notifications.meta": {
+      "size": 226,
+      "mtime_nanos": 1776519384522027990,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/equipment.rsc": {
+      "size": 6030,
+      "mtime_nanos": 1776519383085053271,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin/login/page-428dabe0443d0056.js": {
+      "size": 9909,
+      "mtime_nanos": 1776519368542471822,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/polyfills-42372ed130431b0a.js": {
+      "size": 112594,
+      "mtime_nanos": 1776519368548472062,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/bookings.rsc": {
+      "size": 6026,
+      "mtime_nanos": 1776519384530954033,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/financial": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/daily-km": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/reports/page.ts": {
+      "size": 3558,
+      "mtime_nanos": 1776519361789361069,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/7522-149f37deec200977.js": {
+      "size": 8446,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/fiscal": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/settings/page.ts": {
+      "size": 3561,
+      "mtime_nanos": 1776519361790279772,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/purchases": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/_not-found.html": {
+      "size": 8203,
+      "mtime_nanos": 1776519384167238678,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/billing.html": {
+      "size": 8891,
+      "mtime_nanos": 1776519384084467024,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/8094-57c785cfba323c02.js": {
+      "size": 10444,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/login.html": {
+      "size": 9994,
+      "mtime_nanos": 1776519384536852618,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/settings/page-3ff7900fd8973bdf.js": {
+      "size": 32175,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/pages/500.html": {
+      "size": 1995,
+      "mtime_nanos": 1776519383152007750,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/settings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin/layout-33e5811724fc1c9c.js": {
+      "size": 173,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/pages": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/checklists/page_client-reference-manifest.js": {
+      "size": 14289,
+      "mtime_nanos": 1776519368550160677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/[id]/page-2f786d5c3e57fd65.js": {
+      "size": 24403,
+      "mtime_nanos": 1776519368542471822,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/next-font-manifest.json": {
+      "size": 197,
+      "mtime_nanos": 1776519368549888778,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/fleet": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/financial.html": {
+      "size": 10781,
+      "mtime_nanos": 1776519384176633463,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/users/page.ts": {
+      "size": 3594,
+      "mtime_nanos": 1776519361790778967,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/sales": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/reports.html": {
+      "size": 10284,
+      "mtime_nanos": 1776519384239143012,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/notifications.rsc": {
+      "size": 5041,
+      "mtime_nanos": 1776519384521311057,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/5328-67b98564e12992a4.js": {
+      "size": 11225,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/dashboard/page.js": {
+      "size": 56258,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/login.meta": {
+      "size": 147,
+      "mtime_nanos": 1776519384537586520,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/companies/[id]": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/(protected)/companies/[id]/features/page.ts": {
+      "size": 3660,
+      "mtime_nanos": 1776519361791050574,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/media/8e9860b6e62d6359-s.woff2": {
+      "size": 85272,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/2758-e27eadad27e1c612.js": {
+      "size": 10013,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/fiscal/page_client-reference-manifest.js": {
+      "size": 14277,
+      "mtime_nanos": 1776519368550414400,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/page_client-reference-manifest.js": {
+      "size": 15341,
+      "mtime_nanos": 1776519368551497556,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/purchases/page-a1492b63bc19e964.js": {
+      "size": 31433,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/financial/page.js.nft.json": {
+      "size": 9404,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(auth)/login/page.js.nft.json": {
+      "size": 9170,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(auth)/login/page-ba80034e9caeefbb.js": {
+      "size": 19803,
+      "mtime_nanos": 1776519368538471662,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(auth)/login/page_client-reference-manifest.js": {
+      "size": 13895,
+      "mtime_nanos": 1776519368549888778,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/5369.js": {
+      "size": 369705,
+      "mtime_nanos": 1776519361785157324,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/images-manifest.json": {
+      "size": 511,
+      "mtime_nanos": 1776519384938127361,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/companies": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/(app)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/(protected)/companies/[id]/features": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/drivers/page.js": {
+      "size": 31066,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/dashboard": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/reports.rsc": {
+      "size": 5926,
+      "mtime_nanos": 1776519384238725219,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/equipment/page-1b93b0297780b91f.js": {
+      "size": 25227,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/login.html": {
+      "size": 18531,
+      "mtime_nanos": 1776519384098093775,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/products.meta": {
+      "size": 150,
+      "mtime_nanos": 1776519383030001335,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/6088.js": {
+      "size": 227788,
+      "mtime_nanos": 1776519361784649065,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/bookings/page_client-reference-manifest.js": {
+      "size": 14283,
+      "mtime_nanos": 1776519368550160677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/settings.html": {
+      "size": 10212,
+      "mtime_nanos": 1776519384098093775,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/sales.meta": {
+      "size": 141,
+      "mtime_nanos": 1776519384083515468,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/[id]/features/page-f880a6e815cffbd3.js": {
+      "size": 12508,
+      "mtime_nanos": 1776519368542471822,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/_not-found/page-d7203f7167240a01.js": {
+      "size": 1756,
+      "mtime_nanos": 1776519368538471662,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/page.js.nft.json": {
+      "size": 8703,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/9371.js": {
+      "size": 8989,
+      "mtime_nanos": 1776519361785000677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/fleet": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/reports/page.js": {
+      "size": 43810,
+      "mtime_nanos": 1776519361783711084,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/suppliers/page.ts": {
+      "size": 3564,
+      "mtime_nanos": 1776519361790279772,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/drivers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/profile.html": {
+      "size": 9973,
+      "mtime_nanos": 1776519383103053991,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/suppliers/page.js": {
+      "size": 46924,
+      "mtime_nanos": 1776519361784150038,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/settings/page.js.nft.json": {
+      "size": 9432,
+      "mtime_nanos": 1776519390370344555,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/billing.rsc": {
+      "size": 5017,
+      "mtime_nanos": 1776519384083515468,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/page-05312e48ad8a999f.js": {
+      "size": 173,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/financial.meta": {
+      "size": 153,
+      "mtime_nanos": 1776519384177155747,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/page.js.nft.json": {
+      "size": 9461,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/index.meta": {
+      "size": 97,
+      "mtime_nanos": 1776519384540063982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/fiscal": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/pages": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/financial.rsc": {
+      "size": 6126,
+      "mtime_nanos": 1776519384174865341,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(auth)/login": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/sales/page.js.nft.json": {
+      "size": 9248,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/middleware-react-loadable-manifest.js": {
+      "size": 151,
+      "mtime_nanos": 1776519368549329992,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/checklists": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/checklists.html": {
+      "size": 10527,
+      "mtime_nanos": 1776519383043051592,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/purchases/page.js": {
+      "size": 37817,
+      "mtime_nanos": 1776519361783711084,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(auth)/login": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/users.meta": {
+      "size": 202,
+      "mtime_nanos": 1776519384518996758,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/pages/_document.js.nft.json": {
+      "size": 10961,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/font-manifest.json": {
+      "size": 2,
+      "mtime_nanos": 1776519361780201449,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/checklists/page.js": {
+      "size": 41886,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/(protected)/plans/page.ts": {
+      "size": 3594,
+      "mtime_nanos": 1776519361791050574,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/checklists": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/tT99Eu7od3vWY65fs1cc8/_buildManifest.js": {
+      "size": 293,
+      "mtime_nanos": 1776519368549329992,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/drivers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/billing/page.js": {
+      "size": 10785,
+      "mtime_nanos": 1776519361784420626,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/suppliers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/(app)/products": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/chunks/9145.js": {
+      "size": 17299,
+      "mtime_nanos": 1776519361785157324,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/2101-76a50c25bd831a34.js": {
+      "size": 392013,
+      "mtime_nanos": 1776519368545471942,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/checklists": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/(protected)/layout.ts": {
+      "size": 3582,
+      "mtime_nanos": 1776519361791418103,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/dashboard/page_client-reference-manifest.js": {
+      "size": 14236,
+      "mtime_nanos": 1776519368550160677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/bookings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/6118-a8a033a3ac5d0273.js": {
+      "size": 93603,
+      "mtime_nanos": 1776519368544471902,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/financial": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/(protected)/billing": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/bookings/page.js": {
+      "size": 20387,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/routes.rsc": {
+      "size": 6018,
+      "mtime_nanos": 1776519384089307198,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/daily-km": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/interception-route-rewrite-manifest.js": {
+      "size": 48,
+      "mtime_nanos": 1776519363350002213,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/products/page.js": {
+      "size": 47526,
+      "mtime_nanos": 1776519361783711084,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/daily-km.html": {
+      "size": 10515,
+      "mtime_nanos": 1776519384179097014,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/8361.7d014fdbf57d7c4d.js": {
+      "size": 882,
+      "mtime_nanos": 1776519368551840373,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/package.json": {
+      "size": 20,
+      "mtime_nanos": 1776519356236979818,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/equipment/page_client-reference-manifest.js": {
+      "size": 14286,
+      "mtime_nanos": 1776519368550414400,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/dashboard/page-98a829986c0a7a78.js": {
+      "size": 35087,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/notifications/page-24d04ce0a520877f.js": {
+      "size": 16260,
+      "mtime_nanos": 1776519368542471822,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/sales.html": {
+      "size": 10064,
+      "mtime_nanos": 1776519384078092975,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/financial/page_client-reference-manifest.js": {
+      "size": 14382,
+      "mtime_nanos": 1776519368550414400,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/dashboard/page.ts": {
+      "size": 3564,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/settings/page.js": {
+      "size": 31608,
+      "mtime_nanos": 1776519361784150038,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/css/4cd874a56fc8a09d.css": {
+      "size": 70133,
+      "mtime_nanos": 1776519368551840373,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/equipment/page.js": {
+      "size": 36601,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/build-manifest.json": {
+      "size": 969,
+      "mtime_nanos": 1776519368548472062,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/profile/page.js.nft.json": {
+      "size": 9274,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/_not-found": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/billing": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/(protected)/settings/page.ts": {
+      "size": 3603,
+      "mtime_nanos": 1776519361791050574,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/sales/page_client-reference-manifest.js": {
+      "size": 14130,
+      "mtime_nanos": 1776519368550943572,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/billing/page.js.nft.json": {
+      "size": 9432,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/billing/page_client-reference-manifest.js": {
+      "size": 14702,
+      "mtime_nanos": 1776519368551220105,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/equipment": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/routes/page.ts": {
+      "size": 3555,
+      "mtime_nanos": 1776519361789965699,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/sales.rsc": {
+      "size": 5870,
+      "mtime_nanos": 1776519384077092935,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/pages-manifest.json": {
+      "size": 111,
+      "mtime_nanos": 1776519384882125123,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/media/21350d82a1f187e9-s.woff2": {
+      "size": 18744,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/drivers/page_client-reference-manifest.js": {
+      "size": 14440,
+      "mtime_nanos": 1776519368550160677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/billing": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/suppliers.html": {
+      "size": 10088,
+      "mtime_nanos": 1776519384081093095,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/pages/_app.js.nft.json": {
+      "size": 950,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/suppliers/page-cef1825e67da25f6.js": {
+      "size": 39977,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/_not-found.rsc": {
+      "size": 4415,
+      "mtime_nanos": 1776519384165096454,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/9008-71f9a524a73ba836.js": {
+      "size": 8527,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/daily-km.meta": {
+      "size": 150,
+      "mtime_nanos": 1776519384180638096,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/page.js.nft.json": {
+      "size": 8898,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/plans.meta": {
+      "size": 202,
+      "mtime_nanos": 1776519384180638096,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/checklists/page.js.nft.json": {
+      "size": 9352,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(auth)/login/page.ts": {
+      "size": 3555,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/users.rsc": {
+      "size": 5009,
+      "mtime_nanos": 1776519384510110248,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/settings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/fleet/page_client-reference-manifest.js": {
+      "size": 14274,
+      "mtime_nanos": 1776519368550414400,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/profile/page.js": {
+      "size": 17553,
+      "mtime_nanos": 1776519361783711084,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/2373-a00ec4a3694fa3d8.js": {
+      "size": 96144,
+      "mtime_nanos": 1776519368544471902,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/dashboard/page.js.nft.json": {
+      "size": 9432,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/dashboard": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/(app)/financial/page-438deef19d9f7383.js": {
+      "size": 65634,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/(app)/routes": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/2408-9ca20ad357972830.js": {
+      "size": 10952,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/notifications": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/(app)/bookings/page-81b074f6b286437b.js": {
+      "size": 18842,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/media/c5fe6dc8356a8c31-s.woff2": {
+      "size": 11272,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/BUILD_ID": {
+      "size": 21,
+      "mtime_nanos": 1776519382619034638,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/suppliers/page.js.nft.json": {
+      "size": 9248,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/1096-923538e0c0e5d2bb.js": {
+      "size": 93235,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/2515.js": {
+      "size": 9301,
+      "mtime_nanos": 1776519361785272755,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/profile.rsc": {
+      "size": 5783,
+      "mtime_nanos": 1776519383101053911,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/bookings/page.js.nft.json": {
+      "size": 9352,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/purchases.rsc": {
+      "size": 5885,
+      "mtime_nanos": 1776519383061052311,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/pages/_error.js.nft.json": {
+      "size": 10747,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/notifications/page_client-reference-manifest.js": {
+      "size": 14720,
+      "mtime_nanos": 1776519368551651286,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/bookings/page.ts": {
+      "size": 3561,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/sales/page.ts": {
+      "size": 3552,
+      "mtime_nanos": 1776519361789965699,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/fleet/page.ts": {
+      "size": 3552,
+      "mtime_nanos": 1776519361788860316,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/login/page.js.nft.json": {
+      "size": 9170,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/fleet.meta": {
+      "size": 141,
+      "mtime_nanos": 1776519384667898604,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/routes.html": {
+      "size": 10503,
+      "mtime_nanos": 1776519384090766232,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/page_client-reference-manifest.js": {
+      "size": 13582,
+      "mtime_nanos": 1776519368549888778,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/dashboard/page_client-reference-manifest.js": {
+      "size": 14708,
+      "mtime_nanos": 1776519368551497556,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/daily-km.rsc": {
+      "size": 6026,
+      "mtime_nanos": 1776519384178096974,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/equipment/page.js.nft.json": {
+      "size": 9326,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/products": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/dashboard/page.js": {
+      "size": 8510,
+      "mtime_nanos": 1776519361784420626,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/plans/page_client-reference-manifest.js": {
+      "size": 14696,
+      "mtime_nanos": 1776519368551840373,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/next-font-manifest.js": {
+      "size": 228,
+      "mtime_nanos": 1776519368549888778,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/purchases/page.js.nft.json": {
+      "size": 9248,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/bookings.meta": {
+      "size": 150,
+      "mtime_nanos": 1776519384532203971,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/react-loadable-manifest.json": {
+      "size": 149,
+      "mtime_nanos": 1776519368548472062,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/bookings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/purchases/page_client-reference-manifest.js": {
+      "size": 14141,
+      "mtime_nanos": 1776519368550943572,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/suppliers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/drivers/page.ts": {
+      "size": 3558,
+      "mtime_nanos": 1776519361788860316,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/sales": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/required-server-files.json": {
+      "size": 4910,
+      "mtime_nanos": 1776519382627034958,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/routes": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/middleware-manifest.json": {
+      "size": 83,
+      "mtime_nanos": 1776519363350002213,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/reports": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin/page-2ecce61b74c8d069.js": {
+      "size": 173,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/drivers.meta": {
+      "size": 147,
+      "mtime_nanos": 1776519383147305267,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/purchases/page.ts": {
+      "size": 3564,
+      "mtime_nanos": 1776519361789361069,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/products/page.ts": {
+      "size": 3561,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/reports.meta": {
+      "size": 147,
+      "mtime_nanos": 1776519384239804874,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/drivers/page-3b55481837ce2c1a.js": {
+      "size": 31825,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/plans/page-ecf4f7a183a89242.js": {
+      "size": 20566,
+      "mtime_nanos": 1776519368542471822,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/dashboard.rsc": {
+      "size": 5025,
+      "mtime_nanos": 1776519384173714739,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/financial": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/checklists.rsc": {
+      "size": 6034,
+      "mtime_nanos": 1776519383034051232,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/daily-km/page_client-reference-manifest.js": {
+      "size": 14283,
+      "mtime_nanos": 1776519368549888778,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/media": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/login/page.ts": {
+      "size": 3552,
+      "mtime_nanos": 1776519361790778967,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/suppliers.rsc": {
+      "size": 5886,
+      "mtime_nanos": 1776519384080093055,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/products/page-1f61c062efc14d1e.js": {
+      "size": 40901,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/settings/page-2ed1c6b3b2809c15.js": {
+      "size": 24924,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/layout.ts": {
+      "size": 3540,
+      "mtime_nanos": 1776519361791294078,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/_not-found/page.js": {
+      "size": 4364,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/profile.meta": {
+      "size": 147,
+      "mtime_nanos": 1776519383103804570,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/billing.meta": {
+      "size": 208,
+      "mtime_nanos": 1776519384085256935,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/settings/page.js.nft.json": {
+      "size": 9300,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/prerender-manifest.json": {
+      "size": 6943,
+      "mtime_nanos": 1776519384900125842,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/plans": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/225-ab28ca26da1769e5.js": {
+      "size": 10451,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/_not-found.meta": {
+      "size": 142,
+      "mtime_nanos": 1776519384167861645,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/webpack-739539eb85408256.js": {
+      "size": 3796,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app-paths-manifest.json": {
+      "size": 1918,
+      "mtime_nanos": 1776519363282011553,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/9467-57c21ce34b9867b0.js": {
+      "size": 9359,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(auth)/login/page.js": {
+      "size": 19457,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/reports/page-5386d705128a9969.js": {
+      "size": 36271,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/notifications": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/7670-2d25bf68f263f1c3.js": {
+      "size": 24168,
+      "mtime_nanos": 1776519368544471902,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/routes/page_client-reference-manifest.js": {
+      "size": 14277,
+      "mtime_nanos": 1776519368550943572,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/tT99Eu7od3vWY65fs1cc8": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/page.js.nft.json": {
+      "size": 9674,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/7125.js": {
+      "size": 93463,
+      "mtime_nanos": 1776519361785000677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/functions-config-manifest.json": {
+      "size": 28,
+      "mtime_nanos": 1776519382604501335,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/notifications/page.js": {
+      "size": 11271,
+      "mtime_nanos": 1776519361784420626,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/error-023cededb602b398.js": {
+      "size": 3569,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/_not-found/page_client-reference-manifest.js": {
+      "size": 13683,
+      "mtime_nanos": 1776519368549888778,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/profile/page_client-reference-manifest.js": {
+      "size": 14042,
+      "mtime_nanos": 1776519368550943572,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/purchases": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/plans": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/drivers/page.js.nft.json": {
+      "size": 9352,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/purchases.html": {
+      "size": 10087,
+      "mtime_nanos": 1776519383062530774,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/font-manifest.json": {
+      "size": 2,
+      "mtime_nanos": 1776519361785528635,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/media/e4af272ccee01ff0-s.p.woff2": {
+      "size": 48432,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/users": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/fiscal/page.ts": {
+      "size": 3555,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/470-c9d738e79c278cf8.js": {
+      "size": 8575,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/layout-5dcc1173b361fe58.js": {
+      "size": 12209,
+      "mtime_nanos": 1776519368537471622,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/media/df0a9ae256c0569c-s.woff2": {
+      "size": 10280,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/fiscal.meta": {
+      "size": 144,
+      "mtime_nanos": 1776519383082053151,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/routes": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/admin/(protected)/notifications/page.ts": {
+      "size": 3618,
+      "mtime_nanos": 1776519361791050574,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/page_client-reference-manifest.js": {
+      "size": 14310,
+      "mtime_nanos": 1776519368551220105,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/products.html": {
+      "size": 10082,
+      "mtime_nanos": 1776519383029051032,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/1806-f32a358f22b9cb77.js": {
+      "size": 26649,
+      "mtime_nanos": 1776519368544471902,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/page.js": {
+      "size": 7807,
+      "mtime_nanos": 1776519361784150038,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/_not-found": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)/sales": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/equipment.html": {
+      "size": 10521,
+      "mtime_nanos": 1776519383086337681,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/main-2360a94d2969ed22.js": {
+      "size": 132442,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/login": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/chunks/7423.js": {
+      "size": 121671,
+      "mtime_nanos": 1776519361785000677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/3149.js": {
+      "size": 33653,
+      "mtime_nanos": 1776519361785000677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin.rsc": {
+      "size": 3307,
+      "mtime_nanos": 1776519384511110288,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/dashboard/page.js.nft.json": {
+      "size": 9300,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/features/page.js.nft.json": {
+      "size": 9852,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/5900-811eda6958c4d818.js": {
+      "size": 6382,
+      "mtime_nanos": 1776519368547472022,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/login": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/companies.html": {
+      "size": 9085,
+      "mtime_nanos": 1776519384186198176,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/bookings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/(app)": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/suppliers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/products.rsc": {
+      "size": 5882,
+      "mtime_nanos": 1776519383026050912,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/reports/page_client-reference-manifest.js": {
+      "size": 14184,
+      "mtime_nanos": 1776519368550943572,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/login/page_client-reference-manifest.js": {
+      "size": 14614,
+      "mtime_nanos": 1776519368551220105,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/products/page.js.nft.json": {
+      "size": 9248,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/bookings.html": {
+      "size": 10515,
+      "mtime_nanos": 1776519384531624243,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/sales/page-d3bd1f0388f15fec.js": {
+      "size": 31753,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/daily-km/page.js": {
+      "size": 45712,
+      "mtime_nanos": 1776519361782991557,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/8462.js": {
+      "size": 607,
+      "mtime_nanos": 1776519361784649065,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/financial/page.ts": {
+      "size": 3564,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/checklists/page.ts": {
+      "size": 3567,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/fleet.rsc": {
+      "size": 6014,
+      "mtime_nanos": 1776519384667294481,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/trace": {
+      "size": 105525,
+      "mtime_nanos": 1776519390418346475,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/page.js": {
+      "size": 22935,
+      "mtime_nanos": 1776519361784420626,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin.html": {
+      "size": 5423,
+      "mtime_nanos": 1776519384514905342,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/pages/_error-fb9d29fd2d10baf1.js": {
+      "size": 251,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/fleet/page-93c51f8da1ac669b.js": {
+      "size": 52778,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/next-server.js.nft.json": {
+      "size": 93821,
+      "mtime_nanos": 1776519390405345955,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/profile/page-07cbc26548592aa2.js": {
+      "size": 16526,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/css": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/dashboard": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/dashboard.meta": {
+      "size": 214,
+      "mtime_nanos": 1776519384174865341,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/notifications/page.js.nft.json": {
+      "size": 9432,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/server-reference-manifest.json": {
+      "size": 84,
+      "mtime_nanos": 1776519361791498169,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/equipment": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/9123-20f884cec62df102.js": {
+      "size": 15210,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/layout.ts": {
+      "size": 3516,
+      "mtime_nanos": 1776519361791294078,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/notifications.html": {
+      "size": 8927,
+      "mtime_nanos": 1776519384521634674,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/profile/page.ts": {
+      "size": 3558,
+      "mtime_nanos": 1776519361789180393,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/routes-manifest.json": {
+      "size": 3933,
+      "mtime_nanos": 1776519356237979858,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/page-93f3c14cbf15eea9.js": {
+      "size": 19495,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/profile": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/products": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/dashboard/page-65834e919d8dc23b.js": {
+      "size": 10041,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/main-app-21e05968edb11dff.js": {
+      "size": 472,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/media/ba9851c3c22cd980-s.woff2": {
+      "size": 25844,
+      "mtime_nanos": 1776519368536471582,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/drivers/error-20d1a37a059548bf.js": {
+      "size": 3595,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/notifications": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/4176-2f4f9cf1ca0e6134.js": {
+      "size": 30546,
+      "mtime_nanos": 1776519368545471942,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/equipment": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/page.js": {
+      "size": 28236,
+      "mtime_nanos": 1776519361784750830,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/plans": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/pages/_error.js": {
+      "size": 8672,
+      "mtime_nanos": 1776519361781930771,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/settings.rsc": {
+      "size": 5930,
+      "mtime_nanos": 1776519384098063258,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/layout-7726114f748f30f5.js": {
+      "size": 434,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/327.js": {
+      "size": 268368,
+      "mtime_nanos": 1776519361784750830,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/(app)/settings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/users/page-9faa04cae14b2bd6.js": {
+      "size": 19039,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/pages/_app-33bca1483efecb74.js": {
+      "size": 284,
+      "mtime_nanos": 1776519368537471622,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/dashboard": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/users/page_client-reference-manifest.js": {
+      "size": 14696,
+      "mtime_nanos": 1776519368551840373,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/login.meta": {
+      "size": 144,
+      "mtime_nanos": 1776519384099702979,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/fleet/page.js": {
+      "size": 49288,
+      "mtime_nanos": 1776519361783399303,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/553-acbcf35e322868a6.js": {
+      "size": 9106,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/sales/page.js": {
+      "size": 38521,
+      "mtime_nanos": 1776519361784150038,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/users.html": {
+      "size": 8879,
+      "mtime_nanos": 1776519384516110488,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/reports": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/(app)/routes/page-42ecef1069700638.js": {
+      "size": 24950,
+      "mtime_nanos": 1776519368541471782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/49f55595-f2d5bb00e90cc9fa.js": {
+      "size": 172838,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/purchases": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/login.rsc": {
+      "size": 3980,
+      "mtime_nanos": 1776519384536284046,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/page.js": {
+      "size": 7467,
+      "mtime_nanos": 1776519361781930771,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/login": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/features/page_client-reference-manifest.js": {
+      "size": 15854,
+      "mtime_nanos": 1776519368551497556,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/7362-0662748374d37659.js": {
+      "size": 34030,
+      "mtime_nanos": 1776519368544471902,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/static/chunks/app/admin/(protected)/users": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/(app)/fiscal/page.js.nft.json": {
+      "size": 9352,
+      "mtime_nanos": 1776519390369344515,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/settings.meta": {
+      "size": 150,
+      "mtime_nanos": 1776519384099959078,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/framework-69e0f7d37422957b.js": {
+      "size": 139998,
+      "mtime_nanos": 1776519368543471862,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/package.json": {
+      "size": 18,
+      "mtime_nanos": 1776519361791418103,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/webpack-runtime.js": {
+      "size": 1473,
+      "mtime_nanos": 1776519361784750830,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/2884-88b0d90a3a0fcd5e.js": {
+      "size": 124761,
+      "mtime_nanos": 1776519368546471982,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/(app)/routes/page.js": {
+      "size": 36073,
+      "mtime_nanos": 1776519361784150038,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/drivers.rsc": {
+      "size": 6086,
+      "mtime_nanos": 1776519383145055670,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/types/app/page.ts": {
+      "size": 3504,
+      "mtime_nanos": 1776519361788860316,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/routes.meta": {
+      "size": 144,
+      "mtime_nanos": 1776519384091946618,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/static/chunks/app/(app)/checklists/page-8d41dd3200b5cb48.js": {
+      "size": 36615,
+      "mtime_nanos": 1776519368540471742,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/admin/(protected)/settings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/web/.next/server/app/purchases.meta": {
+      "size": 153,
+      "mtime_nanos": 1776519383063441116,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/chunks/4479.js": {
+      "size": 124164,
+      "mtime_nanos": 1776519361784750830,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/dashboard/page.ts": {
+      "size": 3606,
+      "mtime_nanos": 1776519361790778967,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/server/app/suppliers.meta": {
+      "size": 153,
+      "mtime_nanos": 1776519384082964735,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/web/.next/types/app/admin/(protected)/settings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    }
+  },
+  "order": [
+    "apps/web/.next",
+    "apps/web/.next/BUILD_ID",
+    "apps/web/.next/app-build-manifest.json",
+    "apps/web/.next/app-path-routes-manifest.json",
+    "apps/web/.next/build-manifest.json",
+    "apps/web/.next/export-marker.json",
+    "apps/web/.next/images-manifest.json",
+    "apps/web/.next/next-minimal-server.js.nft.json",
+    "apps/web/.next/next-server.js.nft.json",
+    "apps/web/.next/package.json",
+    "apps/web/.next/prerender-manifest.json",
+    "apps/web/.next/react-loadable-manifest.json",
+    "apps/web/.next/required-server-files.json",
+    "apps/web/.next/routes-manifest.json",
+    "apps/web/.next/server",
+    "apps/web/.next/server/app",
+    "apps/web/.next/server/app/(app)",
+    "apps/web/.next/server/app/(app)/bookings",
+    "apps/web/.next/server/app/(app)/bookings/page.js",
+    "apps/web/.next/server/app/(app)/bookings/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/bookings/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/checklists",
+    "apps/web/.next/server/app/(app)/checklists/page.js",
+    "apps/web/.next/server/app/(app)/checklists/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/checklists/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/daily-km",
+    "apps/web/.next/server/app/(app)/daily-km/page.js",
+    "apps/web/.next/server/app/(app)/daily-km/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/daily-km/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/dashboard",
+    "apps/web/.next/server/app/(app)/dashboard/page.js",
+    "apps/web/.next/server/app/(app)/dashboard/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/dashboard/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/drivers",
+    "apps/web/.next/server/app/(app)/drivers/page.js",
+    "apps/web/.next/server/app/(app)/drivers/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/drivers/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/equipment",
+    "apps/web/.next/server/app/(app)/equipment/page.js",
+    "apps/web/.next/server/app/(app)/equipment/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/equipment/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/financial",
+    "apps/web/.next/server/app/(app)/financial/page.js",
+    "apps/web/.next/server/app/(app)/financial/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/financial/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/fiscal",
+    "apps/web/.next/server/app/(app)/fiscal/page.js",
+    "apps/web/.next/server/app/(app)/fiscal/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/fiscal/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/fleet",
+    "apps/web/.next/server/app/(app)/fleet/page.js",
+    "apps/web/.next/server/app/(app)/fleet/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/fleet/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/products",
+    "apps/web/.next/server/app/(app)/products/page.js",
+    "apps/web/.next/server/app/(app)/products/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/products/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/profile",
+    "apps/web/.next/server/app/(app)/profile/page.js",
+    "apps/web/.next/server/app/(app)/profile/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/profile/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/purchases",
+    "apps/web/.next/server/app/(app)/purchases/page.js",
+    "apps/web/.next/server/app/(app)/purchases/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/purchases/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/reports",
+    "apps/web/.next/server/app/(app)/reports/page.js",
+    "apps/web/.next/server/app/(app)/reports/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/reports/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/routes",
+    "apps/web/.next/server/app/(app)/routes/page.js",
+    "apps/web/.next/server/app/(app)/routes/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/routes/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/sales",
+    "apps/web/.next/server/app/(app)/sales/page.js",
+    "apps/web/.next/server/app/(app)/sales/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/sales/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/settings",
+    "apps/web/.next/server/app/(app)/settings/page.js",
+    "apps/web/.next/server/app/(app)/settings/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/settings/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(app)/suppliers",
+    "apps/web/.next/server/app/(app)/suppliers/page.js",
+    "apps/web/.next/server/app/(app)/suppliers/page.js.nft.json",
+    "apps/web/.next/server/app/(app)/suppliers/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/(auth)",
+    "apps/web/.next/server/app/(auth)/login",
+    "apps/web/.next/server/app/(auth)/login/page.js",
+    "apps/web/.next/server/app/(auth)/login/page.js.nft.json",
+    "apps/web/.next/server/app/(auth)/login/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/_not-found",
+    "apps/web/.next/server/app/_not-found/page.js",
+    "apps/web/.next/server/app/_not-found/page.js.nft.json",
+    "apps/web/.next/server/app/_not-found/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/_not-found.html",
+    "apps/web/.next/server/app/_not-found.meta",
+    "apps/web/.next/server/app/_not-found.rsc",
+    "apps/web/.next/server/app/admin",
+    "apps/web/.next/server/app/admin/(protected)",
+    "apps/web/.next/server/app/admin/(protected)/billing",
+    "apps/web/.next/server/app/admin/(protected)/billing/page.js",
+    "apps/web/.next/server/app/admin/(protected)/billing/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/billing/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/(protected)/companies",
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]",
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/features",
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/features/page.js",
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/features/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/features/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/page.js",
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/companies/[id]/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/(protected)/companies/page.js",
+    "apps/web/.next/server/app/admin/(protected)/companies/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/companies/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/(protected)/dashboard",
+    "apps/web/.next/server/app/admin/(protected)/dashboard/page.js",
+    "apps/web/.next/server/app/admin/(protected)/dashboard/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/dashboard/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/(protected)/notifications",
+    "apps/web/.next/server/app/admin/(protected)/notifications/page.js",
+    "apps/web/.next/server/app/admin/(protected)/notifications/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/notifications/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/(protected)/plans",
+    "apps/web/.next/server/app/admin/(protected)/plans/page.js",
+    "apps/web/.next/server/app/admin/(protected)/plans/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/plans/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/(protected)/settings",
+    "apps/web/.next/server/app/admin/(protected)/settings/page.js",
+    "apps/web/.next/server/app/admin/(protected)/settings/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/settings/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/(protected)/users",
+    "apps/web/.next/server/app/admin/(protected)/users/page.js",
+    "apps/web/.next/server/app/admin/(protected)/users/page.js.nft.json",
+    "apps/web/.next/server/app/admin/(protected)/users/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/billing.html",
+    "apps/web/.next/server/app/admin/billing.meta",
+    "apps/web/.next/server/app/admin/billing.rsc",
+    "apps/web/.next/server/app/admin/companies.html",
+    "apps/web/.next/server/app/admin/companies.meta",
+    "apps/web/.next/server/app/admin/companies.rsc",
+    "apps/web/.next/server/app/admin/dashboard.html",
+    "apps/web/.next/server/app/admin/dashboard.meta",
+    "apps/web/.next/server/app/admin/dashboard.rsc",
+    "apps/web/.next/server/app/admin/login",
+    "apps/web/.next/server/app/admin/login/page.js",
+    "apps/web/.next/server/app/admin/login/page.js.nft.json",
+    "apps/web/.next/server/app/admin/login/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/login.html",
+    "apps/web/.next/server/app/admin/login.meta",
+    "apps/web/.next/server/app/admin/login.rsc",
+    "apps/web/.next/server/app/admin/notifications.html",
+    "apps/web/.next/server/app/admin/notifications.meta",
+    "apps/web/.next/server/app/admin/notifications.rsc",
+    "apps/web/.next/server/app/admin/page.js",
+    "apps/web/.next/server/app/admin/page.js.nft.json",
+    "apps/web/.next/server/app/admin/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/admin/plans.html",
+    "apps/web/.next/server/app/admin/plans.meta",
+    "apps/web/.next/server/app/admin/plans.rsc",
+    "apps/web/.next/server/app/admin/settings.html",
+    "apps/web/.next/server/app/admin/settings.meta",
+    "apps/web/.next/server/app/admin/settings.rsc",
+    "apps/web/.next/server/app/admin/users.html",
+    "apps/web/.next/server/app/admin/users.meta",
+    "apps/web/.next/server/app/admin/users.rsc",
+    "apps/web/.next/server/app/admin.html",
+    "apps/web/.next/server/app/admin.meta",
+    "apps/web/.next/server/app/admin.rsc",
+    "apps/web/.next/server/app/bookings.html",
+    "apps/web/.next/server/app/bookings.meta",
+    "apps/web/.next/server/app/bookings.rsc",
+    "apps/web/.next/server/app/checklists.html",
+    "apps/web/.next/server/app/checklists.meta",
+    "apps/web/.next/server/app/checklists.rsc",
+    "apps/web/.next/server/app/daily-km.html",
+    "apps/web/.next/server/app/daily-km.meta",
+    "apps/web/.next/server/app/daily-km.rsc",
+    "apps/web/.next/server/app/dashboard.html",
+    "apps/web/.next/server/app/dashboard.meta",
+    "apps/web/.next/server/app/dashboard.rsc",
+    "apps/web/.next/server/app/drivers.html",
+    "apps/web/.next/server/app/drivers.meta",
+    "apps/web/.next/server/app/drivers.rsc",
+    "apps/web/.next/server/app/equipment.html",
+    "apps/web/.next/server/app/equipment.meta",
+    "apps/web/.next/server/app/equipment.rsc",
+    "apps/web/.next/server/app/financial.html",
+    "apps/web/.next/server/app/financial.meta",
+    "apps/web/.next/server/app/financial.rsc",
+    "apps/web/.next/server/app/fiscal.html",
+    "apps/web/.next/server/app/fiscal.meta",
+    "apps/web/.next/server/app/fiscal.rsc",
+    "apps/web/.next/server/app/fleet.html",
+    "apps/web/.next/server/app/fleet.meta",
+    "apps/web/.next/server/app/fleet.rsc",
+    "apps/web/.next/server/app/index.html",
+    "apps/web/.next/server/app/index.meta",
+    "apps/web/.next/server/app/index.rsc",
+    "apps/web/.next/server/app/login.html",
+    "apps/web/.next/server/app/login.meta",
+    "apps/web/.next/server/app/login.rsc",
+    "apps/web/.next/server/app/page.js",
+    "apps/web/.next/server/app/page.js.nft.json",
+    "apps/web/.next/server/app/page_client-reference-manifest.js",
+    "apps/web/.next/server/app/products.html",
+    "apps/web/.next/server/app/products.meta",
+    "apps/web/.next/server/app/products.rsc",
+    "apps/web/.next/server/app/profile.html",
+    "apps/web/.next/server/app/profile.meta",
+    "apps/web/.next/server/app/profile.rsc",
+    "apps/web/.next/server/app/purchases.html",
+    "apps/web/.next/server/app/purchases.meta",
+    "apps/web/.next/server/app/purchases.rsc",
+    "apps/web/.next/server/app/reports.html",
+    "apps/web/.next/server/app/reports.meta",
+    "apps/web/.next/server/app/reports.rsc",
+    "apps/web/.next/server/app/routes.html",
+    "apps/web/.next/server/app/routes.meta",
+    "apps/web/.next/server/app/routes.rsc",
+    "apps/web/.next/server/app/sales.html",
+    "apps/web/.next/server/app/sales.meta",
+    "apps/web/.next/server/app/sales.rsc",
+    "apps/web/.next/server/app/settings.html",
+    "apps/web/.next/server/app/settings.meta",
+    "apps/web/.next/server/app/settings.rsc",
+    "apps/web/.next/server/app/suppliers.html",
+    "apps/web/.next/server/app/suppliers.meta",
+    "apps/web/.next/server/app/suppliers.rsc",
+    "apps/web/.next/server/app-paths-manifest.json",
+    "apps/web/.next/server/chunks",
+    "apps/web/.next/server/chunks/2515.js",
+    "apps/web/.next/server/chunks/3149.js",
+    "apps/web/.next/server/chunks/327.js",
+    "apps/web/.next/server/chunks/3686.js",
+    "apps/web/.next/server/chunks/4479.js",
+    "apps/web/.next/server/chunks/4926.js",
+    "apps/web/.next/server/chunks/5026.js",
+    "apps/web/.next/server/chunks/5369.js",
+    "apps/web/.next/server/chunks/6088.js",
+    "apps/web/.next/server/chunks/7125.js",
+    "apps/web/.next/server/chunks/7423.js",
+    "apps/web/.next/server/chunks/8375.js",
+    "apps/web/.next/server/chunks/8462.js",
+    "apps/web/.next/server/chunks/8561.js",
+    "apps/web/.next/server/chunks/9145.js",
+    "apps/web/.next/server/chunks/9371.js",
+    "apps/web/.next/server/chunks/font-manifest.json",
+    "apps/web/.next/server/font-manifest.json",
+    "apps/web/.next/server/functions-config-manifest.json",
+    "apps/web/.next/server/interception-route-rewrite-manifest.js",
+    "apps/web/.next/server/middleware-build-manifest.js",
+    "apps/web/.next/server/middleware-manifest.json",
+    "apps/web/.next/server/middleware-react-loadable-manifest.js",
+    "apps/web/.next/server/next-font-manifest.js",
+    "apps/web/.next/server/next-font-manifest.json",
+    "apps/web/.next/server/pages",
+    "apps/web/.next/server/pages/404.html",
+    "apps/web/.next/server/pages/500.html",
+    "apps/web/.next/server/pages/_app.js",
+    "apps/web/.next/server/pages/_app.js.nft.json",
+    "apps/web/.next/server/pages/_document.js",
+    "apps/web/.next/server/pages/_document.js.nft.json",
+    "apps/web/.next/server/pages/_error.js",
+    "apps/web/.next/server/pages/_error.js.nft.json",
+    "apps/web/.next/server/pages-manifest.json",
+    "apps/web/.next/server/server-reference-manifest.js",
+    "apps/web/.next/server/server-reference-manifest.json",
+    "apps/web/.next/server/webpack-runtime.js",
+    "apps/web/.next/static",
+    "apps/web/.next/static/chunks",
+    "apps/web/.next/static/chunks/1096-923538e0c0e5d2bb.js",
+    "apps/web/.next/static/chunks/1317-26b7aa6bdb6e55b7.js",
+    "apps/web/.next/static/chunks/1806-f32a358f22b9cb77.js",
+    "apps/web/.next/static/chunks/2101-76a50c25bd831a34.js",
+    "apps/web/.next/static/chunks/225-ab28ca26da1769e5.js",
+    "apps/web/.next/static/chunks/2373-a00ec4a3694fa3d8.js",
+    "apps/web/.next/static/chunks/2408-9ca20ad357972830.js",
+    "apps/web/.next/static/chunks/2758-e27eadad27e1c612.js",
+    "apps/web/.next/static/chunks/2884-88b0d90a3a0fcd5e.js",
+    "apps/web/.next/static/chunks/3576-a918649d9706e49b.js",
+    "apps/web/.next/static/chunks/4176-2f4f9cf1ca0e6134.js",
+    "apps/web/.next/static/chunks/4662-6ec9d1718ac80052.js",
+    "apps/web/.next/static/chunks/470-c9d738e79c278cf8.js",
+    "apps/web/.next/static/chunks/49f55595-f2d5bb00e90cc9fa.js",
+    "apps/web/.next/static/chunks/5291-7e281126bdab690a.js",
+    "apps/web/.next/static/chunks/5328-67b98564e12992a4.js",
+    "apps/web/.next/static/chunks/553-acbcf35e322868a6.js",
+    "apps/web/.next/static/chunks/5900-811eda6958c4d818.js",
+    "apps/web/.next/static/chunks/6000-40adc134c49ba87d.js",
+    "apps/web/.next/static/chunks/6118-a8a033a3ac5d0273.js",
+    "apps/web/.next/static/chunks/6320-c21b5296e5670e62.js",
+    "apps/web/.next/static/chunks/7356-f531af4c88b688b9.js",
+    "apps/web/.next/static/chunks/7362-0662748374d37659.js",
+    "apps/web/.next/static/chunks/7522-149f37deec200977.js",
+    "apps/web/.next/static/chunks/7670-2d25bf68f263f1c3.js",
+    "apps/web/.next/static/chunks/8094-57c785cfba323c02.js",
+    "apps/web/.next/static/chunks/8361.7d014fdbf57d7c4d.js",
+    "apps/web/.next/static/chunks/8989-50706948cc3d42fa.js",
+    "apps/web/.next/static/chunks/9008-71f9a524a73ba836.js",
+    "apps/web/.next/static/chunks/9099-cd1585dd0f64f95b.js",
+    "apps/web/.next/static/chunks/9123-20f884cec62df102.js",
+    "apps/web/.next/static/chunks/9371-120816e62f5af517.js",
+    "apps/web/.next/static/chunks/9467-57c21ce34b9867b0.js",
+    "apps/web/.next/static/chunks/9850-e824fea1ba9a50a4.js",
+    "apps/web/.next/static/chunks/app",
+    "apps/web/.next/static/chunks/app/(app)",
+    "apps/web/.next/static/chunks/app/(app)/bookings",
+    "apps/web/.next/static/chunks/app/(app)/bookings/page-81b074f6b286437b.js",
+    "apps/web/.next/static/chunks/app/(app)/checklists",
+    "apps/web/.next/static/chunks/app/(app)/checklists/page-8d41dd3200b5cb48.js",
+    "apps/web/.next/static/chunks/app/(app)/daily-km",
+    "apps/web/.next/static/chunks/app/(app)/daily-km/page-11f9edbcf9c5805e.js",
+    "apps/web/.next/static/chunks/app/(app)/dashboard",
+    "apps/web/.next/static/chunks/app/(app)/dashboard/page-98a829986c0a7a78.js",
+    "apps/web/.next/static/chunks/app/(app)/drivers",
+    "apps/web/.next/static/chunks/app/(app)/drivers/error-20d1a37a059548bf.js",
+    "apps/web/.next/static/chunks/app/(app)/drivers/page-3b55481837ce2c1a.js",
+    "apps/web/.next/static/chunks/app/(app)/equipment",
+    "apps/web/.next/static/chunks/app/(app)/equipment/page-1b93b0297780b91f.js",
+    "apps/web/.next/static/chunks/app/(app)/error-023cededb602b398.js",
+    "apps/web/.next/static/chunks/app/(app)/financial",
+    "apps/web/.next/static/chunks/app/(app)/financial/page-438deef19d9f7383.js",
+    "apps/web/.next/static/chunks/app/(app)/fiscal",
+    "apps/web/.next/static/chunks/app/(app)/fiscal/page-39949a9e782a7545.js",
+    "apps/web/.next/static/chunks/app/(app)/fleet",
+    "apps/web/.next/static/chunks/app/(app)/fleet/page-93c51f8da1ac669b.js",
+    "apps/web/.next/static/chunks/app/(app)/layout-7726114f748f30f5.js",
+    "apps/web/.next/static/chunks/app/(app)/products",
+    "apps/web/.next/static/chunks/app/(app)/products/page-1f61c062efc14d1e.js",
+    "apps/web/.next/static/chunks/app/(app)/profile",
+    "apps/web/.next/static/chunks/app/(app)/profile/page-07cbc26548592aa2.js",
+    "apps/web/.next/static/chunks/app/(app)/purchases",
+    "apps/web/.next/static/chunks/app/(app)/purchases/page-a1492b63bc19e964.js",
+    "apps/web/.next/static/chunks/app/(app)/reports",
+    "apps/web/.next/static/chunks/app/(app)/reports/page-5386d705128a9969.js",
+    "apps/web/.next/static/chunks/app/(app)/routes",
+    "apps/web/.next/static/chunks/app/(app)/routes/page-42ecef1069700638.js",
+    "apps/web/.next/static/chunks/app/(app)/sales",
+    "apps/web/.next/static/chunks/app/(app)/sales/page-d3bd1f0388f15fec.js",
+    "apps/web/.next/static/chunks/app/(app)/settings",
+    "apps/web/.next/static/chunks/app/(app)/settings/page-3ff7900fd8973bdf.js",
+    "apps/web/.next/static/chunks/app/(app)/suppliers",
+    "apps/web/.next/static/chunks/app/(app)/suppliers/page-cef1825e67da25f6.js",
+    "apps/web/.next/static/chunks/app/(auth)",
+    "apps/web/.next/static/chunks/app/(auth)/login",
+    "apps/web/.next/static/chunks/app/(auth)/login/page-ba80034e9caeefbb.js",
+    "apps/web/.next/static/chunks/app/_not-found",
+    "apps/web/.next/static/chunks/app/_not-found/page-d7203f7167240a01.js",
+    "apps/web/.next/static/chunks/app/admin",
+    "apps/web/.next/static/chunks/app/admin/(protected)",
+    "apps/web/.next/static/chunks/app/admin/(protected)/billing",
+    "apps/web/.next/static/chunks/app/admin/(protected)/billing/page-a83382512bbe3f09.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies",
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/[id]",
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/[id]/features",
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/[id]/features/page-f880a6e815cffbd3.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/[id]/page-2f786d5c3e57fd65.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/companies/page-93f3c14cbf15eea9.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/dashboard",
+    "apps/web/.next/static/chunks/app/admin/(protected)/dashboard/page-65834e919d8dc23b.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/layout-120e6c7acfb0f886.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/notifications",
+    "apps/web/.next/static/chunks/app/admin/(protected)/notifications/page-24d04ce0a520877f.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/plans",
+    "apps/web/.next/static/chunks/app/admin/(protected)/plans/page-ecf4f7a183a89242.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/settings",
+    "apps/web/.next/static/chunks/app/admin/(protected)/settings/page-2ed1c6b3b2809c15.js",
+    "apps/web/.next/static/chunks/app/admin/(protected)/users",
+    "apps/web/.next/static/chunks/app/admin/(protected)/users/page-9faa04cae14b2bd6.js",
+    "apps/web/.next/static/chunks/app/admin/layout-33e5811724fc1c9c.js",
+    "apps/web/.next/static/chunks/app/admin/login",
+    "apps/web/.next/static/chunks/app/admin/login/page-428dabe0443d0056.js",
+    "apps/web/.next/static/chunks/app/admin/page-2ecce61b74c8d069.js",
+    "apps/web/.next/static/chunks/app/layout-5dcc1173b361fe58.js",
+    "apps/web/.next/static/chunks/app/page-05312e48ad8a999f.js",
+    "apps/web/.next/static/chunks/framework-69e0f7d37422957b.js",
+    "apps/web/.next/static/chunks/main-2360a94d2969ed22.js",
+    "apps/web/.next/static/chunks/main-app-21e05968edb11dff.js",
+    "apps/web/.next/static/chunks/pages",
+    "apps/web/.next/static/chunks/pages/_app-33bca1483efecb74.js",
+    "apps/web/.next/static/chunks/pages/_error-fb9d29fd2d10baf1.js",
+    "apps/web/.next/static/chunks/polyfills-42372ed130431b0a.js",
+    "apps/web/.next/static/chunks/webpack-739539eb85408256.js",
+    "apps/web/.next/static/css",
+    "apps/web/.next/static/css/4cd874a56fc8a09d.css",
+    "apps/web/.next/static/media",
+    "apps/web/.next/static/media/19cfc7226ec3afaa-s.woff2",
+    "apps/web/.next/static/media/21350d82a1f187e9-s.woff2",
+    "apps/web/.next/static/media/8e9860b6e62d6359-s.woff2",
+    "apps/web/.next/static/media/ba9851c3c22cd980-s.woff2",
+    "apps/web/.next/static/media/c5fe6dc8356a8c31-s.woff2",
+    "apps/web/.next/static/media/df0a9ae256c0569c-s.woff2",
+    "apps/web/.next/static/media/e4af272ccee01ff0-s.p.woff2",
+    "apps/web/.next/static/tT99Eu7od3vWY65fs1cc8",
+    "apps/web/.next/static/tT99Eu7od3vWY65fs1cc8/_buildManifest.js",
+    "apps/web/.next/static/tT99Eu7od3vWY65fs1cc8/_ssgManifest.js",
+    "apps/web/.next/trace",
+    "apps/web/.next/types",
+    "apps/web/.next/types/app",
+    "apps/web/.next/types/app/(app)",
+    "apps/web/.next/types/app/(app)/bookings",
+    "apps/web/.next/types/app/(app)/bookings/page.ts",
+    "apps/web/.next/types/app/(app)/checklists",
+    "apps/web/.next/types/app/(app)/checklists/page.ts",
+    "apps/web/.next/types/app/(app)/daily-km",
+    "apps/web/.next/types/app/(app)/daily-km/page.ts",
+    "apps/web/.next/types/app/(app)/dashboard",
+    "apps/web/.next/types/app/(app)/dashboard/page.ts",
+    "apps/web/.next/types/app/(app)/drivers",
+    "apps/web/.next/types/app/(app)/drivers/page.ts",
+    "apps/web/.next/types/app/(app)/equipment",
+    "apps/web/.next/types/app/(app)/equipment/page.ts",
+    "apps/web/.next/types/app/(app)/financial",
+    "apps/web/.next/types/app/(app)/financial/page.ts",
+    "apps/web/.next/types/app/(app)/fiscal",
+    "apps/web/.next/types/app/(app)/fiscal/page.ts",
+    "apps/web/.next/types/app/(app)/fleet",
+    "apps/web/.next/types/app/(app)/fleet/page.ts",
+    "apps/web/.next/types/app/(app)/layout.ts",
+    "apps/web/.next/types/app/(app)/products",
+    "apps/web/.next/types/app/(app)/products/page.ts",
+    "apps/web/.next/types/app/(app)/profile",
+    "apps/web/.next/types/app/(app)/profile/page.ts",
+    "apps/web/.next/types/app/(app)/purchases",
+    "apps/web/.next/types/app/(app)/purchases/page.ts",
+    "apps/web/.next/types/app/(app)/reports",
+    "apps/web/.next/types/app/(app)/reports/page.ts",
+    "apps/web/.next/types/app/(app)/routes",
+    "apps/web/.next/types/app/(app)/routes/page.ts",
+    "apps/web/.next/types/app/(app)/sales",
+    "apps/web/.next/types/app/(app)/sales/page.ts",
+    "apps/web/.next/types/app/(app)/settings",
+    "apps/web/.next/types/app/(app)/settings/page.ts",
+    "apps/web/.next/types/app/(app)/suppliers",
+    "apps/web/.next/types/app/(app)/suppliers/page.ts",
+    "apps/web/.next/types/app/(auth)",
+    "apps/web/.next/types/app/(auth)/login",
+    "apps/web/.next/types/app/(auth)/login/page.ts",
+    "apps/web/.next/types/app/admin",
+    "apps/web/.next/types/app/admin/(protected)",
+    "apps/web/.next/types/app/admin/(protected)/billing",
+    "apps/web/.next/types/app/admin/(protected)/billing/page.ts",
+    "apps/web/.next/types/app/admin/(protected)/companies",
+    "apps/web/.next/types/app/admin/(protected)/companies/[id]",
+    "apps/web/.next/types/app/admin/(protected)/companies/[id]/features",
+    "apps/web/.next/types/app/admin/(protected)/companies/[id]/features/page.ts",
+    "apps/web/.next/types/app/admin/(protected)/companies/[id]/page.ts",
+    "apps/web/.next/types/app/admin/(protected)/companies/page.ts",
+    "apps/web/.next/types/app/admin/(protected)/dashboard",
+    "apps/web/.next/types/app/admin/(protected)/dashboard/page.ts",
+    "apps/web/.next/types/app/admin/(protected)/layout.ts",
+    "apps/web/.next/types/app/admin/(protected)/notifications",
+    "apps/web/.next/types/app/admin/(protected)/notifications/page.ts",
+    "apps/web/.next/types/app/admin/(protected)/plans",
+    "apps/web/.next/types/app/admin/(protected)/plans/page.ts",
+    "apps/web/.next/types/app/admin/(protected)/settings",
+    "apps/web/.next/types/app/admin/(protected)/settings/page.ts",
+    "apps/web/.next/types/app/admin/(protected)/users",
+    "apps/web/.next/types/app/admin/(protected)/users/page.ts",
+    "apps/web/.next/types/app/admin/layout.ts",
+    "apps/web/.next/types/app/admin/login",
+    "apps/web/.next/types/app/admin/login/page.ts",
+    "apps/web/.next/types/app/admin/page.ts",
+    "apps/web/.next/types/app/layout.ts",
+    "apps/web/.next/types/app/page.ts",
+    "apps/web/.next/types/package.json",
+    "apps/web/.turbo/turbo-build.log"
+  ]
+}

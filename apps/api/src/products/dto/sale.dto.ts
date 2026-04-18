@@ -1,5 +1,13 @@
-import { IsString, IsOptional, IsNumber, IsBoolean, IsArray, ValidateNested, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsArray,
+  ValidateNested,
+  Min,
+} from "class-validator";
+import { Type } from "class-transformer";
 
 export class SaleOrderItemDto {
   @IsString() productId: string;
@@ -9,6 +17,7 @@ export class SaleOrderItemDto {
 }
 
 export class CreateSaleOrderDto {
+  @IsOptional() @IsString() clientId?: string;
   @IsString() clientName: string;
   @IsOptional() @IsString() clientDoc?: string;
   @IsOptional() @IsString() clientEmail?: string;
@@ -23,7 +32,10 @@ export class CreateSaleOrderDto {
   @IsOptional() @IsString() paymentMethod?: string;
   @IsOptional() @IsString() notes?: string;
   @IsOptional() dueDate?: string;
-  @IsArray() @ValidateNested({ each: true }) @Type(() => SaleOrderItemDto) items: SaleOrderItemDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SaleOrderItemDto)
+  items: SaleOrderItemDto[];
 }
 
 export class UpdateSaleDeliveryDto {

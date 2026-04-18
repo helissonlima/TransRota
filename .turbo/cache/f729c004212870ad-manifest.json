@@ -1,0 +1,3102 @@
+{
+  "files": {
+    "apps/api/dist/core/prisma/master-prisma.service.js": {
+      "size": 1604,
+      "mtime_nanos": 1776518941165383239,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/taxes.controller.js": {
+      "size": 7039,
+      "mtime_nanos": 1776518943744072354,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.service.d.ts": {
+      "size": 1851,
+      "mtime_nanos": 1776518941589151399,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/payment-settings.dto.d.ts": {
+      "size": 567,
+      "mtime_nanos": 1776518941776922520,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/dto/create-user.dto.d.ts": {
+      "size": 187,
+      "mtime_nanos": 1776518942312460253,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.middleware.js.map": {
+      "size": 2276,
+      "mtime_nanos": 1776518941378142749,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/fleet/oil-change.controller.js.map": {
+      "size": 2465,
+      "mtime_nanos": 1776518942821201905,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/products/dto/production.dto.js": {
+      "size": 1696,
+      "mtime_nanos": 1776518944557207197,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/app.module.d.ts": {
+      "size": 139,
+      "mtime_nanos": 1776518945498311647,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/daily-km/dto/create-daily-km.dto.js": {
+      "size": 3627,
+      "mtime_nanos": 1776518943631881330,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/financial.service.d.ts": {
+      "size": 2005,
+      "mtime_nanos": 1776518944157514465,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/production.service.d.ts": {
+      "size": 4687,
+      "mtime_nanos": 1776518944646276719,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.controller.d.ts": {
+      "size": 7589,
+      "mtime_nanos": 1776518943198928541,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.controller.js.map": {
+      "size": 3793,
+      "mtime_nanos": 1776518943159215761,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.module.d.ts": {
+      "size": 41,
+      "mtime_nanos": 1776518942307209050,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/suppliers.controller.js": {
+      "size": 6715,
+      "mtime_nanos": 1776518945145694025,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/dto/create-user.dto.js": {
+      "size": 2147,
+      "mtime_nanos": 1776518942312460253,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/dto/update-profile.dto.js.map": {
+      "size": 500,
+      "mtime_nanos": 1776518942317181243,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/users.service.d.ts": {
+      "size": 1875,
+      "mtime_nanos": 1776518942378317503,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/dto/create-booking.dto.js.map": {
+      "size": 1070,
+      "mtime_nanos": 1776518943689237488,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/public.decorator.d.ts": {
+      "size": 134,
+      "mtime_nanos": 1776518941674154884,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/update-vehicle.dto.js.map": {
+      "size": 240,
+      "mtime_nanos": 1776518942452186777,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.service.js": {
+      "size": 6063,
+      "mtime_nanos": 1776518944276180466,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/auth/guards/jwt-auth.guard.d.ts": {
+      "size": 444,
+      "mtime_nanos": 1776518941698155868,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/strategies": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/fleet/maintenance.controller.js.map": {
+      "size": 1199,
+      "mtime_nanos": 1776518942755199199,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/auth.controller.js.map": {
+      "size": 2010,
+      "mtime_nanos": 1776518941714156524,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/auth.service.d.ts": {
+      "size": 1579,
+      "mtime_nanos": 1776518941655154105,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/guards/roles.guard.js": {
+      "size": 1827,
+      "mtime_nanos": 1776518942389027197,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.module.js": {
+      "size": 1254,
+      "mtime_nanos": 1776518943686059510,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/current-user.decorator.js.map": {
+      "size": 356,
+      "mtime_nanos": 1776518941701155991,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/update-checklist.dto.js.map": {
+      "size": 248,
+      "mtime_nanos": 1776518945517312425,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.controller.js.map": {
+      "size": 3652,
+      "mtime_nanos": 1776518942959207562,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.controller.js.map": {
+      "size": 4264,
+      "mtime_nanos": 1776518943778241136,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/export.service.js": {
+      "size": 2998,
+      "mtime_nanos": 1776518943547231667,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/taxes.module.js": {
+      "size": 1208,
+      "mtime_nanos": 1776518943751382708,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.controller.js.map": {
+      "size": 1072,
+      "mtime_nanos": 1776518941602151932,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/public.decorator.js": {
+      "size": 352,
+      "mtime_nanos": 1776518941670154720,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/execute-checklist.dto.js": {
+      "size": 5284,
+      "mtime_nanos": 1776518943217226391,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/core/prisma/tenant-prisma.factory.js.map": {
+      "size": 861,
+      "mtime_nanos": 1776518941304139716,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto/create-driver.dto.js.map": {
+      "size": 3074,
+      "mtime_nanos": 1776518942847202970,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/oil-change.service.js.map": {
+      "size": 3871,
+      "mtime_nanos": 1776518942806201289,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/.turbo/turbo-build.log": {
+      "size": 105,
+      "mtime_nanos": 1776518946101336366,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.controller.d.ts": {
+      "size": 5922,
+      "mtime_nanos": 1776518942983208545,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/fleet.module.d.ts": {
+      "size": 37,
+      "mtime_nanos": 1776518942832406052,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/asaas.client.d.ts": {
+      "size": 2261,
+      "mtime_nanos": 1776518943803242161,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.module.js.map": {
+      "size": 385,
+      "mtime_nanos": 1776518942986208669,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/fuel.controller.d.ts": {
+      "size": 1620,
+      "mtime_nanos": 1776518942784200388,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.controller.js": {
+      "size": 8492,
+      "mtime_nanos": 1776518944356264831,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/dto/seller.dto.js": {
+      "size": 2853,
+      "mtime_nanos": 1776518945410308039,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.service.js.map": {
+      "size": 2396,
+      "mtime_nanos": 1776518945452309761,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/dto/supplier.dto.js": {
+      "size": 5716,
+      "mtime_nanos": 1776518945023292174,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/auth.service.js": {
+      "size": 3430,
+      "mtime_nanos": 1776518941645718254,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.module.d.ts": {
+      "size": 41,
+      "mtime_nanos": 1776518945408307957,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/users.module.d.ts": {
+      "size": 37,
+      "mtime_nanos": 1776518942432192547,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/taxes.module.d.ts": {
+      "size": 37,
+      "mtime_nanos": 1776518943751382708,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/fuel.service.js.map": {
+      "size": 2949,
+      "mtime_nanos": 1776518942608193173,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/current-user.decorator.js": {
+      "size": 358,
+      "mtime_nanos": 1776518941701155991,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/production.service.js": {
+      "size": 7434,
+      "mtime_nanos": 1776518944611685266,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/add-delivery-proof.dto.d.ts": {
+      "size": 327,
+      "mtime_nanos": 1776518943011209693,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.controller.d.ts": {
+      "size": 2405,
+      "mtime_nanos": 1776518945483311031,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/checklist/checklist.controller.js": {
+      "size": 6620,
+      "mtime_nanos": 1776518943370555222,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/inventory.dto.d.ts": {
+      "size": 519,
+      "mtime_nanos": 1776518944427709417,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/inventory.controller.js": {
+      "size": 5828,
+      "mtime_nanos": 1776518944521271595,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.service.js": {
+      "size": 6684,
+      "mtime_nanos": 1776518941490836756,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/users.controller.d.ts": {
+      "size": 2110,
+      "mtime_nanos": 1776518942425185671,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.service.js": {
+      "size": 5242,
+      "mtime_nanos": 1776518943701655931,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/maintenance.service.js.map": {
+      "size": 3046,
+      "mtime_nanos": 1776518942673195837,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/sale.dto.d.ts": {
+      "size": 649,
+      "mtime_nanos": 1776518944690278523,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.controller.js": {
+      "size": 8132,
+      "mtime_nanos": 1776518943676903096,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.controller.js.map": {
+      "size": 2963,
+      "mtime_nanos": 1776518945366306235,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/product.dto.d.ts": {
+      "size": 1199,
+      "mtime_nanos": 1776518944188257944,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto/create-driver-document.dto.d.ts": {
+      "size": 137,
+      "mtime_nanos": 1776518942860376231,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.service.d.ts": {
+      "size": 10541,
+      "mtime_nanos": 1776518942171175258,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.service.d.ts": {
+      "size": 1128,
+      "mtime_nanos": 1776518944089353943,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/payment-settings.dto.js.map": {
+      "size": 1292,
+      "mtime_nanos": 1776518941775159024,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/financial.module.d.ts": {
+      "size": 41,
+      "mtime_nanos": 1776518944178257534,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/sales.service.js.map": {
+      "size": 7764,
+      "mtime_nanos": 1776518944798282950,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/users/dto/update-user-role.dto.d.ts": {
+      "size": 132,
+      "mtime_nanos": 1776518942314181120,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-fuel-record.dto.d.ts": {
+      "size": 302,
+      "mtime_nanos": 1776518942569290239,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/strategies/jwt.strategy.js.map": {
+      "size": 577,
+      "mtime_nanos": 1776518941726157016,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/guards/super-admin.guard.js": {
+      "size": 1440,
+      "mtime_nanos": 1776518942178175545,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/users/users.controller.js": {
+      "size": 7145,
+      "mtime_nanos": 1776518942407943617,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.module.js.map": {
+      "size": 467,
+      "mtime_nanos": 1776518944054252450,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.controller.js": {
+      "size": 6884,
+      "mtime_nanos": 1776518944025779011,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto/create-driver-document.dto.js.map": {
+      "size": 612,
+      "mtime_nanos": 1776518942859203462,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/daily-km/dto/create-daily-km.dto.d.ts": {
+      "size": 334,
+      "mtime_nanos": 1776518943631881330,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/execute-checklist.dto.d.ts": {
+      "size": 603,
+      "mtime_nanos": 1776518943217226391,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/taxes.service.js": {
+      "size": 4455,
+      "mtime_nanos": 1776518943732560726,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/checklist.module.d.ts": {
+      "size": 41,
+      "mtime_nanos": 1776518943413226173,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/asaas.client.js.map": {
+      "size": 3310,
+      "mtime_nanos": 1776518943800242038,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/main.d.ts": {
+      "size": 11,
+      "mtime_nanos": 1776518945515312343,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/sale.dto.js": {
+      "size": 5306,
+      "mtime_nanos": 1776518944690278523,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/sales.controller.js": {
+      "size": 7140,
+      "mtime_nanos": 1776518944925219294,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/auth/auth.controller.js": {
+      "size": 4354,
+      "mtime_nanos": 1776518941715762237,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.controller.js": {
+      "size": 7650,
+      "mtime_nanos": 1776518943714723617,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/core/prisma": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/fleet/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/billing/dto/billing.dto.js": {
+      "size": 5632,
+      "mtime_nanos": 1776518943811691811,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/users.module.js.map": {
+      "size": 377,
+      "mtime_nanos": 1776518942430185876,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.module.js.map": {
+      "size": 393,
+      "mtime_nanos": 1776518943783241341,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.service.js.map": {
+      "size": 4133,
+      "mtime_nanos": 1776518943766240644,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/product.dto.js": {
+      "size": 7920,
+      "mtime_nanos": 1776518944187257903,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/inventory.service.js": {
+      "size": 4639,
+      "mtime_nanos": 1776518944477569200,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/users.service.js.map": {
+      "size": 3994,
+      "mtime_nanos": 1776518942353182719,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/suppliers.module.js.map": {
+      "size": 393,
+      "mtime_nanos": 1776518945192299102,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/dto/create-user.dto.js.map": {
+      "size": 652,
+      "mtime_nanos": 1776518942311180997,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/dto/create-vehicle-tax.dto.d.ts": {
+      "size": 308,
+      "mtime_nanos": 1776518943724744938,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/dto/update-user-role.dto.js": {
+      "size": 1582,
+      "mtime_nanos": 1776518942314181120,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/dto/create-equipment.dto.js.map": {
+      "size": 1018,
+      "mtime_nanos": 1776518943754240152,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/dto/seller.dto.d.ts": {
+      "size": 273,
+      "mtime_nanos": 1776518945411308080,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.controller.js.map": {
+      "size": 2166,
+      "mtime_nanos": 1776518945470310499,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.service.js": {
+      "size": 2864,
+      "mtime_nanos": 1776518945453699008,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/taxes.module.js.map": {
+      "size": 377,
+      "mtime_nanos": 1776518943750239988,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-fuel-record.dto.js.map": {
+      "size": 1209,
+      "mtime_nanos": 1776518942568191533,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-maintenance.dto.js.map": {
+      "size": 2215,
+      "mtime_nanos": 1776518942636194320,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.processor.js": {
+      "size": 1549,
+      "mtime_nanos": 1776518943619745197,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.module.js.map": {
+      "size": 388,
+      "mtime_nanos": 1776518943717238636,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/fleet/fleet.module.js.map": {
+      "size": 538,
+      "mtime_nanos": 1776518942831202314,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/payment-settings.dto.js": {
+      "size": 4085,
+      "mtime_nanos": 1776518941776922520,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/dto/commission.dto.d.ts": {
+      "size": 650,
+      "mtime_nanos": 1776518944067289291,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/products/dto/production.dto.d.ts": {
+      "size": 115,
+      "mtime_nanos": 1776518944557207197,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/create-route.dto.js.map": {
+      "size": 2030,
+      "mtime_nanos": 1776518942997209119,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.decorator.d.ts": {
+      "size": 168,
+      "mtime_nanos": 1776518942393184359,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/checklist.service.js.map": {
+      "size": 6968,
+      "mtime_nanos": 1776518943313222074,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.service.d.ts": {
+      "size": 8712,
+      "mtime_nanos": 1776518945351305620,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.controller.js": {
+      "size": 7817,
+      "mtime_nanos": 1776518943160619379,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.module.js": {
+      "size": 2320,
+      "mtime_nanos": 1776518942307209050,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.controller.d.ts": {
+      "size": 1263,
+      "mtime_nanos": 1776518944103543350,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/production.controller.d.ts": {
+      "size": 4810,
+      "mtime_nanos": 1776518944684505248,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/core/prisma/master-prisma.service.js.map": {
+      "size": 578,
+      "mtime_nanos": 1776518941163559531,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.controller.js.map": {
+      "size": 3055,
+      "mtime_nanos": 1776518944024251221,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.module.js.map": {
+      "size": 388,
+      "mtime_nanos": 1776518943684237283,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/auth.module.js.map": {
+      "size": 768,
+      "mtime_nanos": 1776518941742157672,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto/create-driver-document.dto.js": {
+      "size": 2057,
+      "mtime_nanos": 1776518942860376231,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto/create-driver.dto.js": {
+      "size": 6504,
+      "mtime_nanos": 1776518942848739763,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.module.js.map": {
+      "size": 393,
+      "mtime_nanos": 1776518945407307916,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.service.js": {
+      "size": 8145,
+      "mtime_nanos": 1776518945298303448,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/export.service.d.ts": {
+      "size": 295,
+      "mtime_nanos": 1776518943548231707,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.service.js": {
+      "size": 8426,
+      "mtime_nanos": 1776518943653939677,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/update-company.dto.js": {
+      "size": 2193,
+      "mtime_nanos": 1776518941760797633,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto/create-driver.dto.d.ts": {
+      "size": 618,
+      "mtime_nanos": 1776518942848739763,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/dto/login.dto.js.map": {
+      "size": 389,
+      "mtime_nanos": 1776518941664154474,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/oil-change.controller.d.ts": {
+      "size": 945,
+      "mtime_nanos": 1776518942826202109,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/create-route.dto.d.ts": {
+      "size": 695,
+      "mtime_nanos": 1776518942999209201,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/core/prisma/tenant-prisma.factory.js": {
+      "size": 1620,
+      "mtime_nanos": 1776518941305572899,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.module.d.ts": {
+      "size": 43,
+      "mtime_nanos": 1776518944106433356,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.service.js.map": {
+      "size": 5471,
+      "mtime_nanos": 1776518942912205635,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/suppliers/suppliers.controller.d.ts": {
+      "size": 8637,
+      "mtime_nanos": 1776518945185298815,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/dto/financial.dto.js": {
+      "size": 9676,
+      "mtime_nanos": 1776518944122706792,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/dto/create-usage-log.dto.js.map": {
+      "size": 1050,
+      "mtime_nanos": 1776518943758240316,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.module.js": {
+      "size": 1284,
+      "mtime_nanos": 1776518945408307957,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/auth.controller.d.ts": {
+      "size": 1088,
+      "mtime_nanos": 1776518941718156688,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.module.js": {
+      "size": 1246,
+      "mtime_nanos": 1776518942986208669,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.service.js.map": {
+      "size": 4728,
+      "mtime_nanos": 1776518941489147300,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/vehicles.service.js.map": {
+      "size": 4442,
+      "mtime_nanos": 1776518942510189155,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.module.d.ts": {
+      "size": 38,
+      "mtime_nanos": 1776518943201743709,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/guards/roles.guard.js.map": {
+      "size": 780,
+      "mtime_nanos": 1776518942387184113,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto/update-driver.dto.js.map": {
+      "size": 238,
+      "mtime_nanos": 1776518942851203134,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.module.d.ts": {
+      "size": 39,
+      "mtime_nanos": 1776518944055675202,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/guards/jwt-auth.guard.js.map": {
+      "size": 667,
+      "mtime_nanos": 1776518941686155376,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.module.js.map": {
+      "size": 385,
+      "mtime_nanos": 1776518945485311114,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/checklist.module.js.map": {
+      "size": 360,
+      "mtime_nanos": 1776518943412226132,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.module.js": {
+      "size": 1512,
+      "mtime_nanos": 1776518944055675202,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.controller.d.ts": {
+      "size": 5189,
+      "mtime_nanos": 1776518943610234249,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/public.decorator.js.map": {
+      "size": 291,
+      "mtime_nanos": 1776518941670154720,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/dto/supplier.dto.d.ts": {
+      "size": 668,
+      "mtime_nanos": 1776518945024292215,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/checklist.controller.js.map": {
+      "size": 2950,
+      "mtime_nanos": 1776518943369224369,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-vehicle.dto.d.ts": {
+      "size": 792,
+      "mtime_nanos": 1776518942449825090,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/fuel.service.d.ts": {
+      "size": 2528,
+      "mtime_nanos": 1776518942623193788,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/suppliers/dto/supplier.dto.js.map": {
+      "size": 1603,
+      "mtime_nanos": 1776518945023292174,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.service.js": {
+      "size": 30896,
+      "mtime_nanos": 1776518942083792987,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-maintenance.dto.d.ts": {
+      "size": 398,
+      "mtime_nanos": 1776518942637194361,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/dto/refresh-token.dto.js.map": {
+      "size": 339,
+      "mtime_nanos": 1776518941667154597,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/users.controller.js.map": {
+      "size": 3393,
+      "mtime_nanos": 1776518942406184892,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.middleware.d.ts": {
+      "size": 899,
+      "mtime_nanos": 1776518941382142913,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/update-stop-status.dto.d.ts": {
+      "size": 223,
+      "mtime_nanos": 1776518943004466918,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.module.js": {
+      "size": 1227,
+      "mtime_nanos": 1776518943201743709,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/bom.dto.js.map": {
+      "size": 943,
+      "mtime_nanos": 1776518944193258149,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/users.service.js": {
+      "size": 4236,
+      "mtime_nanos": 1776518942353182719,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/dto/commission.dto.js": {
+      "size": 6496,
+      "mtime_nanos": 1776518944067289291,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/oil-change.service.js": {
+      "size": 4662,
+      "mtime_nanos": 1776518942807913842,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/strategies/local.strategy.js": {
+      "size": 1489,
+      "mtime_nanos": 1776518941734656141,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.service.js": {
+      "size": 16835,
+      "mtime_nanos": 1776518943980391818,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/dto/create-booking.dto.d.ts": {
+      "size": 269,
+      "mtime_nanos": 1776518943690979452,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.controller.js": {
+      "size": 8324,
+      "mtime_nanos": 1776518943779750473,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.module.js": {
+      "size": 1284,
+      "mtime_nanos": 1776518943783241341,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/dto/refresh-token.dto.d.ts": {
+      "size": 87,
+      "mtime_nanos": 1776518941667154597,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/core/prisma/tenant-prisma.service.js.map": {
+      "size": 870,
+      "mtime_nanos": 1776518941277138609,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/dto/financial.dto.js.map": {
+      "size": 3451,
+      "mtime_nanos": 1776518944121255197,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/oil-change.service.d.ts": {
+      "size": 624,
+      "mtime_nanos": 1776518942808201372,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/dto/purchase.dto.js.map": {
+      "size": 1469,
+      "mtime_nanos": 1776518945204299594,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/tenant/tenant.decorator.js": {
+      "size": 539,
+      "mtime_nanos": 1776518942392184318,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.controller.js": {
+      "size": 5070,
+      "mtime_nanos": 1776518945472165413,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/main.js.map": {
+      "size": 1790,
+      "mtime_nanos": 1776518945515312343,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/dto/create-equipment.dto.js": {
+      "size": 2732,
+      "mtime_nanos": 1776518943755971324,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/main.js": {
+      "size": 2055,
+      "mtime_nanos": 1776518945515312343,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.module.d.ts": {
+      "size": 40,
+      "mtime_nanos": 1776518945017675644,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/taxes.service.d.ts": {
+      "size": 776,
+      "mtime_nanos": 1776518943732560726,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/dto/create-company.dto.d.ts": {
+      "size": 191,
+      "mtime_nanos": 1776518941397790882,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.service.d.ts": {
+      "size": 820,
+      "mtime_nanos": 1776518943701655931,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/production.controller.js.map": {
+      "size": 2603,
+      "mtime_nanos": 1776518944659277252,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/roles.decorator.js": {
+      "size": 341,
+      "mtime_nanos": 1776518942381021801,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/inventory.service.d.ts": {
+      "size": 3545,
+      "mtime_nanos": 1776518944512271226,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/update-vehicle.dto.js": {
+      "size": 412,
+      "mtime_nanos": 1776518942452186777,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/equipment/dto/create-equipment.dto.d.ts": {
+      "size": 170,
+      "mtime_nanos": 1776518943755971324,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/dto/update-profile.dto.js": {
+      "size": 1640,
+      "mtime_nanos": 1776518942318655145,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/dto/create-daily-km.dto.js.map": {
+      "size": 1431,
+      "mtime_nanos": 1776518943630235069,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/plan.dto.d.ts": {
+      "size": 453,
+      "mtime_nanos": 1776518941755432004,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/inventory.controller.d.ts": {
+      "size": 3713,
+      "mtime_nanos": 1776518944553272907,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/fleet/dto/create-vehicle.dto.js": {
+      "size": 8451,
+      "mtime_nanos": 1776518942449825090,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/suppliers.service.d.ts": {
+      "size": 8519,
+      "mtime_nanos": 1776518945130296561,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.controller.d.ts": {
+      "size": 1198,
+      "mtime_nanos": 1776518943716238594,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/financial.service.js.map": {
+      "size": 14918,
+      "mtime_nanos": 1776518944156256632,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/sales.service.d.ts": {
+      "size": 13275,
+      "mtime_nanos": 1776518944900287132,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.controller.d.ts": {
+      "size": 7758,
+      "mtime_nanos": 1776518944052962215,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.controller.js": {
+      "size": 6507,
+      "mtime_nanos": 1776518945366306235,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/financial.module.js.map": {
+      "size": 393,
+      "mtime_nanos": 1776518944178257534,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-oil-change.dto.js": {
+      "size": 3674,
+      "mtime_nanos": 1776518942792060753,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.controller.d.ts": {
+      "size": 8830,
+      "mtime_nanos": 1776518945406307875,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/dto/update-profile.dto.d.ts": {
+      "size": 81,
+      "mtime_nanos": 1776518942318655145,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.module.js.map": {
+      "size": 444,
+      "mtime_nanos": 1776518941615152465,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/core/prisma/tenant-prisma.service.d.ts": {
+      "size": 224,
+      "mtime_nanos": 1776518941280138732,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.module.js.map": {
+      "size": 409,
+      "mtime_nanos": 1776518944105254541,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/dto/create-company.dto.js": {
+      "size": 2830,
+      "mtime_nanos": 1776518941397790882,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/checklist/dto/resolve-execution.dto.d.ts": {
+      "size": 163,
+      "mtime_nanos": 1776518943220522297,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.controller.d.ts": {
+      "size": 1342,
+      "mtime_nanos": 1776518943781241259,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/vehicles.controller.js": {
+      "size": 8890,
+      "mtime_nanos": 1776518942702197026,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/asaas.client.js": {
+      "size": 4318,
+      "mtime_nanos": 1776518943801581715,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/strategies/local.strategy.js.map": {
+      "size": 487,
+      "mtime_nanos": 1776518941733157302,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/resolve-execution.dto.js": {
+      "size": 1573,
+      "mtime_nanos": 1776518943220522297,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.module.d.ts": {
+      "size": 39,
+      "mtime_nanos": 1776518942987208709,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.service.js": {
+      "size": 4583,
+      "mtime_nanos": 1776518943767349628,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/sales.service.js": {
+      "size": 8350,
+      "mtime_nanos": 1776518944800300254,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/financial.service.js": {
+      "size": 14378,
+      "mtime_nanos": 1776518944157514465,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/taxes/taxes.controller.d.ts": {
+      "size": 1109,
+      "mtime_nanos": 1776518943748239906,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.module.d.ts": {
+      "size": 41,
+      "mtime_nanos": 1776518943783241341,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/sale.dto.js.map": {
+      "size": 1639,
+      "mtime_nanos": 1776518944689278482,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/tenant/tenant.middleware.js": {
+      "size": 3548,
+      "mtime_nanos": 1776518941378142749,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.controller.d.ts": {
+      "size": 10834,
+      "mtime_nanos": 1776518942299678314,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/roles.decorator.d.ts": {
+      "size": 192,
+      "mtime_nanos": 1776518942383183949,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.controller.js": {
+      "size": 20389,
+      "mtime_nanos": 1776518942240914548,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/update-stop-status.dto.js.map": {
+      "size": 692,
+      "mtime_nanos": 1776518943003209365,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/products/inventory.service.js.map": {
+      "size": 3923,
+      "mtime_nanos": 1776518944477569200,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.service.js.map": {
+      "size": 6540,
+      "mtime_nanos": 1776518943507230027,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/core/prisma/master-prisma.module.js.map": {
+      "size": 390,
+      "mtime_nanos": 1776518942300180546,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.module.js": {
+      "size": 1246,
+      "mtime_nanos": 1776518945486992246,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.module.js.map": {
+      "size": 381,
+      "mtime_nanos": 1776518943200217441,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.service.js.map": {
+      "size": 6588,
+      "mtime_nanos": 1776518944088253844,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/dto/update-driver.dto.js": {
+      "size": 403,
+      "mtime_nanos": 1776518942851203134,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/taxes.controller.js.map": {
+      "size": 3415,
+      "mtime_nanos": 1776518943742239660,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/core/prisma/master-prisma.module.d.ts": {
+      "size": 44,
+      "mtime_nanos": 1776518942301958820,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/admin-login.dto.js": {
+      "size": 1511,
+      "mtime_nanos": 1776518942175175422,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/dto/billing.dto.d.ts": {
+      "size": 667,
+      "mtime_nanos": 1776518943813242571,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/dto/create-vehicle-tax.dto.js.map": {
+      "size": 1425,
+      "mtime_nanos": 1776518943723238881,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/update-checklist.dto.d.ts": {
+      "size": 247,
+      "mtime_nanos": 1776518945520312548,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/product.dto.js.map": {
+      "size": 2812,
+      "mtime_nanos": 1776518944187257903,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/app.module.js.map": {
+      "size": 1813,
+      "mtime_nanos": 1776518945497311605,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/guards": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist": { "size": 0, "mtime_nanos": 0, "mode": 0, "is_dir": true },
+    "apps/api/dist/billing/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/auth/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/equipment/dto/create-usage-log.dto.js": {
+      "size": 2665,
+      "mtime_nanos": 1776518943759332920,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/guards/jwt-auth.guard.js": {
+      "size": 1762,
+      "mtime_nanos": 1776518941687493092,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.controller.js": {
+      "size": 7706,
+      "mtime_nanos": 1776518944100254336,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/fleet/maintenance.service.js": {
+      "size": 3749,
+      "mtime_nanos": 1776518942675189807,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/dto/purchase.dto.js": {
+      "size": 4445,
+      "mtime_nanos": 1776518945204299594,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.module.d.ts": {
+      "size": 39,
+      "mtime_nanos": 1776518943624234823,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.module.js.map": {
+      "size": 494,
+      "mtime_nanos": 1776518943623234782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/checklist/dto/create-checklist.dto.js": {
+      "size": 3178,
+      "mtime_nanos": 1776518943209824513,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/add-delivery-proof.dto.js.map": {
+      "size": 1177,
+      "mtime_nanos": 1776518943008209570,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/dto/seller.dto.js.map": {
+      "size": 808,
+      "mtime_nanos": 1776518945410308039,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/plan.dto.js.map": {
+      "size": 1793,
+      "mtime_nanos": 1776518941754158164,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/checklist.service.js": {
+      "size": 8110,
+      "mtime_nanos": 1776518943314586009,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/suppliers.service.js": {
+      "size": 3466,
+      "mtime_nanos": 1776518945080294511,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.module.d.ts": {
+      "size": 40,
+      "mtime_nanos": 1776518943718238676,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/core/prisma/master-prisma.module.js": {
+      "size": 1229,
+      "mtime_nanos": 1776518942301958820,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/update-stop-status.dto.js": {
+      "size": 2151,
+      "mtime_nanos": 1776518943004466918,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/export.service.js.map": {
+      "size": 2594,
+      "mtime_nanos": 1776518943546231625,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/dto/create-booking.dto.js": {
+      "size": 3017,
+      "mtime_nanos": 1776518943690979452,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.service.d.ts": {
+      "size": 4571,
+      "mtime_nanos": 1776518943526230805,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/vehicles.controller.d.ts": {
+      "size": 10266,
+      "mtime_nanos": 1776518942749198953,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/production.service.js.map": {
+      "size": 6216,
+      "mtime_nanos": 1776518944610275244,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/update-company.dto.d.ts": {
+      "size": 146,
+      "mtime_nanos": 1776518941760797633,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/strategies/local.strategy.d.ts": {
+      "size": 321,
+      "mtime_nanos": 1776518941736513819,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/execute-checklist.dto.js.map": {
+      "size": 2057,
+      "mtime_nanos": 1776518943215218056,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.controller.js.map": {
+      "size": 10107,
+      "mtime_nanos": 1776518942239178046,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.controller.d.ts": {
+      "size": 1672,
+      "mtime_nanos": 1776518943683237242,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/update-checklist.dto.js": {
+      "size": 430,
+      "mtime_nanos": 1776518945517312425,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.controller.js": {
+      "size": 7872,
+      "mtime_nanos": 1776518942960766943,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-vehicle.dto.js.map": {
+      "size": 3888,
+      "mtime_nanos": 1776518942448186613,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/fleet.module.js": {
+      "size": 1883,
+      "mtime_nanos": 1776518942832406052,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/purchases.service.js.map": {
+      "size": 7012,
+      "mtime_nanos": 1776518945297303407,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/guards": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/reports/reports.controller.js": {
+      "size": 10365,
+      "mtime_nanos": 1776518943583233142,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/financial.controller.js.map": {
+      "size": 4971,
+      "mtime_nanos": 1776518944173257329,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.module.d.ts": {
+      "size": 39,
+      "mtime_nanos": 1776518945486992246,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/dto/create-company.dto.js.map": {
+      "size": 1019,
+      "mtime_nanos": 1776518941396143487,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/checklist.controller.d.ts": {
+      "size": 6110,
+      "mtime_nanos": 1776518943409226009,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/users/dto/update-user-role.dto.js.map": {
+      "size": 435,
+      "mtime_nanos": 1776518942314181120,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.module.js": {
+      "size": 1502,
+      "mtime_nanos": 1776518941615152465,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.module.d.ts": {
+      "size": 38,
+      "mtime_nanos": 1776518941616979812,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/plan.dto.js": {
+      "size": 4841,
+      "mtime_nanos": 1776518941755432004,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/billing/dto/billing.dto.js.map": {
+      "size": 1937,
+      "mtime_nanos": 1776518943810242448,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/sellers/sellers.service.d.ts": {
+      "size": 2265,
+      "mtime_nanos": 1776518945464310253,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/users/users.module.js": {
+      "size": 1208,
+      "mtime_nanos": 1776518942431615718,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/checklist.service.d.ts": {
+      "size": 5902,
+      "mtime_nanos": 1776518943359223959,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/update-company.dto.js.map": {
+      "size": 610,
+      "mtime_nanos": 1776518941759158368,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/update-vehicle.dto.d.ts": {
+      "size": 235,
+      "mtime_nanos": 1776518942457186983,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.service.js.map": {
+      "size": 25582,
+      "mtime_nanos": 1776518942082171610,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/core/prisma/tenant-prisma.service.js": {
+      "size": 998,
+      "mtime_nanos": 1776518941277138609,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/current-user.decorator.d.ts": {
+      "size": 85,
+      "mtime_nanos": 1776518941703156073,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/equipment.service.d.ts": {
+      "size": 984,
+      "mtime_nanos": 1776518943767349628,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-fuel-record.dto.js": {
+      "size": 3241,
+      "mtime_nanos": 1776518942569290239,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/admin-login.dto.js.map": {
+      "size": 405,
+      "mtime_nanos": 1776518942174175381,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.processor.d.ts": {
+      "size": 220,
+      "mtime_nanos": 1776518943619745197,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.service.js.map": {
+      "size": 13743,
+      "mtime_nanos": 1776518943979249376,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/sales.controller.js.map": {
+      "size": 3372,
+      "mtime_nanos": 1776518944924963555,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/suppliers.controller.js.map": {
+      "size": 3102,
+      "mtime_nanos": 1776518945145402853,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/dto/commission.dto.js.map": {
+      "size": 2734,
+      "mtime_nanos": 1776518944066252942,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/financial.module.js": {
+      "size": 1284,
+      "mtime_nanos": 1776518944178257534,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/suppliers.service.js.map": {
+      "size": 3025,
+      "mtime_nanos": 1776518945079294470,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/inventory.dto.js": {
+      "size": 3074,
+      "mtime_nanos": 1776518944425267659,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/oil-change.controller.js": {
+      "size": 5629,
+      "mtime_nanos": 1776518942822948653,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.module.js": {
+      "size": 1548,
+      "mtime_nanos": 1776518943623234782,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/dto/login.dto.js": {
+      "size": 1472,
+      "mtime_nanos": 1776518941665505513,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.service.js.map": {
+      "size": 5530,
+      "mtime_nanos": 1776518944274261469,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/create-route.dto.js": {
+      "size": 6190,
+      "mtime_nanos": 1776518942999163760,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.module.js": {
+      "size": 1322,
+      "mtime_nanos": 1776518944106433356,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.decorator.js.map": {
+      "size": 515,
+      "mtime_nanos": 1776518942392184318,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/auth.service.js.map": {
+      "size": 2380,
+      "mtime_nanos": 1776518941644153654,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/strategies/jwt.strategy.d.ts": {
+      "size": 378,
+      "mtime_nanos": 1776518941728157097,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.service.js": {
+      "size": 6518,
+      "mtime_nanos": 1776518944089353943,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/core/prisma/master-prisma.service.d.ts": {
+      "size": 321,
+      "mtime_nanos": 1776518941180134633,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/fuel.controller.js": {
+      "size": 3277,
+      "mtime_nanos": 1776518942773959276,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/dto/admin-login.dto.d.ts": {
+      "size": 80,
+      "mtime_nanos": 1776518942175175422,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.service.d.ts": {
+      "size": 1387,
+      "mtime_nanos": 1776518943655236094,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/admin-auth.module.js.map": {
+      "size": 807,
+      "mtime_nanos": 1776518942305180751,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/auth.module.d.ts": {
+      "size": 36,
+      "mtime_nanos": 1776518941743344837,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/decorators/roles.decorator.js.map": {
+      "size": 305,
+      "mtime_nanos": 1776518942381021801,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.controller.js.map": {
+      "size": 4652,
+      "mtime_nanos": 1776518943675236914,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/guards/roles.guard.d.ts": {
+      "size": 280,
+      "mtime_nanos": 1776518942389027197,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/financial.controller.js": {
+      "size": 9787,
+      "mtime_nanos": 1776518944174257370,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/maintenance.controller.d.ts": {
+      "size": 1841,
+      "mtime_nanos": 1776518942766199650,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.service.d.ts": {
+      "size": 5620,
+      "mtime_nanos": 1776518942940870857,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/maintenance.service.d.ts": {
+      "size": 2546,
+      "mtime_nanos": 1776518942684196288,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/guards/super-admin.guard.js.map": {
+      "size": 638,
+      "mtime_nanos": 1776518942178175545,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/vehicles.controller.js.map": {
+      "size": 4464,
+      "mtime_nanos": 1776518942702197026,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/production.dto.js.map": {
+      "size": 413,
+      "mtime_nanos": 1776518944556273030,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/core": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/drivers/dto/update-driver.dto.d.ts": {
+      "size": 229,
+      "mtime_nanos": 1776518942855203298,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/dto/create-usage-log.dto.d.ts": {
+      "size": 173,
+      "mtime_nanos": 1776518943759332920,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-maintenance.dto.js": {
+      "size": 5261,
+      "mtime_nanos": 1776518942636194320,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/financial/dto/financial.dto.d.ts": {
+      "size": 1748,
+      "mtime_nanos": 1776518944122706792,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/create-checklist.dto.d.ts": {
+      "size": 361,
+      "mtime_nanos": 1776518943209824513,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.controller.js.map": {
+      "size": 4062,
+      "mtime_nanos": 1776518944355264790,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.module.js": {
+      "size": 1810,
+      "mtime_nanos": 1776518945017675644,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/purchases/dto/purchase.dto.d.ts": {
+      "size": 544,
+      "mtime_nanos": 1776518945205299635,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/app.module.js": {
+      "size": 4648,
+      "mtime_nanos": 1776518945497311605,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.service.d.ts": {
+      "size": 7996,
+      "mtime_nanos": 1776518944342264257,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/dto/login.dto.d.ts": {
+      "size": 75,
+      "mtime_nanos": 1776518941665505513,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/inventory.dto.js.map": {
+      "size": 904,
+      "mtime_nanos": 1776518944425267659,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/sales.controller.d.ts": {
+      "size": 11542,
+      "mtime_nanos": 1776518945011291682,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-oil-change.dto.d.ts": {
+      "size": 321,
+      "mtime_nanos": 1776518942792060753,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/billing/billing.service.d.ts": {
+      "size": 7711,
+      "mtime_nanos": 1776518944011582150,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/checklist/dto/resolve-execution.dto.js.map": {
+      "size": 446,
+      "mtime_nanos": 1776518943219218220,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.module.d.ts": {
+      "size": 39,
+      "mtime_nanos": 1776518943686059510,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/fuel.service.js": {
+      "size": 3483,
+      "mtime_nanos": 1776518942609405885,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/bom.dto.d.ts": {
+      "size": 251,
+      "mtime_nanos": 1776518944193258149,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/inventory.controller.js.map": {
+      "size": 2547,
+      "mtime_nanos": 1776518944520271554,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/dto/add-delivery-proof.dto.js": {
+      "size": 3270,
+      "mtime_nanos": 1776518943009611109,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.service.js": {
+      "size": 7711,
+      "mtime_nanos": 1776518943099550289,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/checklist.module.js": {
+      "size": 1227,
+      "mtime_nanos": 1776518943412226132,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/strategies/jwt.strategy.js": {
+      "size": 1682,
+      "mtime_nanos": 1776518941727721472,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.controller.js.map": {
+      "size": 3928,
+      "mtime_nanos": 1776518943713238472,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/fleet/vehicles.service.js": {
+      "size": 5043,
+      "mtime_nanos": 1776518942510189155,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/vehicles.service.d.ts": {
+      "size": 8209,
+      "mtime_nanos": 1776518942562993906,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/fuel.controller.js.map": {
+      "size": 1165,
+      "mtime_nanos": 1776518942772199896,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/daily-km/daily-km.service.js.map": {
+      "size": 8160,
+      "mtime_nanos": 1776518943652235971,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.module.js.map": {
+      "size": 504,
+      "mtime_nanos": 1776518945016291887,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist/dto/create-checklist.dto.js.map": {
+      "size": 1062,
+      "mtime_nanos": 1776518943208217769,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.processor.js.map": {
+      "size": 750,
+      "mtime_nanos": 1776518943618234577,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/maintenance.controller.js": {
+      "size": 3422,
+      "mtime_nanos": 1776518942757134853,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/dto/bom.dto.js": {
+      "size": 2798,
+      "mtime_nanos": 1776518944193258149,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.controller.js.map": {
+      "size": 7214,
+      "mtime_nanos": 1776518943583233142,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/reports/reports.service.js": {
+      "size": 7381,
+      "mtime_nanos": 1776518943507230027,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.service.d.ts": {
+      "size": 7463,
+      "mtime_nanos": 1776518943147570456,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/suppliers.module.d.ts": {
+      "size": 41,
+      "mtime_nanos": 1776518945192299102,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/suppliers/suppliers.module.js": {
+      "size": 1284,
+      "mtime_nanos": 1776518945192299102,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/auth.module.js": {
+      "size": 2015,
+      "mtime_nanos": 1776518941743344837,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.service.js.map": {
+      "size": 4982,
+      "mtime_nanos": 1776518943700237939,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes/routes.service.js.map": {
+      "size": 6362,
+      "mtime_nanos": 1776518943098213260,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/admin-auth/guards/super-admin.guard.d.ts": {
+      "size": 181,
+      "mtime_nanos": 1776518942179175586,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/commissions/commissions.controller.js.map": {
+      "size": 3795,
+      "mtime_nanos": 1776518944100254336,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/taxes/dto/create-vehicle-tax.dto.js": {
+      "size": 3534,
+      "mtime_nanos": 1776518943724744938,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/core/prisma/tenant-prisma.factory.d.ts": {
+      "size": 318,
+      "mtime_nanos": 1776518941306139798,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/bookings/bookings.module.js": {
+      "size": 1265,
+      "mtime_nanos": 1776518943718238676,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/fleet/dto/create-oil-change.dto.js.map": {
+      "size": 1529,
+      "mtime_nanos": 1776518942790200634,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/checklist": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/tenant/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/financial/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/tenant/tenant.controller.d.ts": {
+      "size": 1517,
+      "mtime_nanos": 1776518941608152178,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/tenant/tenant.controller.js": {
+      "size": 2935,
+      "mtime_nanos": 1776518941603752043,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/taxes/taxes.service.js.map": {
+      "size": 4193,
+      "mtime_nanos": 1776518943731239209,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/drivers/drivers.service.js": {
+      "size": 5912,
+      "mtime_nanos": 1776518942913527204,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/auth/dto/refresh-token.dto.js": {
+      "size": 1465,
+      "mtime_nanos": 1776518941667154597,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/equipment/dto": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/financial/financial.controller.d.ts": {
+      "size": 2070,
+      "mtime_nanos": 1776518944176257452,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/products/products.controller.d.ts": {
+      "size": 8102,
+      "mtime_nanos": 1776518944422251774,
+      "mode": 436,
+      "is_dir": false
+    },
+    "apps/api/dist/routes": {
+      "size": 0,
+      "mtime_nanos": 0,
+      "mode": 0,
+      "is_dir": true
+    },
+    "apps/api/dist/products/production.controller.js": {
+      "size": 5929,
+      "mtime_nanos": 1776518944660888561,
+      "mode": 436,
+      "is_dir": false
+    }
+  },
+  "order": [
+    "apps/api/.turbo/turbo-build.log",
+    "apps/api/dist",
+    "apps/api/dist/admin-auth",
+    "apps/api/dist/admin-auth/admin-auth.controller.d.ts",
+    "apps/api/dist/admin-auth/admin-auth.controller.js",
+    "apps/api/dist/admin-auth/admin-auth.controller.js.map",
+    "apps/api/dist/admin-auth/admin-auth.module.d.ts",
+    "apps/api/dist/admin-auth/admin-auth.module.js",
+    "apps/api/dist/admin-auth/admin-auth.module.js.map",
+    "apps/api/dist/admin-auth/admin-auth.service.d.ts",
+    "apps/api/dist/admin-auth/admin-auth.service.js",
+    "apps/api/dist/admin-auth/admin-auth.service.js.map",
+    "apps/api/dist/admin-auth/dto",
+    "apps/api/dist/admin-auth/dto/admin-login.dto.d.ts",
+    "apps/api/dist/admin-auth/dto/admin-login.dto.js",
+    "apps/api/dist/admin-auth/dto/admin-login.dto.js.map",
+    "apps/api/dist/admin-auth/dto/payment-settings.dto.d.ts",
+    "apps/api/dist/admin-auth/dto/payment-settings.dto.js",
+    "apps/api/dist/admin-auth/dto/payment-settings.dto.js.map",
+    "apps/api/dist/admin-auth/dto/plan.dto.d.ts",
+    "apps/api/dist/admin-auth/dto/plan.dto.js",
+    "apps/api/dist/admin-auth/dto/plan.dto.js.map",
+    "apps/api/dist/admin-auth/dto/update-company.dto.d.ts",
+    "apps/api/dist/admin-auth/dto/update-company.dto.js",
+    "apps/api/dist/admin-auth/dto/update-company.dto.js.map",
+    "apps/api/dist/admin-auth/guards",
+    "apps/api/dist/admin-auth/guards/super-admin.guard.d.ts",
+    "apps/api/dist/admin-auth/guards/super-admin.guard.js",
+    "apps/api/dist/admin-auth/guards/super-admin.guard.js.map",
+    "apps/api/dist/app.module.d.ts",
+    "apps/api/dist/app.module.js",
+    "apps/api/dist/app.module.js.map",
+    "apps/api/dist/auth",
+    "apps/api/dist/auth/auth.controller.d.ts",
+    "apps/api/dist/auth/auth.controller.js",
+    "apps/api/dist/auth/auth.controller.js.map",
+    "apps/api/dist/auth/auth.module.d.ts",
+    "apps/api/dist/auth/auth.module.js",
+    "apps/api/dist/auth/auth.module.js.map",
+    "apps/api/dist/auth/auth.service.d.ts",
+    "apps/api/dist/auth/auth.service.js",
+    "apps/api/dist/auth/auth.service.js.map",
+    "apps/api/dist/auth/decorators",
+    "apps/api/dist/auth/decorators/current-user.decorator.d.ts",
+    "apps/api/dist/auth/decorators/current-user.decorator.js",
+    "apps/api/dist/auth/decorators/current-user.decorator.js.map",
+    "apps/api/dist/auth/decorators/public.decorator.d.ts",
+    "apps/api/dist/auth/decorators/public.decorator.js",
+    "apps/api/dist/auth/decorators/public.decorator.js.map",
+    "apps/api/dist/auth/decorators/roles.decorator.d.ts",
+    "apps/api/dist/auth/decorators/roles.decorator.js",
+    "apps/api/dist/auth/decorators/roles.decorator.js.map",
+    "apps/api/dist/auth/dto",
+    "apps/api/dist/auth/dto/login.dto.d.ts",
+    "apps/api/dist/auth/dto/login.dto.js",
+    "apps/api/dist/auth/dto/login.dto.js.map",
+    "apps/api/dist/auth/dto/refresh-token.dto.d.ts",
+    "apps/api/dist/auth/dto/refresh-token.dto.js",
+    "apps/api/dist/auth/dto/refresh-token.dto.js.map",
+    "apps/api/dist/auth/guards",
+    "apps/api/dist/auth/guards/jwt-auth.guard.d.ts",
+    "apps/api/dist/auth/guards/jwt-auth.guard.js",
+    "apps/api/dist/auth/guards/jwt-auth.guard.js.map",
+    "apps/api/dist/auth/guards/roles.guard.d.ts",
+    "apps/api/dist/auth/guards/roles.guard.js",
+    "apps/api/dist/auth/guards/roles.guard.js.map",
+    "apps/api/dist/auth/strategies",
+    "apps/api/dist/auth/strategies/jwt.strategy.d.ts",
+    "apps/api/dist/auth/strategies/jwt.strategy.js",
+    "apps/api/dist/auth/strategies/jwt.strategy.js.map",
+    "apps/api/dist/auth/strategies/local.strategy.d.ts",
+    "apps/api/dist/auth/strategies/local.strategy.js",
+    "apps/api/dist/auth/strategies/local.strategy.js.map",
+    "apps/api/dist/billing",
+    "apps/api/dist/billing/asaas.client.d.ts",
+    "apps/api/dist/billing/asaas.client.js",
+    "apps/api/dist/billing/asaas.client.js.map",
+    "apps/api/dist/billing/billing.controller.d.ts",
+    "apps/api/dist/billing/billing.controller.js",
+    "apps/api/dist/billing/billing.controller.js.map",
+    "apps/api/dist/billing/billing.module.d.ts",
+    "apps/api/dist/billing/billing.module.js",
+    "apps/api/dist/billing/billing.module.js.map",
+    "apps/api/dist/billing/billing.service.d.ts",
+    "apps/api/dist/billing/billing.service.js",
+    "apps/api/dist/billing/billing.service.js.map",
+    "apps/api/dist/billing/dto",
+    "apps/api/dist/billing/dto/billing.dto.d.ts",
+    "apps/api/dist/billing/dto/billing.dto.js",
+    "apps/api/dist/billing/dto/billing.dto.js.map",
+    "apps/api/dist/bookings",
+    "apps/api/dist/bookings/bookings.controller.d.ts",
+    "apps/api/dist/bookings/bookings.controller.js",
+    "apps/api/dist/bookings/bookings.controller.js.map",
+    "apps/api/dist/bookings/bookings.module.d.ts",
+    "apps/api/dist/bookings/bookings.module.js",
+    "apps/api/dist/bookings/bookings.module.js.map",
+    "apps/api/dist/bookings/bookings.service.d.ts",
+    "apps/api/dist/bookings/bookings.service.js",
+    "apps/api/dist/bookings/bookings.service.js.map",
+    "apps/api/dist/bookings/dto",
+    "apps/api/dist/bookings/dto/create-booking.dto.d.ts",
+    "apps/api/dist/bookings/dto/create-booking.dto.js",
+    "apps/api/dist/bookings/dto/create-booking.dto.js.map",
+    "apps/api/dist/checklist",
+    "apps/api/dist/checklist/checklist.controller.d.ts",
+    "apps/api/dist/checklist/checklist.controller.js",
+    "apps/api/dist/checklist/checklist.controller.js.map",
+    "apps/api/dist/checklist/checklist.module.d.ts",
+    "apps/api/dist/checklist/checklist.module.js",
+    "apps/api/dist/checklist/checklist.module.js.map",
+    "apps/api/dist/checklist/checklist.service.d.ts",
+    "apps/api/dist/checklist/checklist.service.js",
+    "apps/api/dist/checklist/checklist.service.js.map",
+    "apps/api/dist/checklist/dto",
+    "apps/api/dist/checklist/dto/create-checklist.dto.d.ts",
+    "apps/api/dist/checklist/dto/create-checklist.dto.js",
+    "apps/api/dist/checklist/dto/create-checklist.dto.js.map",
+    "apps/api/dist/checklist/dto/execute-checklist.dto.d.ts",
+    "apps/api/dist/checklist/dto/execute-checklist.dto.js",
+    "apps/api/dist/checklist/dto/execute-checklist.dto.js.map",
+    "apps/api/dist/checklist/dto/resolve-execution.dto.d.ts",
+    "apps/api/dist/checklist/dto/resolve-execution.dto.js",
+    "apps/api/dist/checklist/dto/resolve-execution.dto.js.map",
+    "apps/api/dist/checklist/dto/update-checklist.dto.d.ts",
+    "apps/api/dist/checklist/dto/update-checklist.dto.js",
+    "apps/api/dist/checklist/dto/update-checklist.dto.js.map",
+    "apps/api/dist/commissions",
+    "apps/api/dist/commissions/commissions.controller.d.ts",
+    "apps/api/dist/commissions/commissions.controller.js",
+    "apps/api/dist/commissions/commissions.controller.js.map",
+    "apps/api/dist/commissions/commissions.module.d.ts",
+    "apps/api/dist/commissions/commissions.module.js",
+    "apps/api/dist/commissions/commissions.module.js.map",
+    "apps/api/dist/commissions/commissions.service.d.ts",
+    "apps/api/dist/commissions/commissions.service.js",
+    "apps/api/dist/commissions/commissions.service.js.map",
+    "apps/api/dist/commissions/dto",
+    "apps/api/dist/commissions/dto/commission.dto.d.ts",
+    "apps/api/dist/commissions/dto/commission.dto.js",
+    "apps/api/dist/commissions/dto/commission.dto.js.map",
+    "apps/api/dist/core",
+    "apps/api/dist/core/prisma",
+    "apps/api/dist/core/prisma/master-prisma.module.d.ts",
+    "apps/api/dist/core/prisma/master-prisma.module.js",
+    "apps/api/dist/core/prisma/master-prisma.module.js.map",
+    "apps/api/dist/core/prisma/master-prisma.service.d.ts",
+    "apps/api/dist/core/prisma/master-prisma.service.js",
+    "apps/api/dist/core/prisma/master-prisma.service.js.map",
+    "apps/api/dist/core/prisma/tenant-prisma.factory.d.ts",
+    "apps/api/dist/core/prisma/tenant-prisma.factory.js",
+    "apps/api/dist/core/prisma/tenant-prisma.factory.js.map",
+    "apps/api/dist/core/prisma/tenant-prisma.service.d.ts",
+    "apps/api/dist/core/prisma/tenant-prisma.service.js",
+    "apps/api/dist/core/prisma/tenant-prisma.service.js.map",
+    "apps/api/dist/daily-km",
+    "apps/api/dist/daily-km/daily-km.controller.d.ts",
+    "apps/api/dist/daily-km/daily-km.controller.js",
+    "apps/api/dist/daily-km/daily-km.controller.js.map",
+    "apps/api/dist/daily-km/daily-km.module.d.ts",
+    "apps/api/dist/daily-km/daily-km.module.js",
+    "apps/api/dist/daily-km/daily-km.module.js.map",
+    "apps/api/dist/daily-km/daily-km.service.d.ts",
+    "apps/api/dist/daily-km/daily-km.service.js",
+    "apps/api/dist/daily-km/daily-km.service.js.map",
+    "apps/api/dist/daily-km/dto",
+    "apps/api/dist/daily-km/dto/create-daily-km.dto.d.ts",
+    "apps/api/dist/daily-km/dto/create-daily-km.dto.js",
+    "apps/api/dist/daily-km/dto/create-daily-km.dto.js.map",
+    "apps/api/dist/drivers",
+    "apps/api/dist/drivers/drivers.controller.d.ts",
+    "apps/api/dist/drivers/drivers.controller.js",
+    "apps/api/dist/drivers/drivers.controller.js.map",
+    "apps/api/dist/drivers/drivers.module.d.ts",
+    "apps/api/dist/drivers/drivers.module.js",
+    "apps/api/dist/drivers/drivers.module.js.map",
+    "apps/api/dist/drivers/drivers.service.d.ts",
+    "apps/api/dist/drivers/drivers.service.js",
+    "apps/api/dist/drivers/drivers.service.js.map",
+    "apps/api/dist/drivers/dto",
+    "apps/api/dist/drivers/dto/create-driver-document.dto.d.ts",
+    "apps/api/dist/drivers/dto/create-driver-document.dto.js",
+    "apps/api/dist/drivers/dto/create-driver-document.dto.js.map",
+    "apps/api/dist/drivers/dto/create-driver.dto.d.ts",
+    "apps/api/dist/drivers/dto/create-driver.dto.js",
+    "apps/api/dist/drivers/dto/create-driver.dto.js.map",
+    "apps/api/dist/drivers/dto/update-driver.dto.d.ts",
+    "apps/api/dist/drivers/dto/update-driver.dto.js",
+    "apps/api/dist/drivers/dto/update-driver.dto.js.map",
+    "apps/api/dist/equipment",
+    "apps/api/dist/equipment/dto",
+    "apps/api/dist/equipment/dto/create-equipment.dto.d.ts",
+    "apps/api/dist/equipment/dto/create-equipment.dto.js",
+    "apps/api/dist/equipment/dto/create-equipment.dto.js.map",
+    "apps/api/dist/equipment/dto/create-usage-log.dto.d.ts",
+    "apps/api/dist/equipment/dto/create-usage-log.dto.js",
+    "apps/api/dist/equipment/dto/create-usage-log.dto.js.map",
+    "apps/api/dist/equipment/equipment.controller.d.ts",
+    "apps/api/dist/equipment/equipment.controller.js",
+    "apps/api/dist/equipment/equipment.controller.js.map",
+    "apps/api/dist/equipment/equipment.module.d.ts",
+    "apps/api/dist/equipment/equipment.module.js",
+    "apps/api/dist/equipment/equipment.module.js.map",
+    "apps/api/dist/equipment/equipment.service.d.ts",
+    "apps/api/dist/equipment/equipment.service.js",
+    "apps/api/dist/equipment/equipment.service.js.map",
+    "apps/api/dist/financial",
+    "apps/api/dist/financial/dto",
+    "apps/api/dist/financial/dto/financial.dto.d.ts",
+    "apps/api/dist/financial/dto/financial.dto.js",
+    "apps/api/dist/financial/dto/financial.dto.js.map",
+    "apps/api/dist/financial/financial.controller.d.ts",
+    "apps/api/dist/financial/financial.controller.js",
+    "apps/api/dist/financial/financial.controller.js.map",
+    "apps/api/dist/financial/financial.module.d.ts",
+    "apps/api/dist/financial/financial.module.js",
+    "apps/api/dist/financial/financial.module.js.map",
+    "apps/api/dist/financial/financial.service.d.ts",
+    "apps/api/dist/financial/financial.service.js",
+    "apps/api/dist/financial/financial.service.js.map",
+    "apps/api/dist/fleet",
+    "apps/api/dist/fleet/dto",
+    "apps/api/dist/fleet/dto/create-fuel-record.dto.d.ts",
+    "apps/api/dist/fleet/dto/create-fuel-record.dto.js",
+    "apps/api/dist/fleet/dto/create-fuel-record.dto.js.map",
+    "apps/api/dist/fleet/dto/create-maintenance.dto.d.ts",
+    "apps/api/dist/fleet/dto/create-maintenance.dto.js",
+    "apps/api/dist/fleet/dto/create-maintenance.dto.js.map",
+    "apps/api/dist/fleet/dto/create-oil-change.dto.d.ts",
+    "apps/api/dist/fleet/dto/create-oil-change.dto.js",
+    "apps/api/dist/fleet/dto/create-oil-change.dto.js.map",
+    "apps/api/dist/fleet/dto/create-vehicle.dto.d.ts",
+    "apps/api/dist/fleet/dto/create-vehicle.dto.js",
+    "apps/api/dist/fleet/dto/create-vehicle.dto.js.map",
+    "apps/api/dist/fleet/dto/update-vehicle.dto.d.ts",
+    "apps/api/dist/fleet/dto/update-vehicle.dto.js",
+    "apps/api/dist/fleet/dto/update-vehicle.dto.js.map",
+    "apps/api/dist/fleet/fleet.module.d.ts",
+    "apps/api/dist/fleet/fleet.module.js",
+    "apps/api/dist/fleet/fleet.module.js.map",
+    "apps/api/dist/fleet/fuel.controller.d.ts",
+    "apps/api/dist/fleet/fuel.controller.js",
+    "apps/api/dist/fleet/fuel.controller.js.map",
+    "apps/api/dist/fleet/fuel.service.d.ts",
+    "apps/api/dist/fleet/fuel.service.js",
+    "apps/api/dist/fleet/fuel.service.js.map",
+    "apps/api/dist/fleet/maintenance.controller.d.ts",
+    "apps/api/dist/fleet/maintenance.controller.js",
+    "apps/api/dist/fleet/maintenance.controller.js.map",
+    "apps/api/dist/fleet/maintenance.service.d.ts",
+    "apps/api/dist/fleet/maintenance.service.js",
+    "apps/api/dist/fleet/maintenance.service.js.map",
+    "apps/api/dist/fleet/oil-change.controller.d.ts",
+    "apps/api/dist/fleet/oil-change.controller.js",
+    "apps/api/dist/fleet/oil-change.controller.js.map",
+    "apps/api/dist/fleet/oil-change.service.d.ts",
+    "apps/api/dist/fleet/oil-change.service.js",
+    "apps/api/dist/fleet/oil-change.service.js.map",
+    "apps/api/dist/fleet/vehicles.controller.d.ts",
+    "apps/api/dist/fleet/vehicles.controller.js",
+    "apps/api/dist/fleet/vehicles.controller.js.map",
+    "apps/api/dist/fleet/vehicles.service.d.ts",
+    "apps/api/dist/fleet/vehicles.service.js",
+    "apps/api/dist/fleet/vehicles.service.js.map",
+    "apps/api/dist/main.d.ts",
+    "apps/api/dist/main.js",
+    "apps/api/dist/main.js.map",
+    "apps/api/dist/products",
+    "apps/api/dist/products/dto",
+    "apps/api/dist/products/dto/bom.dto.d.ts",
+    "apps/api/dist/products/dto/bom.dto.js",
+    "apps/api/dist/products/dto/bom.dto.js.map",
+    "apps/api/dist/products/dto/inventory.dto.d.ts",
+    "apps/api/dist/products/dto/inventory.dto.js",
+    "apps/api/dist/products/dto/inventory.dto.js.map",
+    "apps/api/dist/products/dto/product.dto.d.ts",
+    "apps/api/dist/products/dto/product.dto.js",
+    "apps/api/dist/products/dto/product.dto.js.map",
+    "apps/api/dist/products/dto/production.dto.d.ts",
+    "apps/api/dist/products/dto/production.dto.js",
+    "apps/api/dist/products/dto/production.dto.js.map",
+    "apps/api/dist/products/dto/sale.dto.d.ts",
+    "apps/api/dist/products/dto/sale.dto.js",
+    "apps/api/dist/products/dto/sale.dto.js.map",
+    "apps/api/dist/products/inventory.controller.d.ts",
+    "apps/api/dist/products/inventory.controller.js",
+    "apps/api/dist/products/inventory.controller.js.map",
+    "apps/api/dist/products/inventory.service.d.ts",
+    "apps/api/dist/products/inventory.service.js",
+    "apps/api/dist/products/inventory.service.js.map",
+    "apps/api/dist/products/production.controller.d.ts",
+    "apps/api/dist/products/production.controller.js",
+    "apps/api/dist/products/production.controller.js.map",
+    "apps/api/dist/products/production.service.d.ts",
+    "apps/api/dist/products/production.service.js",
+    "apps/api/dist/products/production.service.js.map",
+    "apps/api/dist/products/products.controller.d.ts",
+    "apps/api/dist/products/products.controller.js",
+    "apps/api/dist/products/products.controller.js.map",
+    "apps/api/dist/products/products.module.d.ts",
+    "apps/api/dist/products/products.module.js",
+    "apps/api/dist/products/products.module.js.map",
+    "apps/api/dist/products/products.service.d.ts",
+    "apps/api/dist/products/products.service.js",
+    "apps/api/dist/products/products.service.js.map",
+    "apps/api/dist/products/sales.controller.d.ts",
+    "apps/api/dist/products/sales.controller.js",
+    "apps/api/dist/products/sales.controller.js.map",
+    "apps/api/dist/products/sales.service.d.ts",
+    "apps/api/dist/products/sales.service.js",
+    "apps/api/dist/products/sales.service.js.map",
+    "apps/api/dist/purchases",
+    "apps/api/dist/purchases/dto",
+    "apps/api/dist/purchases/dto/purchase.dto.d.ts",
+    "apps/api/dist/purchases/dto/purchase.dto.js",
+    "apps/api/dist/purchases/dto/purchase.dto.js.map",
+    "apps/api/dist/purchases/purchases.controller.d.ts",
+    "apps/api/dist/purchases/purchases.controller.js",
+    "apps/api/dist/purchases/purchases.controller.js.map",
+    "apps/api/dist/purchases/purchases.module.d.ts",
+    "apps/api/dist/purchases/purchases.module.js",
+    "apps/api/dist/purchases/purchases.module.js.map",
+    "apps/api/dist/purchases/purchases.service.d.ts",
+    "apps/api/dist/purchases/purchases.service.js",
+    "apps/api/dist/purchases/purchases.service.js.map",
+    "apps/api/dist/reports",
+    "apps/api/dist/reports/export.service.d.ts",
+    "apps/api/dist/reports/export.service.js",
+    "apps/api/dist/reports/export.service.js.map",
+    "apps/api/dist/reports/reports.controller.d.ts",
+    "apps/api/dist/reports/reports.controller.js",
+    "apps/api/dist/reports/reports.controller.js.map",
+    "apps/api/dist/reports/reports.module.d.ts",
+    "apps/api/dist/reports/reports.module.js",
+    "apps/api/dist/reports/reports.module.js.map",
+    "apps/api/dist/reports/reports.processor.d.ts",
+    "apps/api/dist/reports/reports.processor.js",
+    "apps/api/dist/reports/reports.processor.js.map",
+    "apps/api/dist/reports/reports.service.d.ts",
+    "apps/api/dist/reports/reports.service.js",
+    "apps/api/dist/reports/reports.service.js.map",
+    "apps/api/dist/routes",
+    "apps/api/dist/routes/dto",
+    "apps/api/dist/routes/dto/add-delivery-proof.dto.d.ts",
+    "apps/api/dist/routes/dto/add-delivery-proof.dto.js",
+    "apps/api/dist/routes/dto/add-delivery-proof.dto.js.map",
+    "apps/api/dist/routes/dto/create-route.dto.d.ts",
+    "apps/api/dist/routes/dto/create-route.dto.js",
+    "apps/api/dist/routes/dto/create-route.dto.js.map",
+    "apps/api/dist/routes/dto/update-stop-status.dto.d.ts",
+    "apps/api/dist/routes/dto/update-stop-status.dto.js",
+    "apps/api/dist/routes/dto/update-stop-status.dto.js.map",
+    "apps/api/dist/routes/routes.controller.d.ts",
+    "apps/api/dist/routes/routes.controller.js",
+    "apps/api/dist/routes/routes.controller.js.map",
+    "apps/api/dist/routes/routes.module.d.ts",
+    "apps/api/dist/routes/routes.module.js",
+    "apps/api/dist/routes/routes.module.js.map",
+    "apps/api/dist/routes/routes.service.d.ts",
+    "apps/api/dist/routes/routes.service.js",
+    "apps/api/dist/routes/routes.service.js.map",
+    "apps/api/dist/sellers",
+    "apps/api/dist/sellers/dto",
+    "apps/api/dist/sellers/dto/seller.dto.d.ts",
+    "apps/api/dist/sellers/dto/seller.dto.js",
+    "apps/api/dist/sellers/dto/seller.dto.js.map",
+    "apps/api/dist/sellers/sellers.controller.d.ts",
+    "apps/api/dist/sellers/sellers.controller.js",
+    "apps/api/dist/sellers/sellers.controller.js.map",
+    "apps/api/dist/sellers/sellers.module.d.ts",
+    "apps/api/dist/sellers/sellers.module.js",
+    "apps/api/dist/sellers/sellers.module.js.map",
+    "apps/api/dist/sellers/sellers.service.d.ts",
+    "apps/api/dist/sellers/sellers.service.js",
+    "apps/api/dist/sellers/sellers.service.js.map",
+    "apps/api/dist/suppliers",
+    "apps/api/dist/suppliers/dto",
+    "apps/api/dist/suppliers/dto/supplier.dto.d.ts",
+    "apps/api/dist/suppliers/dto/supplier.dto.js",
+    "apps/api/dist/suppliers/dto/supplier.dto.js.map",
+    "apps/api/dist/suppliers/suppliers.controller.d.ts",
+    "apps/api/dist/suppliers/suppliers.controller.js",
+    "apps/api/dist/suppliers/suppliers.controller.js.map",
+    "apps/api/dist/suppliers/suppliers.module.d.ts",
+    "apps/api/dist/suppliers/suppliers.module.js",
+    "apps/api/dist/suppliers/suppliers.module.js.map",
+    "apps/api/dist/suppliers/suppliers.service.d.ts",
+    "apps/api/dist/suppliers/suppliers.service.js",
+    "apps/api/dist/suppliers/suppliers.service.js.map",
+    "apps/api/dist/taxes",
+    "apps/api/dist/taxes/dto",
+    "apps/api/dist/taxes/dto/create-vehicle-tax.dto.d.ts",
+    "apps/api/dist/taxes/dto/create-vehicle-tax.dto.js",
+    "apps/api/dist/taxes/dto/create-vehicle-tax.dto.js.map",
+    "apps/api/dist/taxes/taxes.controller.d.ts",
+    "apps/api/dist/taxes/taxes.controller.js",
+    "apps/api/dist/taxes/taxes.controller.js.map",
+    "apps/api/dist/taxes/taxes.module.d.ts",
+    "apps/api/dist/taxes/taxes.module.js",
+    "apps/api/dist/taxes/taxes.module.js.map",
+    "apps/api/dist/taxes/taxes.service.d.ts",
+    "apps/api/dist/taxes/taxes.service.js",
+    "apps/api/dist/taxes/taxes.service.js.map",
+    "apps/api/dist/tenant",
+    "apps/api/dist/tenant/dto",
+    "apps/api/dist/tenant/dto/create-company.dto.d.ts",
+    "apps/api/dist/tenant/dto/create-company.dto.js",
+    "apps/api/dist/tenant/dto/create-company.dto.js.map",
+    "apps/api/dist/tenant/tenant.controller.d.ts",
+    "apps/api/dist/tenant/tenant.controller.js",
+    "apps/api/dist/tenant/tenant.controller.js.map",
+    "apps/api/dist/tenant/tenant.decorator.d.ts",
+    "apps/api/dist/tenant/tenant.decorator.js",
+    "apps/api/dist/tenant/tenant.decorator.js.map",
+    "apps/api/dist/tenant/tenant.middleware.d.ts",
+    "apps/api/dist/tenant/tenant.middleware.js",
+    "apps/api/dist/tenant/tenant.middleware.js.map",
+    "apps/api/dist/tenant/tenant.module.d.ts",
+    "apps/api/dist/tenant/tenant.module.js",
+    "apps/api/dist/tenant/tenant.module.js.map",
+    "apps/api/dist/tenant/tenant.service.d.ts",
+    "apps/api/dist/tenant/tenant.service.js",
+    "apps/api/dist/tenant/tenant.service.js.map",
+    "apps/api/dist/users",
+    "apps/api/dist/users/dto",
+    "apps/api/dist/users/dto/create-user.dto.d.ts",
+    "apps/api/dist/users/dto/create-user.dto.js",
+    "apps/api/dist/users/dto/create-user.dto.js.map",
+    "apps/api/dist/users/dto/update-profile.dto.d.ts",
+    "apps/api/dist/users/dto/update-profile.dto.js",
+    "apps/api/dist/users/dto/update-profile.dto.js.map",
+    "apps/api/dist/users/dto/update-user-role.dto.d.ts",
+    "apps/api/dist/users/dto/update-user-role.dto.js",
+    "apps/api/dist/users/dto/update-user-role.dto.js.map",
+    "apps/api/dist/users/users.controller.d.ts",
+    "apps/api/dist/users/users.controller.js",
+    "apps/api/dist/users/users.controller.js.map",
+    "apps/api/dist/users/users.module.d.ts",
+    "apps/api/dist/users/users.module.js",
+    "apps/api/dist/users/users.module.js.map",
+    "apps/api/dist/users/users.service.d.ts",
+    "apps/api/dist/users/users.service.js",
+    "apps/api/dist/users/users.service.js.map"
+  ]
+}

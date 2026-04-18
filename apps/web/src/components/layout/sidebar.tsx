@@ -46,6 +46,41 @@ const navGroups: { label?: string; items: NavItem[] }[] = [
     items: [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }],
   },
   {
+    label: "Comercial",
+    items: [
+      {
+        label: "Produtos",
+        href: "/products",
+        icon: Package,
+        feature: "products",
+      },
+      {
+        label: "Vendas",
+        href: "/sales",
+        icon: ShoppingCart,
+        feature: "products",
+      },
+      {
+        label: "Compras",
+        href: "/purchases",
+        icon: ShoppingBag,
+        feature: "products",
+      },
+      {
+        label: "Fornecedores",
+        href: "/suppliers",
+        icon: Factory,
+        feature: "products",
+      },
+      {
+        label: "Clientes",
+        href: "/clients",
+        icon: UserCheck,
+        feature: "products",
+      },
+    ],
+  },
+  {
     label: "Operações",
     items: [
       { label: "Frota", href: "/fleet", icon: Truck, feature: "fleet" },
@@ -90,29 +125,6 @@ const navGroups: { label?: string; items: NavItem[] }[] = [
         href: "/fiscal",
         icon: Receipt,
         feature: "fiscal",
-      },
-    ],
-  },
-  {
-    label: "Comercial",
-    items: [
-      {
-        label: "Vendas",
-        href: "/sales",
-        icon: ShoppingCart,
-        feature: "products",
-      },
-      {
-        label: "Compras",
-        href: "/purchases",
-        icon: ShoppingBag,
-        feature: "products",
-      },
-      {
-        label: "Fornecedores",
-        href: "/suppliers",
-        icon: Factory,
-        feature: "products",
       },
     ],
   },

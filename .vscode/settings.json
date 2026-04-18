@@ -14,6 +14,8 @@
     "docker run": true,
     "ss": true,
     "systemctl": true,
-    "true": true
+    "true": true,
+    "git config": true,
+    "printf": true
   }
 }

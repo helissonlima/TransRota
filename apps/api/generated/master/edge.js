@@ -373,7 +373,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/helisson/Desktop/Projetos/TransRota/apps/api/generated/master",
+      "value": "/home/helisson/Área de trabalho/Projetos/TransRota/apps/api/generated/master",
       "fromEnvVar": null
     },
     "config": {
@@ -382,19 +382,18 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [
       "multiSchema"
     ],
-    "sourceFilePath": "/Users/helisson/Desktop/Projetos/TransRota/apps/api/prisma/master.prisma",
+    "sourceFilePath": "/home/helisson/Área de trabalho/Projetos/TransRota/apps/api/prisma/master.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../prisma",
   "clientVersion": "5.22.0",
@@ -403,6 +402,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

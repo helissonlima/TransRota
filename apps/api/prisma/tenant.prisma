@@ -846,6 +846,8 @@ model Product {
   bomComponents   BOMItem[]        @relation("ComponentProduct")
   productionOrders ProductionOrder[]
   saleOrderItems  SaleOrderItem[]
+  supplierProducts SupplierProduct[]
+  purchaseOrderItems PurchaseOrderItem[]
 
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -942,23 +944,165 @@ model ProductionOrderItem {
   consumedQty       Decimal         @default(0) @db.Decimal(12, 3)
 }
 
-model SaleOrder {
-  id            String          @id @default(uuid())
-  number        String          @unique
-  clientName    String
-  clientDoc     String?         // CPF ou CNPJ
-  clientEmail   String?
-  clientPhone   String?
-  status        SaleOrderStatus @default(DRAFT)
-  subtotal      Decimal         @default(0) @db.Decimal(12, 2)
-  discount      Decimal         @default(0) @db.Decimal(12, 2)
-  total         Decimal         @default(0) @db.Decimal(12, 2)
+// ─── Vendedores ───────────────────────────────────────────────────────────────
+
+model Seller {
+  id         String      @id @default(uuid())
+  name       String      @unique
+  email      String?
+  phone      String?
+  cpf        String?
+  commission Decimal     @default(0) @db.Decimal(5, 2) // percentual
+  isActive   Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  saleOrders SaleOrder[]
+}
+
+model Client {
+  id          String      @id @default(uuid())
+  name        String
+  doc         String?
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  notes       String?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  saleOrders  SaleOrder[]
+
+  @@index([name])
+  @@index([doc])
+}
+
+// ─── Fornecedores ─────────────────────────────────────────────────────────────
+
+model Supplier {
+  id           String            @id @default(uuid())
+  name         String            @unique
+  tradeName    String?
+  cnpj         String?
+  cpf          String?
+  email        String?
+  phone        String?
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?
+  notes        String?
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  products      SupplierProduct[]
+  purchaseOrders PurchaseOrder[]
+  saleOrders    SaleOrder[]
+}
+
+model SupplierProduct {
+  id           String   @id @default(uuid())
+  supplierId   String
+  supplier     Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id])
+  supplierSku  String?
+  lastPrice    Decimal? @db.Decimal(12, 2)
+  leadTimeDays Int?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([supplierId, productId])
+}
+
+// ─── Pedidos de Compra ────────────────────────────────────────────────────────
+
+model PurchaseOrder {
+  id            String              @id @default(uuid())
+  number        String              @unique
+  supplierId    String
+  supplier      Supplier            @relation(fields: [supplierId], references: [id])
+  status        PurchaseOrderStatus @default(DRAFT)
+  isPriceLocked Boolean             @default(false)
+  isSafra       Boolean             @default(false)
+  safra         String?
+  subtotal      Decimal             @default(0) @db.Decimal(12, 2)
+  discount      Decimal             @default(0) @db.Decimal(12, 2)
+  total         Decimal             @default(0) @db.Decimal(12, 2)
   notes         String?
   dueDate       DateTime?
-  deliveredAt   DateTime?
-  items         SaleOrderItem[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  receivedAt    DateTime?
+  invoiceNumber String?
+  items         PurchaseOrderItem[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+}
+
+model PurchaseOrderItem {
+  id               String        @id @default(uuid())
+  purchaseOrderId  String
+  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product       @relation(fields: [productId], references: [id])
+  quantity         Decimal       @db.Decimal(12, 3)
+  receivedQty      Decimal       @default(0) @db.Decimal(12, 3)
+  unitPrice        Decimal       @db.Decimal(12, 2)
+  discount         Decimal       @default(0) @db.Decimal(12, 2)
+  total            Decimal       @db.Decimal(12, 2)
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  CONFIRMED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+// ─── Pedidos de Venda ─────────────────────────────────────────────────────────
+
+model SaleOrder {
+  id              String              @id @default(uuid())
+  number          String              @unique
+  clientId        String?
+  client          Client?             @relation(fields: [clientId], references: [id])
+  clientName      String
+  clientDoc       String?
+  clientEmail     String?
+  clientPhone     String?
+  clientAddress   String?
+  sellerId        String?
+  seller          Seller?             @relation(fields: [sellerId], references: [id])
+  supplierId      String?
+  supplier        Supplier?           @relation(fields: [supplierId], references: [id])
+  status          SaleOrderStatus     @default(DRAFT)
+  deliveryStatus  DeliveryStatus?
+  isPriceLocked   Boolean             @default(false)
+  isSafra         Boolean             @default(false)
+  safra           String?
+  invoiceNumber   String?
+  paymentMethod   String?
+  subtotal        Decimal             @default(0) @db.Decimal(12, 2)
+  discount        Decimal             @default(0) @db.Decimal(12, 2)
+  total           Decimal             @default(0) @db.Decimal(12, 2)
+  notes           String?
+  dueDate         DateTime?
+  deliveredAt     DateTime?
+  items           SaleOrderItem[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+enum DeliveryStatus {
+  PENDING
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
 }
 
 model SaleOrderItem {
