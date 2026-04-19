@@ -19,8 +19,10 @@ function run(command, args, options = {}) {
 
 function ensureApiContainerReady(maxAttempts = 30, intervalMs = 2000) {
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    const result = run('node', ['scripts/prod-compose.js', 'ps', '--status', 'running', 'api']);
-    if (result.status === 0 && /api\s+running/i.test(result.stdout + result.stderr)) {
+    // Tenta exec simples — se o container estiver up e com shell, retorna 0
+    const result = run('node', ['scripts/prod-compose.js', 'exec', '-T', 'api', 'echo', 'alive']);
+    const output = (result.stdout || '') + (result.stderr || '');
+    if (result.status === 0 && /alive/i.test(output)) {
       return true;
     }
 
