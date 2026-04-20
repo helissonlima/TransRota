@@ -126,7 +126,7 @@ export function DataTable<T>({
             <thead>
               <tr
                 className={cn(
-                  "border-b border-brand-border bg-slate-50/80",
+                  "border-b border-brand-border/50 bg-slate-50/50 backdrop-blur-sm",
                   stickyHeader && "sticky top-0 z-10",
                 )}
               >
@@ -159,7 +159,7 @@ export function DataTable<T>({
               ) : sorted.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length}>
-                    <div className="flex flex-col items-center justify-center py-16 text-brand-text-secondary">
+                    <div className="flex flex-col items-center justify-center py-16 text-brand-text-secondary border-2 border-dashed border-brand-border/60 rounded-xl m-4 bg-slate-50/30">
                       <EmptyIcon className="w-10 h-10 mb-3 opacity-30" />
                       <p className="font-medium text-sm">{emptyTitle}</p>
                       {emptyDescription && (
@@ -175,10 +175,10 @@ export function DataTable<T>({
                   <motion.tr
                     key={rowKey ? rowKey(row) : idx}
                     className={cn(
-                      "border-b border-brand-border/40 transition-colors",
+                      "border-b border-brand-border/40 transition-all duration-200",
                       onRowClick
-                        ? "cursor-pointer hover:bg-primary-50/50"
-                        : "cursor-pointer hover:bg-slate-50/70",
+                        ? "cursor-pointer hover:bg-primary-50/40 hover:shadow-[inset_3px_0_0_0_#4f46e5]"
+                        : "cursor-pointer hover:bg-slate-50/60",
                     )}
                     initial={{ opacity: 0, x: -4 }}
                     animate={{ opacity: 1, x: 0 }}

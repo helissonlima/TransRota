@@ -118,7 +118,7 @@ export function Header({
   }, []);
 
   return (
-    <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-brand-border grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center px-4 md:px-6 py-3 md:py-0 md:h-16 gap-3 md:gap-4">
+    <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-brand-border/40 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center px-4 md:px-6 py-3 md:py-0 md:h-16 gap-3 md:gap-4">
       {/* Left: title + breadcrumbs */}
       <div className="flex items-center gap-3 min-w-0">
         {breadcrumbLinks.length > 0 ? (
@@ -197,7 +197,7 @@ export function Header({
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder={searchPlaceholder}
-            className="w-40 sm:w-56 h-9 pl-9 pr-8 bg-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-300 focus:bg-white transition-all"
+            className="w-40 sm:w-56 h-9 pl-9 pr-8 bg-slate-100/80 hover:bg-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-500/30 focus:bg-white transition-all duration-300"
           />
           {searchValue && (
             <button

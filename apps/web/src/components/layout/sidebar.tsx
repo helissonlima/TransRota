@@ -227,7 +227,7 @@ export function Sidebar({
           "bg-primary-600 text-white shadow-glow-sm",
           "flex items-center justify-center",
           "hover:bg-primary-700 transition-colors",
-          "border-2 border-sidebar",
+          "border-[3px] border-slate-50",
         )}
         aria-label={collapsed ? "Expandir sidebar" : "Recolher sidebar"}
       >
