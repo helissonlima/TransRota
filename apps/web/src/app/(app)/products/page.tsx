@@ -30,6 +30,7 @@ import api from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { Header } from "@/components/layout/header";
 import { EmptyStateCard } from "@/components/ui/state-feedback";
+import { DetailPanel } from "@/components/ui/detail-panel";
 
 // ───────────────────────────────────────────────────────────────
 // Types
@@ -1258,6 +1259,87 @@ export default function ProductsPage() {
       </main>
 
       {/* ──────────── MODALS ──────────── */}
+
+      {/* Product Detail Subtela */}
+      <DetailPanel
+        open={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        title={selectedProduct?.name ?? ""}
+        subtitle={selectedProduct?.sku}
+        width="md"
+        badges={
+          selectedProduct
+            ? [{ label: TYPE_LABEL[selectedProduct.type], variant: "info" }]
+            : []
+        }
+      >
+        {selectedProduct && (
+          <>
+            <DetailPanel.Section title="Informações Base">
+              <DetailPanel.Grid>
+                <DetailPanel.Field
+                  label="Tipo"
+                  value={TYPE_LABEL[selectedProduct.type]}
+                />
+                <DetailPanel.Field
+                  label="Unidade"
+                  value={selectedProduct.unit}
+                />
+              </DetailPanel.Grid>
+            </DetailPanel.Section>
+
+            <DetailPanel.Section title="Precificação">
+              <DetailPanel.Grid>
+                <DetailPanel.Field
+                  label="Custo"
+                  value={Number(selectedProduct.costPrice).toLocaleString(
+                    "pt-BR",
+                    { style: "currency", currency: "BRL" },
+                  )}
+                />
+                <DetailPanel.Field
+                  label="Venda"
+                  value={Number(selectedProduct.salePrice).toLocaleString(
+                    "pt-BR",
+                    { style: "currency", currency: "BRL" },
+                  )}
+                />
+              </DetailPanel.Grid>
+            </DetailPanel.Section>
+
+            {selectedProduct.type !== "SERVICE" && (
+              <DetailPanel.Section
+                title="Estoque"
+                noPadding
+                className="mt-4 border-t-0"
+              >
+                <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 mx-5 mb-5">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-slate-700">
+                      Quantidade Atual
+                    </span>
+                    <span className="text-lg font-bold text-slate-900">
+                      {totalQty(selectedProduct).toLocaleString("pt-BR")}{" "}
+                      {selectedProduct.unit}
+                    </span>
+                  </div>
+                  {selectedProduct.minStock !== undefined && (
+                    <div className="flex justify-between items-center text-xs text-slate-500 mt-2">
+                      <span>Estoque Mínimo</span>
+                      <span>
+                        {Number(selectedProduct.minStock).toLocaleString(
+                          "pt-BR",
+                        )}{" "}
+                        {selectedProduct.unit}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </DetailPanel.Section>
+            )}
+          </>
+        )}
+      </DetailPanel>
 
       {/* Product Modal */}
       <AnimatePresence>

@@ -10,8 +10,8 @@ import { cn } from "@/lib/cn";
 // DETAIL PANEL — Sistema global de visualização de detalhes
 //
 // Uso: Qualquer página que precisa mostrar detalhes de um item selecionado
-// pode usar este componente. Ele renderiza um painel lateral elegante com
-// animação slide-in que substitui modais e side drawers inconsistentes.
+// pode usar este componente. Ele renderiza uma subtela centralizada (Modal)
+// elegante com animação de zoom-in para manter o foco no contexto.
 //
 // Exemplo:
 //   <DetailPanel
@@ -76,16 +76,18 @@ const backdropVariants = {
 };
 
 const panelVariants = {
-  hidden: { x: "100%", opacity: 0 },
+  hidden: { opacity: 0, scale: 0.95, y: 16 },
   visible: {
-    x: 0,
     opacity: 1,
-    transition: { type: "spring" as const, damping: 30, stiffness: 300 },
+    scale: 1,
+    y: 0,
+    transition: { type: "spring", damping: 28, stiffness: 380 },
   },
   exit: {
-    x: "100%",
     opacity: 0,
-    transition: { duration: 0.2, ease: "easeIn" },
+    scale: 0.95,
+    y: -10,
+    transition: { duration: 0.18 },
   },
 };
 
@@ -142,7 +144,7 @@ function DetailPanelRoot({
             {/* Backdrop */}
             <Dialog.Overlay asChild>
               <motion.div
-                className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]"
+                className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
                 variants={backdropVariants}
                 initial="hidden"
                 animate="visible"
@@ -151,13 +153,13 @@ function DetailPanelRoot({
               />
             </Dialog.Overlay>
 
-            {/* Slide-over right */}
+            {/* Centered Modal (Subtela) */}
             <Dialog.Content asChild>
-              <div className="fixed inset-y-0 right-0 z-50 flex max-w-full pl-10">
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto pointer-events-none">
                 <motion.div
                   className={cn(
-                    "w-screen bg-white shadow-2xl flex flex-col",
-                    "h-full overflow-hidden border-l border-slate-200",
+                    "w-full bg-white shadow-modal flex flex-col rounded-2xl pointer-events-auto",
+                    "max-h-[90vh] overflow-hidden border border-brand-border/60",
                     sizeMaxWidth[width] ?? "max-w-2xl",
                     className,
                   )}
