@@ -16,6 +16,7 @@
     "prod:secrets": "node scripts/generate-prod-secrets.js",
     "prod:init-db": "node scripts/prod-init-db.js",
     "prod:up": "npm run prod:secrets && node scripts/prod-compose.js up -d --build && npm run prod:init-db",
+    "prod:deploy": "node scripts/prod-deploy.js",
     "prod:down": "node scripts/prod-compose.js down",
     "dev": "npm run infra && turbo run dev",
     "dev:api": "turbo run dev --filter=@transrota/api",
