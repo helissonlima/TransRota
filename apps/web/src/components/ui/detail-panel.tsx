@@ -76,18 +76,16 @@ const backdropVariants = {
 };
 
 const panelVariants = {
-  hidden: { opacity: 0, scale: 0.95, y: 24 },
+  hidden: { x: "100%", opacity: 0 },
   visible: {
+    x: 0,
     opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { type: "spring" as const, damping: 26, stiffness: 360 },
+    transition: { type: "spring" as const, damping: 30, stiffness: 300 },
   },
   exit: {
+    x: "100%",
     opacity: 0,
-    scale: 0.95,
-    y: 16,
-    transition: { duration: 0.18 },
+    transition: { duration: 0.2, ease: "easeIn" },
   },
 };
 
@@ -153,13 +151,13 @@ function DetailPanelRoot({
               />
             </Dialog.Overlay>
 
-            {/* Modal centered */}
+            {/* Slide-over right */}
             <Dialog.Content asChild>
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+              <div className="fixed inset-y-0 right-0 z-50 flex max-w-full pl-10">
                 <motion.div
                   className={cn(
-                    "w-full bg-white rounded-2xl shadow-2xl flex flex-col",
-                    "max-h-[90vh] overflow-hidden",
+                    "w-screen bg-white shadow-2xl flex flex-col",
+                    "h-full overflow-hidden border-l border-slate-200",
                     sizeMaxWidth[width] ?? "max-w-2xl",
                     className,
                   )}

@@ -5,13 +5,25 @@ import { ConfigService } from "@nestjs/config";
 import helmet from "helmet";
 import { Logger } from "nestjs-pino";
 import * as Sentry from "@sentry/node";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
+  const integrations: any[] = [];
+
+  try {
+    const profiling = require("@sentry/profiling-node") as {
+      nodeProfilingIntegration: () => unknown;
+    };
+    integrations.push(profiling.nodeProfilingIntegration());
+  } catch {
+    console.warn(
+      "Sentry profiling desabilitado: binario nativo nao compativel com a versao atual do Node.",
+    );
+  }
+
   Sentry.init({
     dsn: process.env.SENTRY_DSN || "",
-    integrations: [nodeProfilingIntegration()],
+    integrations,
     tracesSampleRate: 1.0,
     profilesSampleRate: 1.0,
   });

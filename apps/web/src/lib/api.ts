@@ -45,7 +45,14 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config;
-    if (error.response?.status === 401 && !original._retry) {
+    const requestUrl = String(original?.url ?? "");
+    const isAuthRoute =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/refresh") ||
+      requestUrl.includes("/admin/auth/login") ||
+      requestUrl.includes("/admin/auth/refresh");
+
+    if (error.response?.status === 401 && !original._retry && !isAuthRoute) {
       original._retry = true;
       try {
         const userId = localStorage.getItem("userId");

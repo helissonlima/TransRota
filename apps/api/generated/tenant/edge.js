@@ -1062,7 +1062,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/helisson/Área de trabalho/Projetos/TransRota/apps/api/generated/tenant",
+      "value": "/Users/helisson/Desktop/Projetos/TransRota/apps/api/generated/tenant",
       "fromEnvVar": null
     },
     "config": {
@@ -1071,16 +1071,17 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/helisson/Área de trabalho/Projetos/TransRota/apps/api/prisma/tenant.prisma",
+    "sourceFilePath": "/Users/helisson/Desktop/Projetos/TransRota/apps/api/prisma/tenant.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
   "clientVersion": "5.22.0",
