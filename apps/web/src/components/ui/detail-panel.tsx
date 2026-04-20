@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { X, Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -70,18 +70,18 @@ const sizeMaxWidth: Record<string, string> = {
   full: "max-w-5xl",
 };
 
-const backdropVariants = {
+const backdropVariants: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
 };
 
-const panelVariants = {
+const panelVariants: Variants = {
   hidden: { opacity: 0, scale: 0.95, y: 16 },
   visible: {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { type: "spring", damping: 28, stiffness: 380 },
+    transition: { type: "spring" as const, damping: 28, stiffness: 380 },
   },
   exit: {
     opacity: 0,
